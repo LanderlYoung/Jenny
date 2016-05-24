@@ -3,6 +3,9 @@
 *.iml
 .idea
 out
+build
+gradle.propertied
+local.propertied
 
 #MAC OS X
 .DS_Store

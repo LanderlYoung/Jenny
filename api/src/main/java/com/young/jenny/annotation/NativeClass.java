@@ -24,12 +24,12 @@ public @interface NativeClass {
     /**
      * 32bit architecture
      */
-    public static final int ARCH_32 = -1;
+    int ARCH_32 = -1;
 
     /**
      * 64bit architecture
      */
-    public static final int ARCH_64 = -2;
+    int ARCH_64 = -2;
 
     /**
      * target machine architecture,

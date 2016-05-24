@@ -1,7 +1,7 @@
 package com.young.jennysampleapp;
 
 import com.young.jenny.annotation.NativeClass;
-import com.young.jenny.annotation.NativeMethod;
+import com.young.jenny.annotation.NativeCode;
 
 /**
  * Author: taylorcyang@tencent.com
@@ -11,11 +11,18 @@ import com.young.jenny.annotation.NativeMethod;
  */
 @NativeClass
 public class ComputeIntensiveClass {
+    public static final String LOG_TAG = "ComputeIntensiveClass";
 
-    @NativeMethod("return a + b;")
+    public static final String KEY_WHERE_ARE_YOUT_FROM = "where_are_you_from";
+
+    public static final int IDEL = -1;
+    public static final int BUSY = 1;
+
+    @NativeCode("return a + b;")
     public native int addInNative(int a, int b);
 
-    @NativeMethod
+    //apply NativeCode annotation to non-native method will raise an error
+    //@NativeCode
     public void hello() {
 
     }

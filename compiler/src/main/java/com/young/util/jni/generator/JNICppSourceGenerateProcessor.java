@@ -1,20 +1,23 @@
 package com.young.util.jni.generator;
 
+import com.google.auto.service.AutoService;
 import com.young.jenny.annotation.NativeClass;
-import com.young.jenny.annotation.NativeMethod;
+import com.young.jenny.annotation.NativeCode;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Author: LanderlYoung
@@ -22,7 +25,7 @@ import java.util.TreeSet;
  * Time:   19:42
  * Life with passion. Code with creativity!
  */
-
+@AutoService(Processor.class)
 public class JNICppSourceGenerateProcessor extends AbstractProcessor {
     private Messager mMessager;
     private Types mTypeUtils;
@@ -32,9 +35,9 @@ public class JNICppSourceGenerateProcessor extends AbstractProcessor {
     private static final Set<String> SUPPORTED_ANNOTATIONS;
 
     static {
-        SUPPORTED_ANNOTATIONS = new TreeSet<>();
+        SUPPORTED_ANNOTATIONS = new HashSet<>();
         SUPPORTED_ANNOTATIONS.add(NativeClass.class.getName());
-        SUPPORTED_ANNOTATIONS.add(NativeMethod.class.getName());
+        SUPPORTED_ANNOTATIONS.add(NativeCode.class.getName());
     }
 
     public JNICppSourceGenerateProcessor() {

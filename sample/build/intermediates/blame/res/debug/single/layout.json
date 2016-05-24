@@ -32,12 +32,12 @@
         "source": "/Users/young/Documents/github/Jenny/sample/build/intermediates/exploded-aar/com.android.support/design/23.4.0/res/layout/design_navigation_item_subheader.xml"
     },
     {
-        "merged": "/Users/young/Documents/github/Jenny/sample/build/intermediates/res/merged/debug/layout/design_layout_tab_text.xml",
-        "source": "/Users/young/Documents/github/Jenny/sample/build/intermediates/exploded-aar/com.android.support/design/23.4.0/res/layout/design_layout_tab_text.xml"
-    },
-    {
         "merged": "/Users/young/Documents/github/Jenny/sample/build/intermediates/res/merged/debug/layout/design_layout_snackbar_include.xml",
         "source": "/Users/young/Documents/github/Jenny/sample/build/intermediates/exploded-aar/com.android.support/design/23.4.0/res/layout/design_layout_snackbar_include.xml"
+    },
+    {
+        "merged": "/Users/young/Documents/github/Jenny/sample/build/intermediates/res/merged/debug/layout/design_layout_tab_text.xml",
+        "source": "/Users/young/Documents/github/Jenny/sample/build/intermediates/exploded-aar/com.android.support/design/23.4.0/res/layout/design_layout_tab_text.xml"
     },
     {
         "merged": "/Users/young/Documents/github/Jenny/sample/build/intermediates/res/merged/debug/layout/abc_list_menu_item_layout.xml",
