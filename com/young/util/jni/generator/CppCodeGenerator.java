@@ -51,11 +51,10 @@ public class CppCodeGenerator implements Runnable {
     //XXXX support for pure c code
     //DONE file output
 
-    public CppCodeGenerator(Environment env,
-            TypeElement clazz) {
+    public CppCodeGenerator(Environment env, TypeElement clazz) {
         mEnv = env;
         mClazz = clazz;
-        mMethods = new LinkedList<Element>();
+        mMethods = new LinkedList<>();
         mHelper = new HandyHelper(env);
     }
 
@@ -131,7 +130,7 @@ public class CppCodeGenerator implements Runnable {
             w.println("#define " + defineSwitch);
             w.println();
             w.println("#include <jni.h>");
-            generateConstantsDefination(w);
+            generateConstantsDefinition(w);
             writeFunctions(w, false);
 
             writeNativeRegistrationFunc(w, false);
@@ -167,7 +166,7 @@ public class CppCodeGenerator implements Runnable {
         }
     }
 
-    private void generateConstantsDefination(PrintWriter w) {
+    private void generateConstantsDefinition(PrintWriter w) {
         for (Element e : mClazz.getEnclosedElements()) {
             if (e.getKind().equals(ElementKind.FIELD)) {
                 VariableElement ve = (VariableElement) e;

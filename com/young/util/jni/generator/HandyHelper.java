@@ -1,5 +1,7 @@
 package com.young.util.jni.generator;
 
+import java.util.Stack;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -10,7 +12,6 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
-import java.util.Stack;
 
 /**
  * Author: LanderlYoung
@@ -52,7 +53,7 @@ public final class HandyHelper {
         PackageElement pkg = mEnv.elementUtils.getPackageOf(clazz);
         if (pkg != null) {
             String pkgName = pkg.getQualifiedName().toString();
-            if(pkgName.length() > 0) {
+            if (pkgName.length() > 0) {
                 sb.append(pkgName);
                 sb.append('.');
             }
@@ -68,6 +69,7 @@ public final class HandyHelper {
 
     /**
      * @param v
+     *
      * @return
      */
     public static String getJNIHeaderConstantValue(Object v, @SuppressWarnings("unused") int arch) {
@@ -95,67 +97,72 @@ public final class HandyHelper {
         return "";
     }
 
+    private boolean instanceOf(Class<?> clazz, TypeMirror t) {
+        String clazzName = clazz.getName();
+        while (!clazzName.equals(t.toString())) {
+            Element base = mEnv.typeUtils.asElement(t);
+            if (base instanceof TypeElement) {
+                TypeMirror superClazz = ((TypeElement) base).getSuperclass();
+                if (superClazz instanceof NoType) return false;
+                t = superClazz;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     public String toJNIType(TypeMirror t) {
         if (t == null) return "";
-        final String c = t.toString();
-        final String throwable = "java.lang.Throwable";
+
         final String jthrowable = "jthrowable";
 
         //check if t is a subclass of java.lang.Throwable
-        if (throwable.equals(c)) {
+        if (instanceOf(Throwable.class, t)) {
             return jthrowable;
-        } else {
-            Element base = mEnv.typeUtils.asElement(t);
-            while (base instanceof TypeElement) {
-                TypeMirror sup = ((TypeElement) base).getSuperclass();
-                if (sup instanceof NoType) break;
-                if (throwable.equals(sup.toString())) {
-                    return jthrowable;
-                }
-                base = mEnv.typeUtils.asElement(sup);
-            }
         }
 
-        //for android, use java language level 6, can not use string case!!
-        if ("void".equals(c)) {
-            return "void";
-        } else if ("char".equals(c) ||
-                "boolean".equals(c) ||
-                "byte".equals(c) ||
-                "short".equals(c) ||
-                "int".equals(c) ||
-                "long".equals(c) ||
-                "float".equals(c) ||
-                "double".equals(c)) {
-            return 'j' + c;
-        } else if ("char[]".equals(c) ||
-                "boolean[]".equals(c) ||
-                "byte[]".equals(c) ||
-                "short[]".equals(c) ||
-                "int[]".equals(c) ||
-                "long[]".equals(c) ||
-                "float[]".equals(c) ||
-                "double[]".equals(c)) {
-            return 'j' + c.substring(0, c.length() - 2) + "Array";
-        } else if (c.endsWith("[][]")) {
-            //multi dimension array
-            return "jobjectArray";
-        } else if (c.endsWith("[]")) {
-            //java.lang.Object[]
-            return "jobjectArray";
-        } else if (c.equals("java.lang.String")) {
-            return "jstring";
-        } else if (c.equals("java.lang.Class")) {
-            return "jclass";
-        }
-       /*
-        else if ("java.lang.Throwable".equals(c)) {
-            return "jthrowable";
-        }
-        */
-        else {
-            return "jobject";
+        final String c = t.toString();
+        switch (c) {
+            //void type
+            case "void":
+                return "void";
+            //primitive type
+            case "char":
+            case "boolean":
+            case "byte":
+            case "short":
+            case "int":
+            case "long":
+            case "float":
+            case "double":
+                return 'j' + c;
+
+            //array type
+            case "char[]":
+            case "boolean[]":
+            case "byte[]":
+            case "short[]":
+            case "int[]":
+            case "long[]":
+            case "float[]":
+            case "double[]":
+                return 'j' + c.substring(0, c.length() - 2) + "Array";
+
+            //native build in type
+            case "java.lang.String":
+                return "jstring";
+            case "java.lang.Class":
+                return "jclass";
+
+            default:
+                if (c.endsWith("[]")) {
+                    //java.lang.Object[]
+                    return "jobjectArray";
+                } else {
+                    return "jobject";
+                }
         }
     }
 
@@ -220,8 +227,8 @@ public final class HandyHelper {
                     mCache.append('L').append(type.replace('.', '/')).append(';');
                 } else {
                     mCache.append('L')
-                            .append(type.replace('.', '/').replace('$', '/'))
-                            .append(';');
+                          .append(type.replace('.', '/').replace('$', '/'))
+                          .append(';');
                 }
             }
         }

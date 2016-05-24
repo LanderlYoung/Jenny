@@ -17,9 +17,9 @@ public class JNIHelper {
      */
     public static String toJNIClassName(String className) {
         if (className == null) return null;
-        return className.replace("_", "_1").replace(".", "_")
-                //inner class
-                .replace('$', '_');
+        return className.replace("_", "_1")
+                        .replace(".", "_")
+                        .replace('$', '_'); //inner class
     }
 
     /**
@@ -46,7 +46,7 @@ public class JNIHelper {
             }
         } else if (c == String.class) {
             return "jstring";
-        } else if (c == Throwable.class) {
+        } else if (Throwable.class.isAssignableFrom(c)) {
             return "jthrowable";
         } else if (c == Class.class) {
             return "jclass";
