@@ -57,8 +57,7 @@ public class JNICppSourceGenerateProcessor extends AbstractProcessor {
         if (roundEnv.errorRaised() || roundEnv.processingOver()) return true;
 
         //classify annotations by class
-        Set<? extends Element> classes =
-                roundEnv.getElementsAnnotatedWith(NativeClass.class);
+        Set<? extends Element> classes = roundEnv.getElementsAnnotatedWith(NativeClass.class);
 
         if (classes.isEmpty()) return true;
 

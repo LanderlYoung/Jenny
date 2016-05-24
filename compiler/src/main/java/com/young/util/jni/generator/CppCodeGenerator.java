@@ -19,8 +19,6 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
-
 /**
  * Author: LanderlYoung
  * Date:   2014-12-17
@@ -113,8 +111,7 @@ public class CppCodeGenerator implements Runnable {
     }
 
     private void log(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.NOTE,
-                                   msg);
+        mEnv.messager.printMessage(Diagnostic.Kind.NOTE, msg);
     }
 
     private void warn(String msg) {
@@ -147,7 +144,8 @@ public class CppCodeGenerator implements Runnable {
 
             writeNativeRegistrationFunc(w, false);
 
-            w.println("\n#ifdef __cplusplus\n" +
+            w.println();
+            w.println("#ifdef __cplusplus\n" +
                               "extern \"C\" {\n" +
                               "#endif");
             w.println("JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved);\n" +
@@ -155,7 +153,8 @@ public class CppCodeGenerator implements Runnable {
             w.println("#ifdef __cplusplus\n" +
                               "}\n" +
                               "#endif");
-            w.println("\n#endif");
+            w.println();
+            w.println("#endif //" + defineSwitch);
         } catch (IOException e) {
             warn("generate header file " + mHeaderName + " failed!");
         } finally {
@@ -187,12 +186,11 @@ public class CppCodeGenerator implements Runnable {
                 Object constValue = ve.getConstantValue();
                 if (constValue != null) {
                     String defineName = mJNIClassName + "_" + ve.getSimpleName();
-                    w.print("#undef  ");
-                    w.println(defineName);
-                    w.print("#define ");
+                    w.print("static const ");
                     w.print(defineName);
                     w.print(' ');
-                    w.println(HandyHelper.getJNIHeaderConstantValue(constValue, mTargetArch));
+                    w.print(HandyHelper.getJNIHeaderConstantValue(constValue, mTargetArch));
+                    w.println(';');
                 }
             }
         }
@@ -317,7 +315,7 @@ public class CppCodeGenerator implements Runnable {
         //JNI_OnLoad
         w.print("JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {\n" +
                         "    JNIEnv* env;\n" +
-                        "    if (vm->GetEnv(reinterpret_cast<void**>(&env),\n" +
+                        "    if (vm->GetEnv(static_cast<void**>(&env),\n" +
                         "                JNI_VERSION_1_6) != JNI_OK) {\n" +
                         "        return -1;\n" +
                         "    }\n" +
@@ -335,17 +333,17 @@ public class CppCodeGenerator implements Runnable {
     private void writeNativeMethodMapArray(ExecutableElement method,
             PrintWriter w) {
         final String methodName = method.getSimpleName().toString();
-        w.print("        const_cast<char *>(");
+        w.print("        /* method name      */ const_cast<char *>(");
         w.print('\"');
         w.print(methodName);
         w.println("\"),");
 
-        w.print("        const_cast<char *>(");
+        w.print("        /* method signature */ const_cast<char *>(");
         w.print('\"');
         w.print(mHelper.getBinaryMethodSignature(method));
         w.println("\"),");
 
-        w.print("        reinterpret_cast<void *>(");
+        w.print("        /* function pointer */ static_cast<void *>(");
         w.print(methodName);
         w.println(')');
     }
