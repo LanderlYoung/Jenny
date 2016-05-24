@@ -1,0 +1,36 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.novoda:bintray-release:0.2.10'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'bintray-release'
+
+// This is important even if Android Studio claims it isn't
+// used. Android can't interpret Java 8 byte code.
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+dependencies {
+    //todo currently not working
+    //provided project(':compiler')
+}
+
+publish {
+    artifactId = 'static_string_util_api'
+    userOrg = rootProject.userOrg
+    groupId = rootProject.groupId
+    uploadName = rootProject.uploadName
+    publishVersion = rootProject.publishVersion
+    description = rootProject.description
+    website = rootProject.website
+    licences = rootProject.licences
+}
