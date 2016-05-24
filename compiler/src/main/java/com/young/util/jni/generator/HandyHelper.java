@@ -166,6 +166,31 @@ public final class HandyHelper {
         }
     }
 
+    public String toNativeType(TypeMirror t) {
+        if (t == null) return null;
+
+        final String c = t.toString();
+        switch (c) {
+            //void type
+            case "void":
+                return "void";
+            //primitive type
+            case "short":
+            case "int":
+            case "long":
+            case "float":
+            case "double":
+            case "char":
+            case "boolean":
+            case "byte":
+                return "j" + c;
+            case "java.lang.String":
+                return "char *";
+            default:
+                return null;
+        }
+    }
+
     private class Signature {
         private final boolean mIsNative;
         private final ExecutableElement mMethod;

@@ -187,8 +187,10 @@ public class CppCodeGenerator implements Runnable {
                 if (constValue != null) {
                     String defineName = mJNIClassName + "_" + ve.getSimpleName();
                     w.print("static const ");
-                    w.print(defineName);
+                    w.print(mHelper.toNativeType(e.asType()));
                     w.print(' ');
+                    w.print(defineName);
+                    w.print(" = ");
                     w.print(HandyHelper.getJNIHeaderConstantValue(constValue, mTargetArch));
                     w.println(';');
                 }
@@ -223,9 +225,9 @@ public class CppCodeGenerator implements Runnable {
     private void writeHelperMarcos(PrintWriter w) {
         w.print("//java class name: ");
         w.println(mClassName);
-        w.print("#define FULL_CLASS_NAME \"");
+        w.print("static const char* FULL_CLASS_NAME = \"");
         w.print(mNativeBinaryClassName);
-        w.println("\"");
+        w.println("\";");
         w.print("#define constants(cons) ");
         w.print(mJNIClassName);
         w.println("_ ## cons");

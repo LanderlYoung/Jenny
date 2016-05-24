@@ -33,7 +33,8 @@ public class ComputeIntensiveClass {
                                       Class<String> f,
                                       HashMap<?, ?> g);
 
-    //apply NativeCode annotation to non-native method will raise an error
+    // apply NativeCode annotation to non-native method
+    // will raise a compilation time error
     //@NativeCode
     public void hello() {
 
