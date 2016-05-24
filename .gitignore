@@ -1,11 +1,14 @@
-*.class
-#intelliJ
-*.iml
-.idea
-out
+#gradle
+.gradle
 build
 gradle.propertied
 local.propertied
+
+#intelliJ
+*.class
+*.iml
+.idea
+out
 
 #MAC OS X
 .DS_Store

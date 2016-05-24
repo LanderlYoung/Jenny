@@ -3,6 +3,8 @@ package com.young.jennysampleapp;
 import com.young.jenny.annotation.NativeClass;
 import com.young.jenny.annotation.NativeCode;
 
+import java.util.HashMap;
+
 /**
  * Author: taylorcyang@tencent.com
  * Date:   2016-05-24
@@ -20,6 +22,16 @@ public class ComputeIntensiveClass {
 
     @NativeCode("return a + b;")
     public native int addInNative(int a, int b);
+
+    public native void computeSomething(byte[] sth);
+
+    public native void testParamParse(int a,
+                                      String b,
+                                      long[] c,
+                                      float[][] d,
+                                      Exception e,
+                                      Class<String> f,
+                                      HashMap<?, ?> g);
 
     //apply NativeCode annotation to non-native method will raise an error
     //@NativeCode
