@@ -27,7 +27,7 @@ dependencies {
 }
 
 publish {
-    artifactId = 'static_string_util_api'
+    artifactId = 'com.young.jenny'
     userOrg = rootProject.userOrg
     groupId = rootProject.groupId
     uploadName = rootProject.uploadName
