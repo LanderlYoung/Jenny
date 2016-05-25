@@ -1,8 +1,8 @@
 #gradle
 .gradle
 build
-gradle.propertied
-local.propertied
+gradle.properties
+local.properties
 
 #intelliJ
 *.class
