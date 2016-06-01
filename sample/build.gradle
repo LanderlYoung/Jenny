@@ -25,7 +25,16 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            moduleName "hello-jenny"
+        }
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -33,7 +42,6 @@ android {
         }
     }
 }
-
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])

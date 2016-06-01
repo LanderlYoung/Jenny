@@ -8,8 +8,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+
+    private TextView mTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +29,11 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        mTextView = (TextView) findViewById(R.id.text);
+        ComputeIntensiveClass nativeClass = new ComputeIntensiveClass();
+
+        mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2));
     }
 
     @Override

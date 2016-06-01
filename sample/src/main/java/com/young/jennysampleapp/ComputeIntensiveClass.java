@@ -13,6 +13,10 @@ import java.util.HashMap;
  */
 @NativeClass
 public class ComputeIntensiveClass {
+    static {
+        System.loadLibrary("hello-jenny");
+    }
+
     public static final String LOG_TAG = "ComputeIntensiveClass";
 
     public static final String KEY_WHERE_ARE_YOUT_FROM = "where_are_you_from";
@@ -23,9 +27,9 @@ public class ComputeIntensiveClass {
     @NativeCode("return a + b;")
     public native int addInNative(int a, int b);
 
-    public native void computeSomething(byte[] sth);
+    public static native void computeSomething(byte[] sth);
 
-    public native void testParamParse(int a,
+    public final native void testParamParse(int a,
                                       String b,
                                       long[] c,
                                       float[][] d,

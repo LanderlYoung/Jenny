@@ -252,9 +252,7 @@ public class CppCodeGenerator implements Runnable {
                             " * Class:     ");
             w.println(mJNIClassName);
             w.print(" * Method:    ");
-            w.print(mClassName);
-            w.print("::");
-            w.println(m.getSimpleName().toString());
+            w.println(mHelper.getMethodNamePresentation(e));
             w.print(" * Signature: ");
             w.println(mHelper.getMethodSignature(e));
             w.println(" */");
@@ -317,7 +315,7 @@ public class CppCodeGenerator implements Runnable {
         //JNI_OnLoad
         w.print("JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {\n" +
                         "    JNIEnv* env;\n" +
-                        "    if (vm->GetEnv(static_cast<void**>(&env),\n" +
+                        "    if (vm->GetEnv(reinterpret_cast<void**>(&env),\n" +
                         "                JNI_VERSION_1_6) != JNI_OK) {\n" +
                         "        return -1;\n" +
                         "    }\n" +
@@ -345,7 +343,7 @@ public class CppCodeGenerator implements Runnable {
         w.print(mHelper.getBinaryMethodSignature(method));
         w.println("\"),");
 
-        w.print("        /* function pointer */ static_cast<void *>(");
+        w.print("        /* function pointer */ reinterpret_cast<void *>(");
         w.print(methodName);
         w.println(')');
     }

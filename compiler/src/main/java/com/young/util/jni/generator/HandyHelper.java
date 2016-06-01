@@ -1,10 +1,16 @@
 package com.young.util.jni.generator;
 
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -67,6 +73,44 @@ public final class HandyHelper {
         return sb.toString();
     }
 
+    public String getMethodNamePresentation(ExecutableElement m) {
+        StringBuilder sb = new StringBuilder();
+        List<Modifier> modifiers = new LinkedList<>(m.getModifiers())
+                .stream()
+                .filter(modifier ->
+                                modifier == Modifier.PUBLIC
+                                        || modifier == Modifier.PROTECTED
+                                        || modifier == Modifier.PRIVATE
+                                        || modifier == Modifier.FINAL
+                                        || modifier == Modifier.STATIC
+                )
+                .sorted(Comparator.<Modifier>naturalOrder())
+                .collect(Collectors.toList());
+        Iterator<Modifier> mit = modifiers.iterator();
+        while (mit.hasNext()) {
+            Modifier modifier = mit.next();
+            sb.append(modifier.toString().toLowerCase());
+            sb.append(' ');
+        }
+
+        sb.append(m.getReturnType().toString())
+          .append(' ')
+          .append(m.getSimpleName())
+          .append('(');
+        Iterator<? extends VariableElement> it = m.getParameters().iterator();
+        while (it.hasNext()) {
+            VariableElement v = it.next();
+            sb.append(v.asType().toString())
+              .append(' ')
+              .append(v.getSimpleName());
+            if (it.hasNext()) {
+                sb.append(", ");
+            }
+        }
+        sb.append(')');
+        return sb.toString();
+    }
+
     /**
      * @param v
      *
@@ -111,7 +155,6 @@ public final class HandyHelper {
         }
         return true;
     }
-
 
     public String toJNIType(TypeMirror t) {
         if (t == null) return "";
