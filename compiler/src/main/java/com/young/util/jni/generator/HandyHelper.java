@@ -1,5 +1,6 @@
 package com.young.util.jni.generator;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -46,12 +47,12 @@ public final class HandyHelper {
      * @return like com.example_package.SomeClass$InnerClass
      */
     public String getClassName(Element clazz) {
-        Stack<String> className = new Stack<String>();
+        Stack<String> className = new Stack<>();
         StringBuilder sb = new StringBuilder();
         Element e = clazz;
 
-        while (e != null && ElementKind.CLASS.equals(e.getKind())
-                || ElementKind.INTERFACE.equals(e.getKind())) {
+        while (e != null && (ElementKind.CLASS.equals(e.getKind())
+                || ElementKind.INTERFACE.equals(e.getKind()))) {
             className.push(e.getSimpleName().toString());
             e = e.getEnclosingElement();
         }
@@ -75,23 +76,20 @@ public final class HandyHelper {
 
     public String getMethodNamePresentation(ExecutableElement m) {
         StringBuilder sb = new StringBuilder();
-        List<Modifier> modifiers = new LinkedList<>(m.getModifiers())
+        new ArrayList<>(m.getModifiers())
                 .stream()
                 .filter(modifier ->
-                                modifier == Modifier.PUBLIC
-                                        || modifier == Modifier.PROTECTED
-                                        || modifier == Modifier.PRIVATE
-                                        || modifier == Modifier.FINAL
-                                        || modifier == Modifier.STATIC
+                        modifier == Modifier.PUBLIC
+                                || modifier == Modifier.PROTECTED
+                                || modifier == Modifier.PRIVATE
+                                || modifier == Modifier.FINAL
+                                || modifier == Modifier.STATIC
                 )
-                .sorted(Comparator.<Modifier>naturalOrder())
-                .collect(Collectors.toList());
-        Iterator<Modifier> mit = modifiers.iterator();
-        while (mit.hasNext()) {
-            Modifier modifier = mit.next();
-            sb.append(modifier.toString().toLowerCase());
-            sb.append(' ');
-        }
+                .sorted(Comparator.naturalOrder())
+                .forEach(modifier -> {
+                    sb.append(modifier.toString().toLowerCase());
+                    sb.append(' ');
+                });
 
         sb.append(m.getReturnType().toString())
           .append(' ')
