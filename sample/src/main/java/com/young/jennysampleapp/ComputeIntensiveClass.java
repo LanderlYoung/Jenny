@@ -29,6 +29,8 @@ public class ComputeIntensiveClass {
 
     public static native void computeSomething(byte[] sth);
 
+    public static native String greet();
+
     public final native void testParamParse(int a,
                                       String b,
                                       long[] c,
@@ -36,6 +38,12 @@ public class ComputeIntensiveClass {
                                       Exception e,
                                       Class<String> f,
                                       HashMap<?, ?> g);
+
+    public static native long returnsLong();
+
+    public static native boolean returnsBool();
+
+    public static native Object returnsObject();
 
     // apply NativeCode annotation to non-native method
     // will raise a compilation time error

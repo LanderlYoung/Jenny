@@ -76,20 +76,20 @@ public final class HandyHelper {
 
     public String getMethodNamePresentation(ExecutableElement m) {
         StringBuilder sb = new StringBuilder();
-        new ArrayList<>(m.getModifiers())
-                .stream()
-                .filter(modifier ->
-                        modifier == Modifier.PUBLIC
-                                || modifier == Modifier.PROTECTED
-                                || modifier == Modifier.PRIVATE
-                                || modifier == Modifier.FINAL
-                                || modifier == Modifier.STATIC
-                )
-                .sorted(Comparator.naturalOrder())
-                .forEach(modifier -> {
-                    sb.append(modifier.toString().toLowerCase());
-                    sb.append(' ');
-                });
+        m.getModifiers()
+         .stream()
+         .filter(modifier ->
+                 modifier == Modifier.PUBLIC
+                         || modifier == Modifier.PROTECTED
+                         || modifier == Modifier.PRIVATE
+                         || modifier == Modifier.FINAL
+                         || modifier == Modifier.STATIC
+         )
+         .sorted(Comparator.naturalOrder())
+         .forEach(modifier -> {
+             sb.append(modifier.toString().toLowerCase());
+             sb.append(' ');
+         });
 
         sb.append(m.getReturnType().toString())
           .append(' ')
@@ -137,6 +137,32 @@ public final class HandyHelper {
             return "\"" + v + "\"";
         }
         return "";
+    }
+
+    public String getReturnStatement(ExecutableElement e) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("return ");
+        String typeName = e.getReturnType().toString();
+        if (String.class.getName().equals(typeName)) {
+            sb.append("(*env)->NewStringUTF(env, \"Hello From Jni\")");
+        } else if (int.class.getName().equals(typeName)
+                || byte.class.getName().equals(typeName)
+                || char.class.getName().equals(typeName)
+                || short.class.getName().equals(typeName)
+                || long.class.getName().equals(typeName)
+                || float.class.getName().equals(typeName)
+                || double.class.getName().equals(typeName)) {
+            sb.append("0");
+        } else if (boolean.class.getName().equals(typeName)) {
+            sb.append("false");
+        } else if (void.class.getName().equals(typeName)) {
+            //eat that space
+            sb.replace(sb.length() - 1, sb.length(), "");
+        } else {
+            sb.append("nullptr");
+        }
+        sb.append(";");
+        return sb.toString();
     }
 
     private boolean instanceOf(Class<?> clazz, TypeMirror t) {

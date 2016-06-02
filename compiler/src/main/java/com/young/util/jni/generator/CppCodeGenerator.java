@@ -285,6 +285,13 @@ public class CppCodeGenerator implements Runnable {
                         w.print("    ");
                         w.println(s);
                     }
+                } else {
+                    String returnStatement = mHelper.getReturnStatement(e);
+                    log("return type=" + e.getReturnType().toString() + " name=" + e.getSimpleName());
+                    if (returnStatement != null) {
+                        w.print("    "); //4 space
+                        w.println(returnStatement);
+                    }
                 }
                 w.println("}\n");
             }
