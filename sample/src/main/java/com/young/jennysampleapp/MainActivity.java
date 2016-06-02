@@ -1,5 +1,6 @@
 package com.young.jennysampleapp;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTextView;
 
     @Override
+    @SuppressLint("SetTextI18n")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -33,9 +35,8 @@ public class MainActivity extends AppCompatActivity {
         mTextView = (TextView) findViewById(R.id.text);
         ComputeIntensiveClass nativeClass = new ComputeIntensiveClass();
 
-        mTextView.setText(
-                "1 + 2 = " + nativeClass.addInNative(1, 2) + "\n"
-                        + nativeClass.greet());
+        mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2) + "\n");
+        mTextView.append(ComputeIntensiveClass.greet());
     }
 
     @Override
