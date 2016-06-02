@@ -33,7 +33,9 @@ public class MainActivity extends AppCompatActivity {
         mTextView = (TextView) findViewById(R.id.text);
         ComputeIntensiveClass nativeClass = new ComputeIntensiveClass();
 
-        mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2));
+        mTextView.setText(
+                "1 + 2 = " + nativeClass.addInNative(1, 2) + "\n"
+                        + nativeClass.greet());
     }
 
     @Override
