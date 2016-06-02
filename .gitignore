@@ -4,6 +4,8 @@ build
 gradle.properties
 local.properties
 
+jni
+
 #intelliJ
 *.class
 *.iml
