@@ -28,7 +28,7 @@ android {
 
         ndk {
             moduleName "hello-jenny"
-            cFlags '-fvisibility=hidden'
+            cFlags '-fvisibility=hidden -std=c++11'
         }
     }
 

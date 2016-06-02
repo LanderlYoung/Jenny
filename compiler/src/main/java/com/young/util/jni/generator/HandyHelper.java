@@ -1,12 +1,8 @@
 package com.young.util.jni.generator;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -74,7 +70,7 @@ public final class HandyHelper {
         return sb.toString();
     }
 
-    public String getMethodNamePresentation(ExecutableElement m) {
+    public String getMethodModifiers(ExecutableElement m) {
         StringBuilder sb = new StringBuilder();
         m.getModifiers()
          .stream()
@@ -90,11 +86,15 @@ public final class HandyHelper {
              sb.append(modifier.toString().toLowerCase());
              sb.append(' ');
          });
+        if (sb.length() > 0) {
+            //delete the last space
+            sb.replace(sb.length() - 1, sb.length(), "");
+        }
+        return sb.toString();
+    }
 
-        sb.append(m.getReturnType().toString())
-          .append(' ')
-          .append(m.getSimpleName())
-          .append('(');
+    public String getJavaMethodParam(ExecutableElement m) {
+        StringBuilder sb = new StringBuilder();
         Iterator<? extends VariableElement> it = m.getParameters().iterator();
         while (it.hasNext()) {
             VariableElement v = it.next();
@@ -105,7 +105,6 @@ public final class HandyHelper {
                 sb.append(", ");
             }
         }
-        sb.append(')');
         return sb.toString();
     }
 
@@ -114,29 +113,26 @@ public final class HandyHelper {
      *
      * @return
      */
-    public static String getJNIHeaderConstantValue(Object v, @SuppressWarnings("unused") int arch) {
+    public static String getJNIHeaderConstantValue(Object v) {
         if (v == null) {
             return "";
         }
         Class<?> clazz = v.getClass();
         if (Boolean.class == clazz) {
-            return (Boolean) v ? "1L" : "0L";
-        } else if (clazz == Byte.class ||
-                clazz == Short.class ||
-                clazz == Integer.class) {
-            return v + "L";
-        } else if (clazz == Character.class) {
-            return (int) (Character) v + "L";
-        } else if (clazz == Long.class) {
-            return v + "LL";
-        } else if (clazz == Float.class) {
-            return v + "f";
-        } else if (clazz == Double.class) {
+            return (Boolean) v ? "JNI_TRUE" : "JNI_FALSE";
+        } else if (clazz == Byte.class
+                || clazz == Short.class
+                || clazz == Integer.class
+                || clazz == Character.class
+                || clazz == Long.class
+                || clazz == Float.class
+                || clazz == Double.class) {
             return v + "";
         } else if (clazz == String.class) {
             return "\"" + v + "\"";
+        } else {
+            return "";
         }
-        return "";
     }
 
     public String getReturnStatement(ExecutableElement e) {
@@ -162,6 +158,25 @@ public final class HandyHelper {
             sb.append("0"/*nullptr*/);
         }
         sb.append(";");
+        return sb.toString();
+    }
+
+    public String getNativeMethodParam(ExecutableElement m) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("JNIEnv *env");
+
+        if (m.getModifiers().contains(Modifier.STATIC)) {
+            sb.append(", jclass clazz");
+        } else {
+            sb.append(", jobject thiz");
+        }
+
+        m.getParameters().stream().forEach(ve -> {
+            sb.append(", ");
+            sb.append(toJNIType(ve.asType()));
+            sb.append(' ');
+            sb.append(ve.getSimpleName().toString());
+        });
         return sb.toString();
     }
 
@@ -236,8 +251,11 @@ public final class HandyHelper {
     public String toNativeType(TypeMirror t) {
         if (t == null) return null;
 
-        final String c = t.toString();
-        switch (c) {
+        return toNativeType(t.toString());
+    }
+
+    public String toNativeType(String className) {
+        switch (className) {
             //void type
             case "void":
                 return "void";
@@ -250,7 +268,7 @@ public final class HandyHelper {
             case "char":
             case "boolean":
             case "byte":
-                return "j" + c;
+                return "j" + className;
             case "java.lang.String":
                 return "char *";
             default:

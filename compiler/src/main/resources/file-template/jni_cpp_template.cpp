@@ -1,8 +1,10 @@
-#include "${header}.h"
+#include "${header}"
 
 //java class name: ${full_java_class_name}
 static const char* FULL_CLASS_NAME = "${full_slash_class_name}";
 #define constants(cons) ${full_native_class_name}_ ## cons
+
+${methods}
 
 static const JNINativeMethod gsNativeMethods[] = {
 ${jni_method_struct}
@@ -24,7 +26,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
                 JNI_VERSION_1_6) != JNI_OK) {
         return -1;
     }
-    register_${full_native_class_name}((env);
+    register_${full_native_class_name}(env);
     return JNI_VERSION_1_6;
 }
 
