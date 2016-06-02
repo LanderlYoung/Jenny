@@ -154,7 +154,7 @@ public final class HandyHelper {
                 || double.class.getName().equals(typeName)) {
             sb.append("0");
         } else if (boolean.class.getName().equals(typeName)) {
-            sb.append("false");
+            sb.append("JNI_FALSE");
         } else if (void.class.getName().equals(typeName)) {
             //eat that space
             sb.replace(sb.length() - 1, sb.length(), "");
