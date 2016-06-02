@@ -6,5 +6,5 @@ package com.young.jenny.annotation;
  * Time:   20-52
  * Life with Passion, Code with Creativity.
  */
-public class NativeAccessField {
+public @interface NativeAccessField {
 }

@@ -14,4 +14,6 @@ public @interface NativeReflect {
      * inside this class/interface.
      */
     boolean allMethods() default false;
+
+    boolean allFields() default false;
 }
