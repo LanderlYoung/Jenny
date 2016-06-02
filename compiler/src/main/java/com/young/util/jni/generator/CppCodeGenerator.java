@@ -2,6 +2,8 @@ package com.young.util.jni.generator;
 
 import com.young.jenny.annotation.NativeClass;
 import com.young.jenny.annotation.NativeCode;
+import com.young.util.jni.generator.template.FileTemplate;
+import com.young.util.jni.generator.template.FileTemplateLoader;
 import com.young.util.jni.JNIHelper;
 
 import javax.lang.model.element.Element;
@@ -52,6 +54,7 @@ public class CppCodeGenerator implements Runnable {
     //DONE support for inner class
     //XXXX support for pure c code
     //DONE file output
+    //GOING use file template
 
     public CppCodeGenerator(Environment env, TypeElement clazz) {
         mEnv = env;
