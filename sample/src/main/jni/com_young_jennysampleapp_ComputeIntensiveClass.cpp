@@ -1,7 +1,7 @@
 #include "com_young_jennysampleapp_ComputeIntensiveClass.h"
 
 //java class name: com.young.jennysampleapp.ComputeIntensiveClass
-static const char *FULL_CLASS_NAME = "com/young/jennysampleapp/ComputeIntensiveClass";
+static constexpr const char * const FULL_CLASS_NAME = "com/young/jennysampleapp/ComputeIntensiveClass";
 #define constants(cons) com_young_jennysampleapp_ComputeIntensiveClass_ ## cons
 
 /*

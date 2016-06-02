@@ -8,10 +8,11 @@
 #define _Included_com_young_jennysampleapp_ComputeIntensiveClass
 
 #include <jni.h>
-static const char * com_young_jennysampleapp_ComputeIntensiveClass_LOG_TAG = "ComputeIntensiveClass";
-static const char * com_young_jennysampleapp_ComputeIntensiveClass_KEY_WHERE_ARE_YOUT_FROM = "where_are_you_from";
-static const jint com_young_jennysampleapp_ComputeIntensiveClass_IDEL = -1L;
-static const jint com_young_jennysampleapp_ComputeIntensiveClass_BUSY = 1L;
+#include "JavaCallbackReflect.h"
+static constexpr const char * const com_young_jennysampleapp_ComputeIntensiveClass_LOG_TAG = "ComputeIntensiveClass";
+static constexpr const char * const com_young_jennysampleapp_ComputeIntensiveClass_KEY_WHERE_ARE_YOUT_FROM = "where_are_you_from";
+static constexpr const jint com_young_jennysampleapp_ComputeIntensiveClass_IDEL = -1L;
+static constexpr const jint com_young_jennysampleapp_ComputeIntensiveClass_BUSY = 1L;
 
 /*
  * Class:     com_young_jennysampleapp_ComputeIntensiveClass

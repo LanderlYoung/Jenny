@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.0)
 project(jni)
 
 include_directories(
-        /Users/young/Applications/android/android-ndk-r10e/platforms/android-21/arch-arm64/usr/include/
+        $ENV{NDK_HOME}/platforms/android-21/arch-arm64/usr/include/
 )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
