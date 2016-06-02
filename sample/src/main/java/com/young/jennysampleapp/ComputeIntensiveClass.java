@@ -45,6 +45,8 @@ public class ComputeIntensiveClass {
 
     public static native Object returnsObject();
 
+    public native int computeThenCallback(Callback listener);
+
     // apply NativeCode annotation to non-native method
     // will raise a compilation time error
     //@NativeCode

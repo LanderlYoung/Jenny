@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +38,32 @@ public class MainActivity extends AppCompatActivity {
 
         mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2) + "\n");
         mTextView.append(ComputeIntensiveClass.greet());
+
+        nativeClass.computeThenCallback(new Callback() {
+            @Override
+            public void onJobDone(boolean success, String result) {
+                toast("success=" + success + " result=" +result);
+            }
+
+            @Override
+            public void onJobProgress(long progress) {
+                toast("onJobProgress = " + progress);
+            }
+
+            @Override
+            public void onJobStart() {
+                toast("onJobStart");
+            }
+
+            @Override
+            public int prepareRun() {
+                return 0;
+            }
+        });
+    }
+
+    private void toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
