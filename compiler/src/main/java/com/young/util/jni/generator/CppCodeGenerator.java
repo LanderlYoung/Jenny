@@ -254,10 +254,6 @@ public class CppCodeGenerator implements Runnable {
     }
 
     private String generateFunctionWithReturnStatement(String declare, ExecutableElement m) {
-        if (declare.endsWith("\n")) {
-            declare = declare.substring(0, declare.length() - 1);
-        }
-        //append return statement
         String template = mFileTemplateLoader
                 .loadTemplate(FileTemplate.NATIVE_METHOD_TEMPLATE.getName());
         Map<String, String> templateMap = new HashMap<>();

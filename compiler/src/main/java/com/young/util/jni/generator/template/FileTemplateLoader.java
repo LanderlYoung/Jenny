@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.CharBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class FileTemplateLoader {
         }
         String result = mInfiniteCache.get(fileName);
         if (result == null) {
-            result =  readStream(getClass().getClassLoader().getResourceAsStream(fileName));
+            result = readStream(getClass().getClassLoader().getResourceAsStream(fileName));
             mInfiniteCache.put(fileName, result);
         }
         return result;
@@ -44,6 +45,9 @@ public class FileTemplateLoader {
                 while ((line = bin.readLine()) != null) {
                     sb.append(line);
                     sb.append('\n');
+                }
+                if (sb.length() > 0) {
+                    sb.replace(sb.length() - 1, sb.length(), "");
                 }
             } catch (IOException e) {
                 try {
