@@ -1,8 +1,31 @@
 #include "com_young_jennysampleapp_ComputeIntensiveClass.h"
 
+#define __USE_ANDROID_LOG__ 1
+
+#if __USE_ANDROID_LOG__ == 1
+#include <android/log.h>
+#define LOGV(...)   __android_log_print((int)ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__)
+#define LOGD(...)   __android_log_print((int)ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define LOGI(...)   __android_log_print((int)ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOGW(...)   __android_log_print((int)ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
+#define LOGE(...)   __android_log_print((int)ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#else
+#define LOGV(...)
+#define LOGD(...)
+#define LOGI(...)
+#define LOGW(...)
+#define LOGE(...)
+#endif
+
+
+//DO NOT CHANGE THIS PART
 //java class name: com.young.jennysampleapp.ComputeIntensiveClass
 static constexpr const char * const FULL_CLASS_NAME = "com/young/jennysampleapp/ComputeIntensiveClass";
 #define constants(cons) com_young_jennysampleapp_ComputeIntensiveClass_ ## cons
+
+//change to whatever you like
+#define LOG_TAG "ComputeIntensiveClass"
+
 
 /*
  * Class:     com_young_jennysampleapp_ComputeIntensiveClass
@@ -10,6 +33,7 @@ static constexpr const char * const FULL_CLASS_NAME = "com/young/jennysampleapp/
  * Signature: (II)I
  */
 jint addInNative(JNIEnv *env, jobject thiz, jint a, jint b) {
+    LOGI("add %d + %d = %d", a, b, a + b);
     return a + b;
 }
 
@@ -74,6 +98,11 @@ jobject returnsObject(JNIEnv *env, jclass clazz) {
  * Signature: (Lcom/young/jennysampleapp/Callback;)I
  */
 jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
+    LOGV("Hello world");
+    JavaCallbackReflect callback(env, listener, false);
+    callback.onJobStart(env);
+    callback.onJobProgress(env, 100);
+    callback.onJobDone(env, JNI_TRUE, env->NewStringUTF("Yes, callback from jni"));
     return 0;
 }
 
@@ -137,6 +166,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
         return -1;
     }
     register_com_young_jennysampleapp_ComputeIntensiveClass(env);
+    bool success = JavaCallbackReflect::init_clazz(env);
+    LOGE("init reflect %d", success);
     return JNI_VERSION_1_6;
 }
 

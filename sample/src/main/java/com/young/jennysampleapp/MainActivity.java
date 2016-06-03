@@ -24,42 +24,44 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final ComputeIntensiveClass nativeClass = new ComputeIntensiveClass();
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Hello", Snackbar.LENGTH_SHORT)
+                        .show();
+                nativeClass.computeThenCallback(new Callback() {
+                    @Override
+                    public void onJobDone(boolean success, String result) {
+                        toast("success=" + success + " result=" + result);
+                    }
+
+                    @Override
+                    public void onJobProgress(long progress) {
+                        toast("onJobProgress = " + progress);
+                    }
+
+                    @Override
+                    public void onJobStart() {
+                        toast("onJobStart");
+                    }
+
+                    @Override
+                    public int prepareRun() {
+                        return 0;
+                    }
+                });
             }
         });
 
         mTextView = (TextView) findViewById(R.id.text);
-        ComputeIntensiveClass nativeClass = new ComputeIntensiveClass();
 
         mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2) + "\n");
         mTextView.append(ComputeIntensiveClass.greet());
 
-        nativeClass.computeThenCallback(new Callback() {
-            @Override
-            public void onJobDone(boolean success, String result) {
-                toast("success=" + success + " result=" +result);
-            }
-
-            @Override
-            public void onJobProgress(long progress) {
-                toast("onJobProgress = " + progress);
-            }
-
-            @Override
-            public void onJobStart() {
-                toast("onJobStart");
-            }
-
-            @Override
-            public int prepareRun() {
-                return 0;
-            }
-        });
     }
 
     private void toast(String msg) {

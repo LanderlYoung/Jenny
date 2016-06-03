@@ -18,6 +18,12 @@ apply plugin: 'com.neenbedankt.android-apt'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
+    sourceSets {
+        main {
+            jni.srcDirs = []
+            jniLibs.srcDirs = ['src/main/libs']
+        }
+    }
     defaultConfig {
         applicationId "com.young.jennysampleapp"
         minSdkVersion 15
@@ -25,11 +31,6 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        ndk {
-            moduleName "hello-jenny"
-            cFlags '-fvisibility=hidden -std=c++11'
-        }
     }
 
     lintOptions {
@@ -42,6 +43,25 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn ndkBuild
+}
+
+task ndkLibsToJar(type: Zip, dependsOn: 'ndkBuild', description: 'Create a JAR of the native libs') {
+    destinationDir new File(buildDir, 'libs')
+    baseName 'ndk-libs'
+    extension 'jar'
+    from(new File(buildDir, 'libs')) { include '**/*.so' }
+    into 'lib/'
+}
+
+task ndkBuild(type: Exec, description: 'Compile JNI source via NDK') {
+    def ndkDir = project.plugins.findPlugin('com.android.application').sdkHandler.ndkFolder
+    workingDir 'src/main/jni'
+    commandLine "$ndkDir/ndk-build"
+    args = ['NDK_DEBUG=1']
 }
 
 dependencies {
