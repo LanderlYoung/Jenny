@@ -3,8 +3,9 @@
 build
 gradle.properties
 local.properties
-
-jni
+*.o
+*.so
+*.d
 
 #intelliJ
 *.class
