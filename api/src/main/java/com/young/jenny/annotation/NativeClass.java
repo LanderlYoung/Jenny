@@ -24,25 +24,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface NativeClass {
-    /**
-     * 32bit architecture
-     */
-    int ARCH_32 = -1;
-
-    /**
-     * 64bit architecture
-     */
-    int ARCH_64 = -2;
-
-    /**
-     * target machine architecture,
-     * the default is {@link #ARCH_32}
-     * You should apply an architecture for the native source that this class related to.
-     * the <B>ONLY</B> different between different architecture in the generated cpp file
-     * is in the {@code type long} CONSTANTs value. eg, long type constant {@code 0} in 32bit cpp is 0LL literally,
-     * but which is 32L (or 32i64) in 64bit architecture.
-     *
-     * @see
-     */
-    int arch() default ARCH_32;
 }

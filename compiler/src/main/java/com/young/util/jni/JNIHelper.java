@@ -25,7 +25,7 @@ public class JNIHelper {
     /**
      * @return like com/example_package/SomeClass$InnerClass
      */
-    public static String getNativeBinaryClassName(String className) {
+    public static String getNativeSlashClassName(String className) {
         return className.replace('.', '/');
     }
 

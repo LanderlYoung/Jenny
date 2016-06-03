@@ -1,8 +1,11 @@
 package com.young.util.jni.generator;
 
-import com.young.jenny.annotation.NativeClass;
 import com.young.jenny.annotation.NativeCode;
 import com.young.util.jni.JNIHelper;
+import com.young.util.jni.generator.template.FileTemplate;
+import com.young.util.jni.generator.template.FileTemplateLoader;
+
+import org.apache.commons.lang3.text.StrSubstitutor;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -13,11 +16,14 @@ import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
+
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: LanderlYoung
@@ -30,20 +36,19 @@ public class CppCodeGenerator implements Runnable {
     private final TypeElement mClazz;
     private List<Element> mMethods;
     private final HandyHelper mHelper;
+    private final FileTemplateLoader mFileTemplateLoader;
 
     //like com.example_package.SomeClass$InnerClass
     private String mClassName;
     //like com_example_1package_SomeClass_InnerClass
     private String mJNIClassName;
     //like com/example_package/SomeClass$InnerClass
-    private String mNativeBinaryClassName;
+    private String mNativeSlashClassName;
 
     //header file name
     private String mHeaderName;
     //source file Name
     private String mSourceName;
-    //target c/c++ file machine architecture
-    private int mTargetArch;
 
     //DONE HandyHelper.toJNIType throwable
     //DONE Use NativeClass to mark generate, NativeCode to add implements
@@ -52,12 +57,14 @@ public class CppCodeGenerator implements Runnable {
     //DONE support for inner class
     //XXXX support for pure c code
     //DONE file output
+    //GOING use file template
 
     public CppCodeGenerator(Environment env, TypeElement clazz) {
         mEnv = env;
         mClazz = clazz;
         mMethods = new LinkedList<>();
         mHelper = new HandyHelper(env);
+        mFileTemplateLoader = new FileTemplateLoader("file-template");
     }
 
     @Override
@@ -67,8 +74,8 @@ public class CppCodeGenerator implements Runnable {
 
     public void doGenerate() {
         if (init() && !mMethods.isEmpty()) {
-            genHeader();
-            genSource();
+            generateHeader();
+            generateSource();
         }
     }
 
@@ -79,35 +86,28 @@ public class CppCodeGenerator implements Runnable {
         mJNIClassName = JNIHelper.toJNIClassName(mClassName);
         mHeaderName = mJNIClassName + ".h";
         mSourceName = mJNIClassName + ".cpp";
-        mNativeBinaryClassName = JNIHelper.getNativeBinaryClassName(mClassName);
+        mNativeSlashClassName = JNIHelper.getNativeSlashClassName(mClassName);
         log("jenny begin generate glue code for class [" + mClassName + "]");
         log("header : [" + mHeaderName + "]");
         log("source : [" + mSourceName + "]");
-
-        findArchitecture();
 
         findNativeMethods();
 
         return true;
     }
 
-    private void findArchitecture() {
-        NativeClass nc = mClazz.getAnnotation(NativeClass.class);
-        //in normal ways, nc is not possible to be null
-        if (nc != null) mTargetArch = nc.arch();
-    }
-
     private void findNativeMethods() {
-        List<? extends Element> elements = mClazz.getEnclosedElements();
-        for (Element e : elements) {
-            if (e.getKind().equals(ElementKind.METHOD)) {
-                if (e.getModifiers().contains(Modifier.NATIVE)) {
-                    mMethods.add(e);
-                } else if (e.getAnnotation(NativeCode.class) != null) {
-                    error("Annotation @" + NativeCode.class.getSimpleName() + " should only be applied to NATIVE method!");
-                }
-            }
-        }
+        mClazz.getEnclosedElements()
+              .stream()
+              .filter(e -> e.getKind() == ElementKind.METHOD)
+              .forEach(e -> {
+                  if (e.getModifiers().contains(Modifier.NATIVE)) {
+                      mMethods.add(e);
+                  } else if (e.getAnnotation(NativeCode.class) != null) {
+                      error("Annotation @" + NativeCode.class.getSimpleName()
+                              + " should only be applied to NATIVE method!");
+                  }
+              });
     }
 
     private void log(String msg) {
@@ -122,39 +122,24 @@ public class CppCodeGenerator implements Runnable {
         mEnv.messager.printMessage(Diagnostic.Kind.ERROR, msg);
     }
 
-    public void genHeader() {
-        PrintWriter w = null;
+    public void generateHeader() {
+        Writer w = null;
         try {
-            //JavaFileObject fileObject = mEnv.filer.createSourceFile(mHeaderName);
             FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, "", mHeaderName);
             log("write header file [" + fileObject.getName() + "]");
-            w = new PrintWriter(fileObject.openWriter());
+            w = fileObject.openWriter();
 
+            String headerTemplate = mFileTemplateLoader.loadTemplate(FileTemplate.JNI_HEADER_TEMPLATE.getName());
+            Map<String, String> mTemplateMap = new HashMap<>();
+            mTemplateMap.put("include_guard", "_Included_" + mJNIClassName);
+            mTemplateMap.put("consts", generateConstantsDefinition());
+            mTemplateMap.put("methods", generateFunctions(false));
 
-            final String defineSwitch = "_Included_" + mJNIClassName;
-            w.println("/* \n * JNI Header file generated by annotation JNI helper\n" +
-                              " * written by landerlyoung@gmail.com\n */\n");
-            w.println("/* C/C++ header file for class " + mClassName + " */");
-            w.println("#ifndef " + defineSwitch);
-            w.println("#define " + defineSwitch);
-            w.println();
-            w.println("#include <jni.h>");
-            generateConstantsDefinition(w);
-            writeFunctions(w, false);
+            w.write(
+                    StrSubstitutor.replace(headerTemplate, mTemplateMap)
+            );
 
-            writeNativeRegistrationFunc(w, false);
-
-            w.println();
-            w.println("#ifdef __cplusplus\n" +
-                              "extern \"C\" {\n" +
-                              "#endif");
-            w.println("JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved);\n" +
-                              "JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved);");
-            w.println("#ifdef __cplusplus\n" +
-                              "}\n" +
-                              "#endif");
-            w.println();
-            w.println("#endif //" + defineSwitch);
+            w.close();
         } catch (IOException e) {
             warn("generate header file " + mHeaderName + " failed!");
         } finally {
@@ -162,59 +147,24 @@ public class CppCodeGenerator implements Runnable {
         }
     }
 
-    private void writeNativeRegistrationFunc(PrintWriter w, boolean isSource) {
-        w.println("/*\n * registe Native functions\n */");
-        w.print("void register_");
-        w.print(mJNIClassName);
-        w.print("(JNIEnv *env)");
-        if (!isSource) {
-            w.println(";");
-        } else {
-            w.println(" {\n" +
-                              "    jclass clazz = env->FindClass(FULL_CLASS_NAME);\n" +
-                              "    env->RegisterNatives(clazz, gsNativeMethods,gsMethodCount);\n" +
-                              "}\n");
-        }
-    }
-
-    private void generateConstantsDefinition(PrintWriter w) {
-        for (Element e : mClazz.getEnclosedElements()) {
-            if (e.getKind().equals(ElementKind.FIELD)) {
-                VariableElement ve = (VariableElement) e;
-                //if this field is a compile-time constant value it's
-                //value will be returned, otherwise null will be returned.
-                Object constValue = ve.getConstantValue();
-                if (constValue != null) {
-                    String defineName = mJNIClassName + "_" + ve.getSimpleName();
-                    w.print("static const ");
-                    w.print(mHelper.toNativeType(e.asType()));
-                    w.print(' ');
-                    w.print(defineName);
-                    w.print(" = ");
-                    w.print(HandyHelper.getJNIHeaderConstantValue(constValue, mTargetArch));
-                    w.println(';');
-                }
-            }
-        }
-        w.println();
-    }
-
-
-    public void genSource() {
-        PrintWriter w = null;
+    public void generateSource() {
+        Writer w = null;
         try {
             FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, "", mSourceName);
             log("write source file [" + fileObject.getName() + "]");
-            w = new PrintWriter(fileObject.openWriter());
+            w = fileObject.openWriter();
 
-            w.println("#include \"" + mHeaderName + "\"\n");
+            String fileTemplate = mFileTemplateLoader
+                    .loadTemplate(FileTemplate.JNI_CPP_TEMPLATE.getName());
+            Map<String, String> templateMap = new HashMap<>();
+            templateMap.put("header", mHeaderName);
+            templateMap.put("full_java_class_name", mClassName);
+            templateMap.put("full_slash_class_name", mNativeSlashClassName);
+            templateMap.put("full_native_class_name", mJNIClassName);
+            templateMap.put("methods", generateFunctions(true));
+            templateMap.put("jni_method_struct", generateJniNativeMethodStruct());
 
-            writeHelperMarcos(w);
-
-            writeFunctions(w, true);
-
-            //write JNI_OnLoad & JNI_OnUnload
-            writeSourceTail(w);
+            w.write(StrSubstitutor.replace(fileTemplate, templateMap));
         } catch (IOException e) {
             warn("generate source file " + mSourceName + " failed");
         } finally {
@@ -222,16 +172,49 @@ public class CppCodeGenerator implements Runnable {
         }
     }
 
-    private void writeHelperMarcos(PrintWriter w) {
-        w.print("//java class name: ");
-        w.println(mClassName);
-        w.print("static const char* FULL_CLASS_NAME = \"");
-        w.print(mNativeBinaryClassName);
-        w.println("\";");
-        w.print("#define constants(cons) ");
-        w.print(mJNIClassName);
-        w.println("_ ## cons");
-        w.println();
+    private String generateConstantsDefinition() {
+        StringBuilder sb = new StringBuilder();
+        //if this field is a compile-time constant value it's
+        //value will be returned, otherwise null will be returned.
+        String fileTemplate = mFileTemplateLoader
+                .loadTemplate(FileTemplate.CONSTANT_TEMPLATE.getName());
+        log(fileTemplate);
+        Map<String, String> templateMap = new HashMap<>();
+        mClazz.getEnclosedElements()
+              .stream()
+              .filter(e -> e.getKind() == ElementKind.FIELD)
+              .map(e -> (VariableElement) e)
+              .filter(ve -> ve.getConstantValue() != null)
+              .forEach(ve -> {
+                  //if this field is a compile-time constant value it's
+                  //value will be returned, otherwise null will be returned.
+                  Object constValue = ve.getConstantValue();
+                  templateMap.clear();
+                  templateMap.put("type", mHelper.toNativeType(ve.asType()));
+                  templateMap.put("name", ve.getSimpleName().toString());
+                  templateMap.put("full_class_name", mJNIClassName);
+                  templateMap.put("value", HandyHelper.getJNIHeaderConstantValue(constValue));
+
+                  sb.append(StrSubstitutor.replace(fileTemplate, templateMap));
+              });
+        return sb.toString();
+    }
+
+    private String generateJniNativeMethodStruct() {
+        StringBuilder sb = new StringBuilder();
+        int methodLen = mMethods.size();
+        for (int i = 0; i < methodLen; i++) {
+            ExecutableElement m = (ExecutableElement) mMethods.get(i);
+            String fileTemplate = mFileTemplateLoader
+                    .loadTemplate(FileTemplate.JNINATIVEMETHOD_STRUCT_TEMPLATE.getName());
+            Map<String, String> templateMap = new HashMap<>();
+            templateMap.put("method_name", m.getSimpleName().toString());
+            templateMap.put("signature", mHelper.getBinaryMethodSignature(m));
+            templateMap.put("comma", i != methodLen - 1 ? "," : "");
+
+            sb.append(StrSubstitutor.replace(fileTemplate, templateMap));
+        }
+        return sb.toString();
     }
 
     private static void closeSilently(Closeable c) {
@@ -243,116 +226,55 @@ public class CppCodeGenerator implements Runnable {
         }
     }
 
-    private void writeFunctions(PrintWriter w, boolean isSource) {
+    private String generateFunctions(boolean isSource) {
+        StringBuilder sb = new StringBuilder();
         for (Element m : mMethods) {
+            String result;
             ExecutableElement e = (ExecutableElement) m;
+            String template = mFileTemplateLoader
+                    .loadTemplate(FileTemplate.NATIVE_METHOD_DECLARE_TEMPLATE.getName());
+            Map<String, String> templateMap = new HashMap<>();
+            templateMap.put("full_java_class_name", mJNIClassName);
+            templateMap.put("modifiers", mHelper.getMethodModifiers(e));
+            templateMap.put("java_return_type", e.getReturnType().toString());
+            templateMap.put("method_name", e.getSimpleName().toString());
+            templateMap.put("java_parameters", mHelper.getJavaMethodParam(e));
+            templateMap.put("jni_return_type", mHelper.toJNIType(e.getReturnType()));
+            templateMap.put("method_signature", mHelper.getMethodSignature(e));
+            templateMap.put("native_parameters", mHelper.getNativeMethodParam(e));
+            templateMap.put("end", isSource ? "" : ";\n");
+            result = StrSubstitutor.replace(template, templateMap);
 
-            //write comment
-            w.print("/*\n" +
-                            " * Class:     ");
-            w.println(mJNIClassName);
-            w.print(" * Method:    ");
-            w.println(mHelper.getMethodNamePresentation(e));
-            w.print(" * Signature: ");
-            w.println(mHelper.getMethodSignature(e));
-            w.println(" */");
-
-            w.print(mHelper.toJNIType(e.getReturnType()));
-            w.print(" ");
-            w.print(m.getSimpleName().toString());
-            w.print("(JNIEnv *env");
-
-            if (m.getModifiers().contains(Modifier.STATIC)) {
-                w.print(", jclass clazz");
-            } else {
-                w.print(", jobject thiz");
+            if (isSource) {
+                result = generateFunctionWithReturnStatement(result, e);
             }
-
-            List<? extends VariableElement> params = e.getParameters();
-            for (VariableElement ve : params) {
-                w.print(", ");
-                w.print(mHelper.toJNIType(ve.asType()));
-                w.print(' ');
-                w.print(ve.getSimpleName().toString());
-            }
-            if (!isSource) {
-                w.println(");\n");
-            } else {
-                w.write(") {\n");
-                NativeCode a = m.getAnnotation(NativeCode.class);
-                if (a != null) {
-                    for (String s : a.value()) {
-                        w.print("    ");
-                        w.println(s);
-                    }
-                } else {
-                    String returnStatement = mHelper.getReturnStatement(e);
-                    log("return type=" + e.getReturnType().toString() + " name=" + e.getSimpleName());
-                    if (returnStatement != null) {
-                        w.print("    "); //4 space
-                        w.println(returnStatement);
-                    }
-                }
-                w.println("}\n");
-            }
-
+            sb.append(result).append("\n");
         }
+        return sb.toString();
     }
 
-    private void writeSourceTail(PrintWriter w) {
-        w.println("static const JNINativeMethod gsNativeMethods[] = {");
-        int methodLen = mMethods.size();
-        for (int i = 0; i < methodLen; i++) {
-            if (i == 0) {
-                w.println("    {");
-            } else {
-                w.println("    }, {");
+    private String generateFunctionWithReturnStatement(String declare, ExecutableElement m) {
+        String template = mFileTemplateLoader
+                .loadTemplate(FileTemplate.NATIVE_METHOD_TEMPLATE.getName());
+        Map<String, String> templateMap = new HashMap<>();
+        templateMap.put("native_method_declare_template", declare);
+
+        StringBuilder returnStatement = new StringBuilder();
+        NativeCode a = m.getAnnotation(NativeCode.class);
+        if (a != null) {
+            for (String s : a.value()) {
+                returnStatement.append("    ")
+                               .append(s)
+                               .append("\n");
             }
-            writeNativeMethodMapArray((ExecutableElement) mMethods.get(i), w);
-            if (i == methodLen - 1) {
-                w.println("    }");
+            if (returnStatement.length() > 0) {
+                returnStatement.replace(returnStatement.length() - 1, returnStatement.length(), "");
             }
+        } else {
+            returnStatement.append(mHelper.getReturnStatement(m));
         }
-        w.print("};\n" +
-                        "static const int gsMethodCount =\n    sizeof(gsNativeMethods) / sizeof(JNINativeMethod); //");
-        w.println(mMethods.size());
-        w.println();
+        templateMap.put("default_return_statement", returnStatement.toString());
 
-        writeNativeRegistrationFunc(w, true);
-        //JNI_OnLoad
-        w.print("JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {\n" +
-                        "    JNIEnv* env;\n" +
-                        "    if (vm->GetEnv(reinterpret_cast<void**>(&env),\n" +
-                        "                JNI_VERSION_1_6) != JNI_OK) {\n" +
-                        "        return -1;\n" +
-                        "    }\n" +
-                        "    register_");
-        w.print(mJNIClassName);
-        w.println("(env);");
-        w.print("    return JNI_VERSION_1_6;\n" +
-                        "}\n" +
-                        "\n");
-
-        //JNI_OnUnload
-        w.println("JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {\n    \n}");
+        return StrSubstitutor.replace(template, templateMap);
     }
-
-    private void writeNativeMethodMapArray(ExecutableElement method,
-            PrintWriter w) {
-        final String methodName = method.getSimpleName().toString();
-        w.print("        /* method name      */ const_cast<char *>(");
-        w.print('\"');
-        w.print(methodName);
-        w.println("\"),");
-
-        w.print("        /* method signature */ const_cast<char *>(");
-        w.print('\"');
-        w.print(mHelper.getBinaryMethodSignature(method));
-        w.println("\"),");
-
-        w.print("        /* function pointer */ reinterpret_cast<void *>(");
-        w.print(methodName);
-        w.println(')');
-    }
-
 }

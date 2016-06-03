@@ -11,6 +11,7 @@
 
 #define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
 
+template<bool global>
 class JavaCallbackReflect {
     //constants
 public:
@@ -53,8 +54,8 @@ public:
 
     ///throw std::runtime_error when construct GlobalRef failed
     JavaCallbackReflect(JNIEnv *env, jobject javaObj) throw(std::runtime_error)
-            : mGlobalJavaObjectReference(env->NewGlobalRef(javaObj)) {
-        if (mGlobalJavaObjectReference == 0) {
+            : mGlobalJavaObjectReference(global ? env->NewGlobalRef(javaObj) : 0) {
+        if (global && mGlobalJavaObjectReference == 0) {
             throw std::runtime_error("Out of memory");
         }
     }
@@ -63,12 +64,14 @@ public:
     JavaCallbackReflect(const JavaCallbackReflect &from) = delete;
 
     void deleteGlobalReference(JNIEnv *env) {
-        env->DeleteGlobalRef(mGlobalJavaObjectReference);
-        mGlobalJavaObjectReference = 0;
+        if (global) {
+            env->DeleteGlobalRef(mGlobalJavaObjectReference);
+            mGlobalJavaObjectReference = 0;
+        }
     }
 
     ~JavaCallbackReflect() {
-        assert(mGlobalJavaObjectReference == 0);
+        assert(!global || mGlobalJavaObjectReference == 0);
     }
 };
 
