@@ -5,6 +5,7 @@ include_directories(
         $ENV{NDK_HOME}/platforms/android-21/arch-arm64/usr/include/
 )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#-fno-exceptions
 
 set(SOURCE_FILES
     com_young_jennysampleapp_ComputeIntensiveClass.cpp

@@ -13,7 +13,7 @@ public @interface NativeReflect {
      * should jenny generate native glue code for all method,
      * inside this class/interface.
      */
-    boolean allMethods() default false;
+    boolean allMethods() default true;
 
-    boolean allFields() default false;
+    boolean allFields() default true;
 }

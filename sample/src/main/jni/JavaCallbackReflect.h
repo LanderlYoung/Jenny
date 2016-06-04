@@ -9,7 +9,7 @@
 #include <jni.h>
 #include <assert.h>
 
-#ifdef __USE_CPP_EXCEPTION__
+#ifdef __EXCEPTIONS
 #include <stdexcept>
 #endif
 
@@ -66,12 +66,12 @@ public:
 
     ///throw std::runtime_error when construct GlobalRef failed
     JavaCallbackReflect(JNIEnv *env, jobject javaObj, bool global)
-#ifdef __USE_CPP_EXCEPTION__
+#ifdef __EXCEPTIONS
     throw(std::runtime_error)
 #endif
             : mGlobal(global),
               mJavaObjectReference(global ? env->NewGlobalRef(javaObj) : javaObj) {
-#ifdef __USE_CPP_EXCEPTION__
+#ifdef __EXCEPTIONS
         if (mGlobal && mJavaObjectReference == 0) {
             throw std::runtime_error("Out of memory");
         }

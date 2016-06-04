@@ -3,7 +3,6 @@ package com.young.util.jni.generator;
 import com.young.jenny.annotation.NativeCode;
 import com.young.util.jni.JNIHelper;
 import com.young.util.jni.generator.template.FileTemplate;
-import com.young.util.jni.generator.template.FileTemplateLoader;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
 
@@ -36,7 +35,6 @@ public class CppCodeGenerator implements Runnable {
     private final TypeElement mClazz;
     private List<Element> mMethods;
     private final HandyHelper mHelper;
-    private final FileTemplateLoader mFileTemplateLoader;
 
     //like com.example_package.SomeClass$InnerClass
     private String mClassName;
@@ -64,7 +62,6 @@ public class CppCodeGenerator implements Runnable {
         mClazz = clazz;
         mMethods = new LinkedList<>();
         mHelper = new HandyHelper(env);
-        mFileTemplateLoader = new FileTemplateLoader("file-template");
     }
 
     @Override
@@ -129,14 +126,12 @@ public class CppCodeGenerator implements Runnable {
             log("write header file [" + fileObject.getName() + "]");
             w = fileObject.openWriter();
 
-            String headerTemplate = mFileTemplateLoader.loadTemplate(FileTemplate.JNI_HEADER_TEMPLATE.getName());
-            Map<String, String> mTemplateMap = new HashMap<>();
-            mTemplateMap.put("include_guard", "_Included_" + mJNIClassName);
-            mTemplateMap.put("consts", generateConstantsDefinition());
-            mTemplateMap.put("methods", generateFunctions(false));
 
-            w.write(
-                    StrSubstitutor.replace(headerTemplate, mTemplateMap)
+            w.write(FileTemplate.withType(FileTemplate.Type.JNI_HEADER_TEMPLATE)
+                                .add("include_guard", "_Included_" + mJNIClassName)
+                                .add("consts", generateConstantsDefinition())
+                                .add("methods", generateFunctions(false))
+                                .create()
             );
 
             w.close();
@@ -154,17 +149,15 @@ public class CppCodeGenerator implements Runnable {
             log("write source file [" + fileObject.getName() + "]");
             w = fileObject.openWriter();
 
-            String fileTemplate = mFileTemplateLoader
-                    .loadTemplate(FileTemplate.JNI_CPP_TEMPLATE.getName());
-            Map<String, String> templateMap = new HashMap<>();
-            templateMap.put("header", mHeaderName);
-            templateMap.put("full_java_class_name", mClassName);
-            templateMap.put("full_slash_class_name", mNativeSlashClassName);
-            templateMap.put("full_native_class_name", mJNIClassName);
-            templateMap.put("methods", generateFunctions(true));
-            templateMap.put("jni_method_struct", generateJniNativeMethodStruct());
-
-            w.write(StrSubstitutor.replace(fileTemplate, templateMap));
+            w.write(FileTemplate.withType(FileTemplate.Type.JNI_CPP_TEMPLATE)
+                                .add("header", mHeaderName)
+                                .add("full_java_class_name", mClassName)
+                                .add("full_slash_class_name", mNativeSlashClassName)
+                                .add("full_native_class_name", mJNIClassName)
+                                .add("methods", generateFunctions(true))
+                                .add("jni_method_struct", generateJniNativeMethodStruct())
+                                .create()
+            );
         } catch (IOException e) {
             warn("generate source file " + mSourceName + " failed");
         } finally {
@@ -176,9 +169,6 @@ public class CppCodeGenerator implements Runnable {
         StringBuilder sb = new StringBuilder();
         //if this field is a compile-time constant value it's
         //value will be returned, otherwise null will be returned.
-        String fileTemplate = mFileTemplateLoader
-                .loadTemplate(FileTemplate.CONSTANT_TEMPLATE.getName());
-        log(fileTemplate);
         Map<String, String> templateMap = new HashMap<>();
         mClazz.getEnclosedElements()
               .stream()
@@ -189,13 +179,14 @@ public class CppCodeGenerator implements Runnable {
                   //if this field is a compile-time constant value it's
                   //value will be returned, otherwise null will be returned.
                   Object constValue = ve.getConstantValue();
-                  templateMap.clear();
-                  templateMap.put("type", mHelper.toNativeType(ve.asType()));
-                  templateMap.put("name", ve.getSimpleName().toString());
-                  templateMap.put("full_class_name", mJNIClassName);
-                  templateMap.put("value", HandyHelper.getJNIHeaderConstantValue(constValue));
 
-                  sb.append(StrSubstitutor.replace(fileTemplate, templateMap));
+                  sb.append(FileTemplate.withType(FileTemplate.Type.CONSTANT_TEMPLATE)
+                                        .add("type", mHelper.toNativeType(ve.asType()))
+                                        .add("name", ve.getSimpleName().toString())
+                                        .add("full_class_name", mJNIClassName)
+                                        .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
+                                        .create()
+                  );
               });
         return sb.toString();
     }
@@ -205,14 +196,12 @@ public class CppCodeGenerator implements Runnable {
         int methodLen = mMethods.size();
         for (int i = 0; i < methodLen; i++) {
             ExecutableElement m = (ExecutableElement) mMethods.get(i);
-            String fileTemplate = mFileTemplateLoader
-                    .loadTemplate(FileTemplate.JNINATIVEMETHOD_STRUCT_TEMPLATE.getName());
-            Map<String, String> templateMap = new HashMap<>();
-            templateMap.put("method_name", m.getSimpleName().toString());
-            templateMap.put("signature", mHelper.getBinaryMethodSignature(m));
-            templateMap.put("comma", i != methodLen - 1 ? "," : "");
-
-            sb.append(StrSubstitutor.replace(fileTemplate, templateMap));
+            sb.append(FileTemplate.withType(FileTemplate.Type.JNINATIVEMETHOD_STRUCT_TEMPLATE)
+                                  .add("method_name", m.getSimpleName().toString())
+                                  .add("signature", mHelper.getBinaryMethodSignature(m))
+                                  .add("comma", i != methodLen - 1 ? "," : "")
+                                  .create()
+            );
         }
         return sb.toString();
     }
@@ -229,22 +218,19 @@ public class CppCodeGenerator implements Runnable {
     private String generateFunctions(boolean isSource) {
         StringBuilder sb = new StringBuilder();
         for (Element m : mMethods) {
-            String result;
             ExecutableElement e = (ExecutableElement) m;
-            String template = mFileTemplateLoader
-                    .loadTemplate(FileTemplate.NATIVE_METHOD_DECLARE_TEMPLATE.getName());
-            Map<String, String> templateMap = new HashMap<>();
-            templateMap.put("full_java_class_name", mJNIClassName);
-            templateMap.put("modifiers", mHelper.getMethodModifiers(e));
-            templateMap.put("java_return_type", e.getReturnType().toString());
-            templateMap.put("method_name", e.getSimpleName().toString());
-            templateMap.put("java_parameters", mHelper.getJavaMethodParam(e));
-            templateMap.put("jni_return_type", mHelper.toJNIType(e.getReturnType()));
-            templateMap.put("method_signature", mHelper.getMethodSignature(e));
-            templateMap.put("native_parameters", mHelper.getNativeMethodParam(e));
-            templateMap.put("end", isSource ? "" : ";\n");
-            result = StrSubstitutor.replace(template, templateMap);
-
+            String result =
+                    FileTemplate.withType(FileTemplate.Type.NATIVE_METHOD_DECLARE_TEMPLATE)
+                                .add("full_java_class_name", mJNIClassName)
+                                .add("modifiers", mHelper.getMethodModifiers(e))
+                                .add("java_return_type", e.getReturnType().toString())
+                                .add("method_name", e.getSimpleName().toString())
+                                .add("java_parameters", mHelper.getJavaMethodParam(e))
+                                .add("jni_return_type", mHelper.toJNIType(e.getReturnType()))
+                                .add("method_signature", mHelper.getMethodSignature(e))
+                                .add("native_parameters", mHelper.getNativeMethodParam(e))
+                                .add("end", isSource ? "" : ";\n")
+                                .create();
             if (isSource) {
                 result = generateFunctionWithReturnStatement(result, e);
             }
@@ -254,10 +240,8 @@ public class CppCodeGenerator implements Runnable {
     }
 
     private String generateFunctionWithReturnStatement(String declare, ExecutableElement m) {
-        String template = mFileTemplateLoader
-                .loadTemplate(FileTemplate.NATIVE_METHOD_TEMPLATE.getName());
-        Map<String, String> templateMap = new HashMap<>();
-        templateMap.put("native_method_declare_template", declare);
+        FileTemplate template = FileTemplate.withType(FileTemplate.Type.NATIVE_METHOD_TEMPLATE)
+                                            .add("native_method_declare_template", declare);
 
         StringBuilder returnStatement = new StringBuilder();
         NativeCode a = m.getAnnotation(NativeCode.class);
@@ -273,8 +257,7 @@ public class CppCodeGenerator implements Runnable {
         } else {
             returnStatement.append(mHelper.getReturnStatement(m));
         }
-        templateMap.put("default_return_statement", returnStatement.toString());
-
-        return StrSubstitutor.replace(template, templateMap);
+        return template.add("default_return_statement", returnStatement.toString())
+                       .create();
     }
 }

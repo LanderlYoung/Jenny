@@ -46,9 +46,10 @@ android {
 }
 
 tasks.withType(JavaCompile) {
-    compileTask -> compileTask.dependsOn ndkBuild
+    compileTask ->  compileTask.finalizedBy(jennyNdkBuild)
 }
 
+//not chained in
 task ndkLibsToJar(type: Zip, dependsOn: 'ndkBuild', description: 'Create a JAR of the native libs') {
     destinationDir new File(buildDir, 'libs')
     baseName 'ndk-libs'
@@ -57,7 +58,7 @@ task ndkLibsToJar(type: Zip, dependsOn: 'ndkBuild', description: 'Create a JAR o
     into 'lib/'
 }
 
-task ndkBuild(type: Exec, description: 'Compile JNI source via NDK') {
+task jennyNdkBuild(type: Exec, description: 'Compile JNI source via NDK') {
     def ndkDir = project.plugins.findPlugin('com.android.application').sdkHandler.ndkFolder
     workingDir 'src/main/jni'
     commandLine "$ndkDir/ndk-build"
