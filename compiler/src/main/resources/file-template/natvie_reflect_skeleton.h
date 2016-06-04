@@ -55,7 +55,7 @@ public:
               mJavaObjectReference(global ? env->NewGlobalRef(javaObj) : javaObj) {
 #ifdef __EXCEPTIONS
         if (mGlobal && mJavaObjectReference == 0) {
-            throw std::runtime_error("Out of memory");
+            throw std::runtime_error("cannot create global reference");
         }
 #endif
     }
@@ -85,12 +85,5 @@ public:
 
 //static fields
 ${static_fields_declare}
-jclass JavaCallbackReflect::sClazz = 0;
-jmethodID JavaCallbackReflect::sConstructor_0 = 0;
-jmethodID JavaCallbackReflect::sMethod_void_onJobDone_1 = 0;
-jmethodID JavaCallbackReflect::sMethod_void_onJobProgress_2 = 0;
-jmethodID JavaCallbackReflect::sMethod_void_onJobStart_3 = 0;
-jmethodID JavaCallbackReflect::sMethod_static_int_aStaticMethod_4 = 0;
 
-#undef __USE_EXCEPTION__
 #undef CHECK_NULL
