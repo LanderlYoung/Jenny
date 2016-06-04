@@ -10,7 +10,9 @@
 #include <assert.h>
 
 #ifdef __EXCEPTIONS
+
 #include <stdexcept>
+
 #endif
 
 #define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
@@ -22,10 +24,12 @@ public:
 private:
     static jclass sClazz;
     static jmethodID sConstructor_0;
-    static jmethodID sMethod_void_onJobDone_1;
-    static jmethodID sMethod_void_onJobProgress_2;
-    static jmethodID sMethod_void_onJobStart_3;
-    static jmethodID sMethod_static_int_aStaticMethod_4;
+    static jmethodID s_void_onJobDone_1;
+    static jmethodID s_void_onJobProgress_2;
+    static jmethodID s_void_onJobStart_3;
+    static jmethodID s_static_int_aStaticMethod_4;
+    static jfieldID s_object_lock_5;
+    static jfieldID s_int_count_6;
 
     bool mGlobal;
     jobject mJavaObjectReference;
@@ -37,14 +41,27 @@ public:
             CHECK_NULL(localClazz);
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
             CHECK_NULL(sClazz);
-//            sConstructor_0 = env->GetMethodID(sClazz, "<init>", "()V");
-//            CHECK_NULL(sConstructor_0);
-            sMethod_void_onJobDone_1 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
-            CHECK_NULL(sMethod_void_onJobDone_1);
-            sMethod_void_onJobProgress_2 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
-            CHECK_NULL(sMethod_void_onJobProgress_2);
-            sMethod_void_onJobStart_3 = env->GetMethodID(sClazz, "onJobStart", "()V");
-            CHECK_NULL(sMethod_void_onJobStart_3);
+
+            //constructors
+            sConstructor_0 = env->GetMethodID(sClazz, "<init>", "()V");
+            CHECK_NULL(sConstructor_0);
+
+            //methods
+            s_void_onJobDone_1 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
+            CHECK_NULL(s_void_onJobDone_1);
+            s_void_onJobProgress_2 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
+            CHECK_NULL(s_void_onJobProgress_2);
+            s_void_onJobStart_3 = env->GetMethodID(sClazz, "onJobStart", "()V");
+            CHECK_NULL(s_void_onJobStart_3);
+            s_static_int_aStaticMethod_4 = env->GetStaticMethodID(sClazz, "aStaticMethod", "()I");
+            CHECK_NULL(s_static_int_aStaticMethod_4);
+
+            //fields
+            s_object_lock_5 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
+            CHECK_NULL(s_object_lock_5);
+            s_int_count_6 = env->GetFieldID(sClazz, "count", "I");
+            CHECK_NULL(s_int_count_6);
+
             return true;
         }
         return true;
@@ -60,6 +77,7 @@ public:
     //construct
     static jobject newInstance(JNIEnv *env) noexcept {
         if (init_clazz(env)) {
+            return env->NewObject(sClazz, sConstructor_0);
         }
         return 0;
     }
@@ -97,25 +115,43 @@ public:
     }
 
     void onJobDone(JNIEnv *env, jboolean success, jstring result) {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_void_onJobDone_1, success, result);
+        env->CallVoidMethod(mJavaObjectReference, s_void_onJobDone_1, success, result);
     }
 
     void onJobProgress(JNIEnv *env, jlong progress) {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_void_onJobProgress_2, progress);
+        env->CallVoidMethod(mJavaObjectReference, s_void_onJobProgress_2, progress);
     }
 
     void onJobStart(JNIEnv *env) {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_void_onJobStart_3);
+        env->CallVoidMethod(mJavaObjectReference, s_void_onJobStart_3);
+    }
+
+    jobject getObject(JNIEnv *env) {
+        return env->GetObjectField(mJavaObjectReference, s_object_lock_5);
+    }
+
+    void setObject(JNIEnv *env, jobject val) {
+        env->SetObjectField(mJavaObjectReference, s_object_lock_5, val);
+    }
+
+    jint getCount(JNIEnv *env) {
+        return env->GetIntField(mJavaObjectReference, s_int_count_6);
+    }
+
+    void setCount(JNIEnv *env, jint count) {
+        env->SetIntField(mJavaObjectReference, s_int_count_6, count);
     }
 };
 
 //static fields
 jclass JavaCallbackReflect::sClazz = 0;
 jmethodID JavaCallbackReflect::sConstructor_0 = 0;
-jmethodID JavaCallbackReflect::sMethod_void_onJobDone_1 = 0;
-jmethodID JavaCallbackReflect::sMethod_void_onJobProgress_2 = 0;
-jmethodID JavaCallbackReflect::sMethod_void_onJobStart_3 = 0;
-jmethodID JavaCallbackReflect::sMethod_static_int_aStaticMethod_4 = 0;
+jmethodID JavaCallbackReflect::s_void_onJobDone_1 = 0;
+jmethodID JavaCallbackReflect::s_void_onJobProgress_2 = 0;
+jmethodID JavaCallbackReflect::s_void_onJobStart_3 = 0;
+jmethodID JavaCallbackReflect::s_static_int_aStaticMethod_4 = 0;
+jfieldID JavaCallbackReflect::s_object_lock_5 = 0;
+jfieldID JavaCallbackReflect::s_int_count_6 = 0;
 
 #undef __USE_EXCEPTION__
 #undef CHECK_NULL

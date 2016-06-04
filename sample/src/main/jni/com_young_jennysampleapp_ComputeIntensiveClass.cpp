@@ -101,7 +101,12 @@ jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
     LOGV("Hello world");
     JavaCallbackReflect callback(env, listener, false);
     callback.onJobStart(env);
+    jobject newInstance = JavaCallbackReflect::newInstance(env);
+    callback.setObject(env, newInstance);
     callback.onJobProgress(env, 100);
+    callback.setCount(env, 100);
+    LOGV("count=%d", callback.getCount(env));
+    callback.setObject(env, listener);
     callback.onJobDone(env, JNI_TRUE, env->NewStringUTF("Yes, callback from jni"));
     return 0;
 }
