@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@tencent.com
  * Date:   2016-06-03
  * Time:   00:42
  * Life with Passion, Code with Creativity.

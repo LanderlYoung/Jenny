@@ -39,7 +39,7 @@ public class NativeTest {
 
 Process you java code with Java Annotation Processor.
 
-The Processor class is `com.young.util.jni.generator.JNICppSourceGenerateProcessor`. You can pass the processor to your javac command with switch `-processor`, like `javac -classpath Jenny.jar -d out/ -processor "com.young.util.jni.generator.JNICppSourceGenerateProcessor"  com/young/test/NativeTest.java`.
+The Processor class is `com.young.util.jni.generator.JennyAnnotationProcessor`. You can pass the processor to your javac command with switch `-processor`, like `javac -classpath Jenny.jar -d out/ -processor "com.young.util.jni.generator.JennyAnnotationProcessor"  com/young/test/NativeTest.java`.
 
 See test for more details.
 

@@ -4,8 +4,6 @@ import com.young.jenny.annotation.NativeCode;
 import com.young.util.jni.JNIHelper;
 import com.young.util.jni.generator.template.FileTemplate;
 
-import org.apache.commons.lang3.text.StrSubstitutor;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -30,23 +28,12 @@ import java.util.Map;
  * Time:   16:03
  * Life with passion. Code with creativity!
  */
-public class CppCodeGenerator implements Runnable {
-    private final Environment mEnv;
-    private final TypeElement mClazz;
-    private List<Element> mMethods;
-    private final HandyHelper mHelper;
-
-    //like com.example_package.SomeClass$InnerClass
-    private String mClassName;
-    //like com_example_1package_SomeClass_InnerClass
-    private String mJNIClassName;
-    //like com/example_package/SomeClass$InnerClass
-    private String mNativeSlashClassName;
-
+public class CppGlueCodeGenerator extends AbsCodeGenerator {
     //header file name
     private String mHeaderName;
     //source file Name
     private String mSourceName;
+    private List<Element> mMethods;
 
     //DONE HandyHelper.toJNIType throwable
     //DONE Use NativeClass to mark generate, NativeCode to add implements
@@ -57,16 +44,9 @@ public class CppCodeGenerator implements Runnable {
     //DONE file output
     //GOING use file template
 
-    public CppCodeGenerator(Environment env, TypeElement clazz) {
-        mEnv = env;
-        mClazz = clazz;
+    public CppGlueCodeGenerator(Environment env, TypeElement clazz) {
+        super(env, clazz);
         mMethods = new LinkedList<>();
-        mHelper = new HandyHelper(env);
-    }
-
-    @Override
-    public void run() {
-        doGenerate();
     }
 
     public void doGenerate() {
@@ -83,7 +63,7 @@ public class CppCodeGenerator implements Runnable {
         mJNIClassName = JNIHelper.toJNIClassName(mClassName);
         mHeaderName = mJNIClassName + ".h";
         mSourceName = mJNIClassName + ".cpp";
-        mNativeSlashClassName = JNIHelper.getNativeSlashClassName(mClassName);
+        mSlashClassName = JNIHelper.getNativeSlashClassName(mClassName);
         log("jenny begin generate glue code for class [" + mClassName + "]");
         log("header : [" + mHeaderName + "]");
         log("source : [" + mSourceName + "]");
@@ -107,19 +87,7 @@ public class CppCodeGenerator implements Runnable {
               });
     }
 
-    private void log(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.NOTE, msg);
-    }
-
-    private void warn(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.WARNING, msg);
-    }
-
-    private void error(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.ERROR, msg);
-    }
-
-    public void generateHeader() {
+   public void generateHeader() {
         Writer w = null;
         try {
             FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, "", mHeaderName);
@@ -152,7 +120,7 @@ public class CppCodeGenerator implements Runnable {
             w.write(FileTemplate.withType(FileTemplate.Type.JNI_CPP_TEMPLATE)
                                 .add("header", mHeaderName)
                                 .add("full_java_class_name", mClassName)
-                                .add("full_slash_class_name", mNativeSlashClassName)
+                                .add("full_slash_class_name", mSlashClassName)
                                 .add("full_native_class_name", mJNIClassName)
                                 .add("methods", generateFunctions(true))
                                 .add("jni_method_struct", generateJniNativeMethodStruct())

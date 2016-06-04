@@ -3,6 +3,8 @@ package com.young.util.jni.generator;
 import com.google.auto.service.AutoService;
 import com.young.jenny.annotation.NativeClass;
 import com.young.jenny.annotation.NativeCode;
+import com.young.jenny.annotation.NativeReflect;
+import com.young.jenny.annotation.NativeReflectMethod;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -16,6 +18,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,7 +29,7 @@ import java.util.Set;
  * Life with passion. Code with creativity!
  */
 @AutoService(Processor.class)
-public class JNICppSourceGenerateProcessor extends AbstractProcessor {
+public class JennyAnnotationProcessor extends AbstractProcessor {
     private Messager mMessager;
     private Types mTypeUtils;
     private Elements mElementsUtils;
@@ -38,9 +41,11 @@ public class JNICppSourceGenerateProcessor extends AbstractProcessor {
         SUPPORTED_ANNOTATIONS = new HashSet<>();
         SUPPORTED_ANNOTATIONS.add(NativeClass.class.getName());
         SUPPORTED_ANNOTATIONS.add(NativeCode.class.getName());
+        SUPPORTED_ANNOTATIONS.add(NativeReflect.class.getName());
+        SUPPORTED_ANNOTATIONS.add(NativeReflectMethod.class.getName());
     }
 
-    public JNICppSourceGenerateProcessor() {
+    public JennyAnnotationProcessor() {
     }
 
     @Override
@@ -54,22 +59,37 @@ public class JNICppSourceGenerateProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (roundEnv.errorRaised() || roundEnv.processingOver()) return true;
+        if (roundEnv.errorRaised() || roundEnv.processingOver()) return false;
 
+        generateNativeGlueCode(roundEnv);
+        generateNativeReflect(roundEnv);
+
+        return true;
+    }
+
+    private boolean generateNativeGlueCode(RoundEnvironment roundEnv) {
         //classify annotations by class
         Set<? extends Element> classes = roundEnv.getElementsAnnotatedWith(NativeClass.class);
+        if (classes.isEmpty()) return false;
 
-        if (classes.isEmpty()) return true;
-
-        final Environment env = new Environment(mMessager,
+        Environment env = new Environment(mMessager,
                 mTypeUtils, mElementsUtils, mFiler, roundEnv);
-        for (Element ec : classes) {
-            if (ec instanceof TypeElement) {
-                CppCodeGenerator codeGen = new CppCodeGenerator(env, (TypeElement) ec);
-                codeGen.doGenerate();
-            }
-        }
+        classes.stream()
+               .filter(ec -> ec instanceof TypeElement)
+               .forEach(ec -> new CppGlueCodeGenerator(env, (TypeElement) ec).doGenerate());
         return true;
+    }
+
+    private boolean generateNativeReflect(RoundEnvironment roundEnv) {
+        Set<? extends Element> classes = roundEnv.getElementsAnnotatedWith(NativeReflect.class);
+        if (classes.isEmpty()) return false;
+
+        Environment env = new Environment(mMessager,
+                mTypeUtils, mElementsUtils, mFiler, roundEnv);
+        classes.stream()
+               .filter(ec -> ec instanceof TypeElement)
+               .forEach(ec -> new NativeReflectCodeGenerator(env, (TypeElement) ec).doGenerate());
+        return false;
     }
 
     @Override

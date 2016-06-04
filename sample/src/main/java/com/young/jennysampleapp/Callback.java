@@ -1,10 +1,11 @@
 package com.young.jennysampleapp;
 
+import com.young.jenny.annotation.NativeAccessField;
 import com.young.jenny.annotation.NativeReflect;
 import com.young.jenny.annotation.NativeReflectMethod;
 
 /**
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@tencent.com
  * Date:   2016-06-02
  * Time:   19-58
  * Life with Passion, Code with Creativity.
@@ -12,8 +13,9 @@ import com.young.jenny.annotation.NativeReflectMethod;
 @NativeReflect(allFields = false, allMethods = false)
 public class Callback {
 
-     protected Object lock;
+    protected Object lock;
 
+    @NativeAccessField(getter = true, setter = true, auto = false)
     public int count;
 
     @NativeReflectMethod

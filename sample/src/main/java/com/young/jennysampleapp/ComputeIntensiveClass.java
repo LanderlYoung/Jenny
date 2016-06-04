@@ -6,7 +6,7 @@ import com.young.jenny.annotation.NativeCode;
 import java.util.HashMap;
 
 /**
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@tencent.com
  * Date:   2016-05-24
  * Time:   20-50
  * Life with Passion, Code with Creativity.
