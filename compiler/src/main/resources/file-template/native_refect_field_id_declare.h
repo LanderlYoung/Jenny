@@ -1,1 +1,1 @@
-static jmethodID ${name};
+static jfieldID ${name};

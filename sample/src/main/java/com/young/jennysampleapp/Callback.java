@@ -9,16 +9,37 @@ import com.young.jenny.annotation.NativeReflectMethod;
  * Time:   19-58
  * Life with Passion, Code with Creativity.
  */
-@NativeReflect
-public interface Callback {
-    @NativeReflectMethod
-    void onJobDone(boolean success, String result);
+@NativeReflect(allFields = false, allMethods = false)
+public class Callback {
+
+     protected Object lock;
+
+    public int count;
 
     @NativeReflectMethod
-    void onJobProgress(long progress);
+    public Callback() {
+    }
+
+    public static int aStaticMethod() {
+        return 0;
+    }
 
     @NativeReflectMethod
-    void onJobStart();
+    void onJobDone(boolean success, String result) {
 
-    int prepareRun();
+    }
+
+    @NativeReflectMethod
+    void onJobProgress(long progress) {
+
+    }
+
+    @NativeReflectMethod
+    void onJobStart() {
+
+    }
+
+    int prepareRun() {
+        return 0;
+    }
 }

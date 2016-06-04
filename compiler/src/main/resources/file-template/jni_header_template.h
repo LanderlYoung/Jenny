@@ -4,8 +4,7 @@
  */
 
 /* C/C++ header file for class com.young.jennysampleapp.ComputeIntensiveClass */
-#ifndef ${include_guard}
-#define ${include_guard}
+#pragma once
 
 #include <jni.h>
 
@@ -21,5 +20,3 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved);
 #ifdef __cplusplus
 }
 #endif
-
-#endif //${include_guard}

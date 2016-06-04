@@ -1,7 +1,3 @@
-    //construct
-    static jobject newInstance(JNIEnv *env${param_declare}) noexcept {
-        if (init_clazz(env)) {
-            return env->NewObject(sClazz, ${constructor_method_id}${param_val});
-        }
-        return 0;
+    ${static_modifier}${return_value} ${method_name}(JNIEnv *env${param_declare}) {
+        ${return}env->Call${static}${type}Method(${clazz_or_obj}, ${method_id}${param_value});
     }

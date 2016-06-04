@@ -44,12 +44,7 @@ public:
         }
     }
 
-    //construct
-    static jobject newInstance(JNIEnv *env) noexcept {
-        if (init_clazz(env)) {
-        }
-        return 0;
-    }
+    ${constructors}
 
     ///throw std::runtime_error when construct GlobalRef failed
     JavaCallbackReflect(JNIEnv *env, jobject javaObj, bool global)
@@ -83,17 +78,9 @@ public:
         assert(!mGlobal || mJavaObjectReference == 0);
     }
 
-    void onJobDone(JNIEnv *env, jboolean success, jstring result) {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_void_onJobDone_1, success, result);
-    }
+    ${methods}
 
-    void onJobProgress(JNIEnv *env, jlong progress) {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_void_onJobProgress_2, progress);
-    }
-
-    void onJobStart(JNIEnv *env) {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_void_onJobStart_3);
-    }
+    ${fields_getter_setter}
 };
 
 //static fields

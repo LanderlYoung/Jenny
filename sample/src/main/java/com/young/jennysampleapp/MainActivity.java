@@ -36,12 +36,13 @@ public class MainActivity extends AppCompatActivity {
                 nativeClass.computeThenCallback(new Callback() {
                     @Override
                     public void onJobDone(boolean success, String result) {
-                        toast("success=" + success + " result=" + result);
+                        toast("success=" + success + " result=" + result
+                        + "\ncount=" + count + " obj==this = " + (lock == this));
                     }
 
                     @Override
                     public void onJobProgress(long progress) {
-                        toast("onJobProgress = " + progress);
+                        toast("onJobProgress = " + progress + " lock = " + lock);
                     }
 
                     @Override
