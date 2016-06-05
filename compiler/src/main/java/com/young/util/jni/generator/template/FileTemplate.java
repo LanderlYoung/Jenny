@@ -2,12 +2,8 @@ package com.young.util.jni.generator.template;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.CharBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -58,10 +54,11 @@ public class FileTemplate {
         NATIVE_REFLECT_CONSTRUCTORS("native_reflect_constructors.h"),
         NATIVE_REFLECT_FIELD_ID_DECLARE("native_reflect_field_id_declare.h"),
         NATIVE_REFLECT_FIELD_ID_INIT("native_reflect_field_id_init.h"),
-        NATIVE_REFLECT_FIELDS_GETTER_SETTER("native_reflect_fields_getter_setter.h"),
+        NATIVE_REFLECT_FIELDS_GETTER_SETTER("native_reflect_fields_getter_setters.h"),
         NATIVE_REFLECT_METHOD_ID_DECLARE("native_reflect_method_id_declare.h"),
         NATIVE_REFLECT_METHOD_ID_INIT("native_reflect_method_id_init.h"),
-        NATIVE_REFLECT_METHODS("native_reflect_methods.h");
+        NATIVE_REFLECT_METHODS("native_reflect_methods.h"),
+        NATIVE_REFLECT_CPP_STATIC_INIT("native_reflect_cpp_static_init.h");
 
         private String mName;
 
@@ -98,7 +95,11 @@ public class FileTemplate {
         }
 
         private static String readStream(InputStream in) {
-            return new Scanner(in).useDelimiter("\\Z").next();
+            if (in != null) {
+                return new Scanner(in).useDelimiter("\\Z").next();
+            } else {
+                return null;
+            }
         }
     }
 }

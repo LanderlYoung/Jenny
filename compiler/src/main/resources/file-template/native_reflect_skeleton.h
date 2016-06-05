@@ -9,7 +9,7 @@
 
 #define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
 
-class JavaCallbackReflect {
+class ${cpp_class_name} {
 public:
     static constexpr const char *const FULL_CLASS_NAME = "${full_class_name_const}";
 private:
@@ -46,7 +46,7 @@ public:
 ${constructors}
 
     ///throw std::runtime_error when construct GlobalRef failed
-    JavaCallbackReflect(JNIEnv *env, jobject javaObj, bool global)
+    ${cpp_class_name}(JNIEnv *env, jobject javaObj, bool global)
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
 #endif
@@ -64,7 +64,7 @@ ${constructors}
     }
 
     ///no copy construct
-    JavaCallbackReflect(const JavaCallbackReflect &from) = delete;
+    ${cpp_class_name}(const ${cpp_class_name} &from) = delete;
 
     void deleteGlobalReference(JNIEnv *env) {
         if (mGlobal) {
@@ -73,7 +73,7 @@ ${constructors}
         }
     }
 
-    ~JavaCallbackReflect() {
+    ~${cpp_class_name}() {
         assert(!mGlobal || mJavaObjectReference == 0);
     }
 
@@ -83,6 +83,7 @@ ${fields_getter_setter}
 };
 
 //static fields
+jclass ${cpp_class_name}::sClazz = 0;
 ${static_declare}
 
 #undef CHECK_NULL

@@ -1,7 +1,5 @@
 package com.young.jennysampleapp;
 
-import android.telecom.Call;
-
 import com.young.jenny.annotation.NativeAccessField;
 import com.young.jenny.annotation.NativeReflect;
 import com.young.jenny.annotation.NativeReflectMethod;
@@ -23,7 +21,7 @@ public class Callback {
     @NativeAccessField(getter = true, setter = true, auto = false)
     public int count;
 
-    public static ArrayList<String> staticField;
+    public static ArrayList<String> aStaticField;
 
     @NativeReflectMethod
     public Callback() {

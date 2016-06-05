@@ -12,6 +12,8 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
@@ -58,6 +60,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
         init();
         writeToFile(FileTemplate
                 .withType(FileTemplate.Type.NATIVE_REFLECT_SKELETON)
+                .add("cpp_class_name", getCppClassName())
                 .add("full_class_name_const", mSlashClassName)
                 .add("constructors_id_declare", generateConstructorIdDeclare())
                 .add("methods_id_declare", generateMethodIdDeclare())
@@ -68,9 +71,13 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                 .add("constructors", generateConstructors())
                 .add("methods", generateMethods())
                 .add("fields_getter_setter", generateFields())
-                .add("static_declare", generateStaticDeclare())
+                .add("static_declare", generateCppStaticDeclare())
                 .create()
         );
+    }
+
+    private String getCppClassName() {
+        return mJNIClassName;
     }
 
     private String generateConstructorIdDeclare() {
@@ -181,7 +188,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                                  .withType(FileTemplate.Type.NATIVE_REFLECT_CONSTRUCTORS)
                                  .add("constructor_method_id", getConstructorName(c, mDummyIndex++))
                                  .add("param_declare", getJniMethodParam(c))
-                                 .add("param_val", getMethodParamVal(c))
+                                 .add("param_val", getJniMethodParamVal(c))
                                  .create()
                          );
                      });
@@ -189,15 +196,92 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
     }
 
     private String generateMethods() {
-        return null;
+        mDummyIndex = 0;
+        StringBuilder sb = new StringBuilder();
+        mMethods.values()
+                .stream()
+                .forEach(m -> {
+                    final boolean isStatic = m.getModifiers().contains(Modifier.STATIC);
+                    sb.append(FileTemplate
+                            .withType(FileTemplate.Type.NATIVE_REFLECT_METHODS)
+                            .add("name", m.getSimpleName().toString())
+                            .add("method_id", getMethodName(m, mDummyIndex++))
+                            .add("static_modifier", isStatic ? "static " : "")
+                            .add("static", isStatic ? "Static" : "")
+                            .add("return_value", mHelper.toJNIType(m.getReturnType()))
+                            .add("param_declare", getJniMethodParam(m))
+                            .add("param_value", getJniMethodParamVal(m))
+                            .add("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference")
+                            .add("type", getTypeForJniCall(m.getReturnType()))
+                            .add("return", m.getReturnType().getKind() != TypeKind.VOID ? "return " : "")
+                            .create()
+                    );
+                });
+        return sb.toString();
     }
 
     private String generateFields() {
-        return null;
+        mDummyIndex = 0;
+        StringBuilder sb = new StringBuilder();
+        mFields.values()
+               .stream()
+               .forEach(f -> {
+                   final boolean isStatic = f.getModifiers().contains(Modifier.STATIC);
+                   sb.append(FileTemplate
+                           .withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
+                           .add("return_val", mHelper.toJNIType(f.asType()))
+                           .add("camel_case_name", camelCase(f.getSimpleName().toString()))
+                           .add("static", isStatic ? "Static" : "")
+                           .add("_type", getTypeForJniCall(f.asType()))
+                           .add("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference")
+                           .add("field_id", getFieldName(f, mDummyIndex++))
+                           .add("name", f.getSimpleName().toString())
+                           .add("type", mHelper.toJNIType(f.asType()))
+                           .create()
+                   );
+               });
+
+        return sb.toString();
     }
 
-    private String generateStaticDeclare() {
-        return null;
+    private String generateCppStaticDeclare() {
+        StringBuilder sb = new StringBuilder(2048);
+
+        mDummyIndex = 0;
+        mConstructors.stream()
+                     .forEach(c -> {
+                         sb.append(FileTemplate
+                                 .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)
+                                 .add("type", "jmethodID")
+                                 .add("cpp_class_name", getCppClassName())
+                                 .add("name", getConstructorName(c, mDummyIndex++))
+                                 .create()
+                         );
+                     });
+
+        mDummyIndex = 0;
+        mMethods.values().stream()
+                .forEach(m -> {
+                    sb.append(FileTemplate
+                            .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)
+                            .add("type", "jmethodID")
+                            .add("cpp_class_name", getCppClassName())
+                            .add("name", getMethodName(m, mDummyIndex++))
+                            .create());
+                });
+
+        mDummyIndex = 0;
+        mFields.values().stream()
+               .forEach(f -> {
+                   sb.append(FileTemplate
+                           .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)
+                           .add("type", "jfieldID")
+                           .add("cpp_class_name", getCppClassName())
+                           .add("name", getFieldName(f, mDummyIndex++))
+                           .create());
+               });
+
+        return sb.toString();
     }
 
     private String getConstructorName(ExecutableElement e, int index) {
@@ -276,12 +360,27 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
         return sb.toString();
     }
 
-    private String getMethodParamVal(ExecutableElement m) {
+    private String getJniMethodParamVal(ExecutableElement m) {
         StringBuilder sb = new StringBuilder(64);
         m.getParameters().forEach(p -> {
             sb.append(" ,")
               .append(p.getSimpleName());
         });
         return sb.toString();
+    }
+
+    private String getTypeForJniCall(TypeMirror type) {
+        String result;
+        TypeKind k = type.getKind();
+        if (k.isPrimitive() || k == TypeKind.VOID) {
+            result = k.name().toLowerCase();
+        } else {
+            result = "object";
+        }
+        return camelCase(result);
+    }
+
+    private String camelCase(String s) {
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 }
