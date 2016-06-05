@@ -70,6 +70,28 @@ public final class HandyHelper {
         return sb.toString();
     }
 
+    /**
+     * @return like com/example_package/SomeClass$InnerClass
+     */
+    public String getSlashClassName(String className) {
+        return className.replace('.', '/');
+    }
+
+    public String getJNIClassName(Class<?> c) {
+        return toJNIClassName(c.getName());
+    }
+
+    /**
+     * @param className
+     * @return like com_example_1package_SomeClass_InnerClass
+     */
+    public String toJNIClassName(String className) {
+        if (className == null) return null;
+        return className.replace("_", "_1")
+                        .replace(".", "_")
+                        .replace('$', '_'); //inner class
+    }
+
     public String getMethodModifiers(ExecutableElement m) {
         StringBuilder sb = new StringBuilder();
         m.getModifiers()

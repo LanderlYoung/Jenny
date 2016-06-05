@@ -37,6 +37,11 @@ public class FileTemplate {
         return StrSubstitutor.replace(mTemplate, mTemplateParams);
     }
 
+    public String create(Map<String, String> replacements) {
+        mTemplateParams.putAll(replacements);
+        return create();
+    }
+
     public static FileTemplate withType(Type t) {
         return new FileTemplate(sFileTemplateLoader.loadTemplate(t.getName()));
     }
@@ -63,6 +68,8 @@ public class FileTemplate {
     private static class FileTemplateLoader {
         public String mDirectory;
 
+        //we are not running in Android! we are running at desktop environment!
+        //YEAH! don't care too much about little memory pressure.
         private final Map<String, String> mInfiniteCache = new HashMap<>();
 
         public FileTemplateLoader(String directory) {

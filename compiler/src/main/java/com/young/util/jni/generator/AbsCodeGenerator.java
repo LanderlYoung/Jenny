@@ -1,7 +1,5 @@
 package com.young.util.jni.generator;
 
-import com.young.util.jni.JNIHelper;
-
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
@@ -33,8 +31,8 @@ public abstract class AbsCodeGenerator {
         mHelper = new HandyHelper(env);
 
         mClassName = mHelper.getClassName(mClazz);
-        mJNIClassName = JNIHelper.toJNIClassName(mClassName);
-        mSlashClassName = JNIHelper.getNativeSlashClassName(mClassName);
+        mJNIClassName = mHelper.toJNIClassName(mClassName);
+        mSlashClassName = mHelper.getSlashClassName(mClassName);
     }
 
     public abstract void doGenerate();

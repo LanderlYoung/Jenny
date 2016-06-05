@@ -1,7 +1,6 @@
 package com.young.util.jni.generator;
 
 import com.young.jenny.annotation.NativeCode;
-import com.young.util.jni.JNIHelper;
 import com.young.util.jni.generator.template.FileTemplate;
 
 import java.io.Closeable;
@@ -57,10 +56,10 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         if (!mClazz.getKind().equals(ElementKind.CLASS)) return false;
 
         mClassName = mHelper.getClassName(mClazz);
-        mJNIClassName = JNIHelper.toJNIClassName(mClassName);
+        mJNIClassName = mHelper.toJNIClassName(mClassName);
         mHeaderName = mJNIClassName + ".h";
         mSourceName = mJNIClassName + ".cpp";
-        mSlashClassName = JNIHelper.getNativeSlashClassName(mClassName);
+        mSlashClassName = mHelper.getSlashClassName(mClassName);
         log("jenny begin generate glue code for class [" + mClassName + "]");
         log("header : [" + mHeaderName + "]");
         log("source : [" + mSourceName + "]");
