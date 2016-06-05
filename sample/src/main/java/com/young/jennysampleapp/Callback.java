@@ -1,8 +1,13 @@
 package com.young.jennysampleapp;
 
+import android.telecom.Call;
+
 import com.young.jenny.annotation.NativeAccessField;
 import com.young.jenny.annotation.NativeReflect;
 import com.young.jenny.annotation.NativeReflectMethod;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -18,8 +23,18 @@ public class Callback {
     @NativeAccessField(getter = true, setter = true, auto = false)
     public int count;
 
+    public static ArrayList<String> staticField;
+
     @NativeReflectMethod
     public Callback() {
+    }
+
+    public Callback(int a) {
+
+    }
+
+    public Callback(HashMap<?,?> sth) {
+
     }
 
     public static int aStaticMethod() {

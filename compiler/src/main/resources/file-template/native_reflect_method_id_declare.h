@@ -1,0 +1,2 @@
+    static jmethodID ${name};
+

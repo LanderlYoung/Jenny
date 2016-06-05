@@ -15,12 +15,20 @@ public abstract class AbsCodeGenerator {
     protected final TypeElement mClazz;
     protected final HandyHelper mHelper;
 
-    //like com.example_package.SomeClass$InnerClass
-    protected String mClassName;
-    //like com_example_1package_SomeClass_InnerClass
-    protected String mJNIClassName;
-    //like com/example_package/SomeClass$InnerClass
-    protected String mSlashClassName;
+    public static final String PKG_NAME = "jenny";
+
+    /**
+     * like com.example_package.SomeClass$InnerClass
+     */
+    protected final String mClassName;
+    /**
+     * like com_example_1package_SomeClass_InnerClass
+     */
+    protected final String mJNIClassName;
+    /**
+     * like com/example_package/SomeClass$InnerClass
+     */
+    protected final String mSlashClassName;
 
     public AbsCodeGenerator(Environment env, TypeElement clazz) {
         if (clazz.getKind() != ElementKind.CLASS) {

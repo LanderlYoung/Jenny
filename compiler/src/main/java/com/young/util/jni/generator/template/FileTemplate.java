@@ -7,9 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.Time;
+import java.nio.CharBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -47,12 +48,20 @@ public class FileTemplate {
     }
 
     public enum Type {
-        JNI_CPP_TEMPLATE("jni_cpp_template.cpp"),
-        JNI_HEADER_TEMPLATE("jni_header_template.h"),
-        JNINATIVEMETHOD_STRUCT_TEMPLATE("JNINativeMethodStruct_template.cpp"),
+        NATIVE_CPP_SKELETON("native_cpp_skeleton.cpp"),
+        JNI_HEADER_TEMPLATE("native_header_skeleton.h"),
+        NATIVE_JNI_NATIVE_METHOD_STRUCT("native_jni_nativeMethosStruct.cpp"),
         NATIVE_METHOD_DECLARE_TEMPLATE("native_method_declare_template.h"),
         NATIVE_METHOD_TEMPLATE("native_method_template.cpp"),
-        CONSTANT_TEMPLATE("constant_template.h");
+        CONSTANT_TEMPLATE("cpp_constant.h"),
+        NATIVE_REFLECT_SKELETON("native_reflect_skeleton.h"),
+        NATIVE_REFLECT_CONSTRUCTORS("native_reflect_constructors.h"),
+        NATIVE_REFLECT_FIELD_ID_DECLARE("native_reflect_field_id_declare.h"),
+        NATIVE_REFLECT_FIELD_ID_INIT("native_reflect_field_id_init.h"),
+        NATIVE_REFLECT_FIELDS_GETTER_SETTER("native_reflect_fields_getter_setter.h"),
+        NATIVE_REFLECT_METHOD_ID_DECLARE("native_reflect_method_id_declare.h"),
+        NATIVE_REFLECT_METHOD_ID_INIT("native_reflect_method_id_init.h"),
+        NATIVE_REFLECT_METHODS("native_reflect_methods.h");
 
         private String mName;
 
@@ -89,27 +98,7 @@ public class FileTemplate {
         }
 
         private static String readStream(InputStream in) {
-            StringBuilder sb = new StringBuilder();
-            if (in != null) {
-                BufferedReader bin = new BufferedReader(new InputStreamReader(in));
-                String line;
-                try {
-                    while ((line = bin.readLine()) != null) {
-                        sb.append(line);
-                        sb.append('\n');
-                    }
-                    if (sb.length() > 0) {
-                        sb.replace(sb.length() - 1, sb.length(), "");
-                    }
-                } catch (IOException e) {
-                    try {
-                        in.close();
-                    } catch (IOException e1) {
-                        //ignore
-                    }
-                }
-            }
-            return sb.toString();
+            return new Scanner(in).useDelimiter("\\Z").next();
         }
     }
 }

@@ -10,28 +10,27 @@
 #define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
 
 class JavaCallbackReflect {
-    //constants
 public:
-    ${full_class_name_const}
+    static constexpr const char *const FULL_CLASS_NAME = "${full_class_name_const}";
 private:
     static jclass sClazz;
-    {$constructors_id_declare};
-    {$methods_id_declare};
-    {$fields_id_declare};
 
+${constructors_id_declare}
+${methods_id_declare}
+${fields_id_declare}
     bool mGlobal;
     jobject mJavaObjectReference;
 
 public:
     static bool init_clazz(JNIEnv *env) {
         if (sClazz == 0) {
-            auto localClazz = env->FindClass(CLASS_FULL_NAME);
+            auto localClazz = env->FindClass(FULL_CLASS_NAME);
             CHECK_NULL(localClazz);
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
             CHECK_NULL(sClazz);
-            {$constructors_id_init};
-            {$methods_id_init};
-            {$fields_id_init};
+            ${constructors_id_init};
+            ${methods_id_init};
+            ${fields_id_init};
             return true;
         }
         return true;
@@ -44,7 +43,7 @@ public:
         }
     }
 
-    ${constructors}
+${constructors}
 
     ///throw std::runtime_error when construct GlobalRef failed
     JavaCallbackReflect(JNIEnv *env, jobject javaObj, bool global)
@@ -78,12 +77,12 @@ public:
         assert(!mGlobal || mJavaObjectReference == 0);
     }
 
-    ${methods}
+${methods}
 
-    ${fields_getter_setter}
+${fields_getter_setter}
 };
 
 //static fields
-${static_fields_declare}
+${static_declare}
 
 #undef CHECK_NULL

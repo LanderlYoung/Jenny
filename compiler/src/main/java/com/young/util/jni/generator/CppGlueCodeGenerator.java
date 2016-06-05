@@ -55,11 +55,8 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
     private boolean init() {
         if (!mClazz.getKind().equals(ElementKind.CLASS)) return false;
 
-        mClassName = mHelper.getClassName(mClazz);
-        mJNIClassName = mHelper.toJNIClassName(mClassName);
         mHeaderName = mJNIClassName + ".h";
         mSourceName = mJNIClassName + ".cpp";
-        mSlashClassName = mHelper.getSlashClassName(mClassName);
         log("jenny begin generate glue code for class [" + mClassName + "]");
         log("header : [" + mHeaderName + "]");
         log("source : [" + mSourceName + "]");
@@ -83,10 +80,10 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
               });
     }
 
-   public void generateHeader() {
+    public void generateHeader() {
         Writer w = null;
         try {
-            FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, "", mHeaderName);
+            FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, mHeaderName);
             log("write header file [" + fileObject.getName() + "]");
             w = fileObject.openWriter();
 
@@ -102,18 +99,18 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         } catch (IOException e) {
             warn("generate header file " + mHeaderName + " failed!");
         } finally {
-            closeSilently(w);
+            IOUtils.closeSilently(w);
         }
     }
 
     public void generateSource() {
         Writer w = null;
         try {
-            FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, "", mSourceName);
+            FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, mSourceName);
             log("write source file [" + fileObject.getName() + "]");
             w = fileObject.openWriter();
 
-            w.write(FileTemplate.withType(FileTemplate.Type.JNI_CPP_TEMPLATE)
+            w.write(FileTemplate.withType(FileTemplate.Type.NATIVE_CPP_SKELETON)
                                 .add("header", mHeaderName)
                                 .add("full_java_class_name", mClassName)
                                 .add("full_slash_class_name", mSlashClassName)
@@ -125,7 +122,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         } catch (IOException e) {
             warn("generate source file " + mSourceName + " failed");
         } finally {
-            closeSilently(w);
+            IOUtils.closeSilently(w);
         }
     }
 
@@ -159,7 +156,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         int methodLen = mMethods.size();
         for (int i = 0; i < methodLen; i++) {
             ExecutableElement m = (ExecutableElement) mMethods.get(i);
-            sb.append(FileTemplate.withType(FileTemplate.Type.JNINATIVEMETHOD_STRUCT_TEMPLATE)
+            sb.append(FileTemplate.withType(FileTemplate.Type.NATIVE_JNI_NATIVE_METHOD_STRUCT)
                                   .add("method_name", m.getSimpleName().toString())
                                   .add("signature", mHelper.getBinaryMethodSignature(m))
                                   .add("comma", i != methodLen - 1 ? "," : "")
@@ -167,15 +164,6 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
             );
         }
         return sb.toString();
-    }
-
-    private static void closeSilently(Closeable c) {
-        if (c == null) return;
-        try {
-            c.close();
-        } catch (IOException e) {
-
-        }
     }
 
     private String generateFunctions(boolean isSource) {

@@ -1,0 +1,2 @@
+    static jfieldID ${name};
+

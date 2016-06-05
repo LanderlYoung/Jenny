@@ -73,8 +73,7 @@ public class JennyAnnotationProcessor extends AbstractProcessor {
 
         Environment env = new Environment(mMessager,
                 mTypeUtils, mElementsUtils, mFiler, roundEnv);
-        classes.stream()
-               .parallel()
+        classes.parallelStream()
                .filter(ec -> ec instanceof TypeElement)
                .forEach(ec -> new CppGlueCodeGenerator(env, (TypeElement) ec).doGenerate());
         return true;
@@ -86,8 +85,7 @@ public class JennyAnnotationProcessor extends AbstractProcessor {
 
         Environment env = new Environment(mMessager,
                 mTypeUtils, mElementsUtils, mFiler, roundEnv);
-        classes.stream()
-               .parallel()
+        classes.parallelStream()
                .filter(ec -> ec instanceof TypeElement)
                .forEach(ec -> new NativeReflectCodeGenerator(env, (TypeElement) ec).doGenerate());
         return false;

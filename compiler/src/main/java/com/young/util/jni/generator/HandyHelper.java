@@ -34,9 +34,17 @@ public final class HandyHelper {
         return new Signature(method, false).toString();
     }
 
+    public String getTypeSignature(TypeMirror type) {
+        return new Signature(type, false).toString();
+    }
+
     //same as java, but do not change '$' to '/' for inner classes.
     public String getBinaryMethodSignature(ExecutableElement method) {
         return new Signature(method, true).toString();
+    }
+
+    public String getBinaryTypeSignature(TypeMirror type) {
+        return new Signature(type, true).toString();
     }
 
     /**
@@ -301,12 +309,23 @@ public final class HandyHelper {
     private class Signature {
         private final boolean mIsNative;
         private final ExecutableElement mMethod;
+        private final TypeMirror mType;
         private final StringBuilder mCache;
 
-        public Signature(ExecutableElement method, boolean isNative) {
+        private Signature(ExecutableElement method, TypeMirror type, boolean isNative) {
             mMethod = method;
+            mType = type;
             mIsNative = isNative;
             mCache = new StringBuilder();
+        }
+
+        public Signature(ExecutableElement method, boolean isNative) {
+            this(method, null, isNative);
+
+        }
+
+        public Signature(TypeMirror type, boolean isNative) {
+            this((ExecutableElement) null, type, isNative);
         }
 
         //same as java
@@ -367,7 +386,12 @@ public final class HandyHelper {
 
         @Override
         public String toString() {
-            return getMethodSignature();
+            if (mMethod != null) {
+                return getMethodSignature();
+            } else {
+                getSignatureClassName(mType);
+                return mCache.toString();
+            }
         }
     }
 }
