@@ -17,7 +17,7 @@ import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 
 /**
- * Author: LanderlYoung
+ * Author: landerlyoung@gmail.com
  * Date:   2014-12-17
  * Time:   20:19
  * Life with passion. Code with creativity!

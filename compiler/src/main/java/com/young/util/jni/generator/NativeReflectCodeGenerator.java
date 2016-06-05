@@ -3,7 +3,7 @@ package com.young.util.jni.generator;
 import javax.lang.model.element.TypeElement;
 
 /**
- * Author: landerlyoung@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2016-06-05
  * Time:   00:30
  * Life with Passion, Code with Creativity.

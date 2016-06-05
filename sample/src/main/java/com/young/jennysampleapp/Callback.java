@@ -5,7 +5,7 @@ import com.young.jenny.annotation.NativeReflect;
 import com.young.jenny.annotation.NativeReflectMethod;
 
 /**
- * Author: landerlyoung@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2016-06-02
  * Time:   19-58
  * Life with Passion, Code with Creativity.

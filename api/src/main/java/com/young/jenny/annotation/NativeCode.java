@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Author: LanderlYoung
+ * Author: landerlyoung@gmail.com
  * Date:   2014-12-16
  * Time:   19:36
  * Life with passion. Code with creativity!

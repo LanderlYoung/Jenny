@@ -6,6 +6,9 @@ import com.young.jenny.annotation.NativeCode;
 import com.young.jenny.annotation.NativeReflect;
 import com.young.jenny.annotation.NativeReflectMethod;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -18,12 +21,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
-import java.lang.annotation.Annotation;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
- * Author: LanderlYoung
+ * Author: landerlyoung@gmail.com
  * Date:   2014-12-16
  * Time:   19:42
  * Life with passion. Code with creativity!
@@ -75,6 +74,7 @@ public class JennyAnnotationProcessor extends AbstractProcessor {
         Environment env = new Environment(mMessager,
                 mTypeUtils, mElementsUtils, mFiler, roundEnv);
         classes.stream()
+               .parallel()
                .filter(ec -> ec instanceof TypeElement)
                .forEach(ec -> new CppGlueCodeGenerator(env, (TypeElement) ec).doGenerate());
         return true;
@@ -87,6 +87,7 @@ public class JennyAnnotationProcessor extends AbstractProcessor {
         Environment env = new Environment(mMessager,
                 mTypeUtils, mElementsUtils, mFiler, roundEnv);
         classes.stream()
+               .parallel()
                .filter(ec -> ec instanceof TypeElement)
                .forEach(ec -> new NativeReflectCodeGenerator(env, (TypeElement) ec).doGenerate());
         return false;

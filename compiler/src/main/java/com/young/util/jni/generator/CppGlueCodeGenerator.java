@@ -4,26 +4,23 @@ import com.young.jenny.annotation.NativeCode;
 import com.young.util.jni.JNIHelper;
 import com.young.util.jni.generator.template.FileTemplate;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Author: LanderlYoung
+ * Author: landerlyoung@gmail.com
  * Date:   2014-12-17
  * Time:   16:03
  * Life with passion. Code with creativity!
@@ -137,7 +134,6 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         StringBuilder sb = new StringBuilder();
         //if this field is a compile-time constant value it's
         //value will be returned, otherwise null will be returned.
-        Map<String, String> templateMap = new HashMap<>();
         mClazz.getEnclosedElements()
               .stream()
               .filter(e -> e.getKind() == ElementKind.FIELD)

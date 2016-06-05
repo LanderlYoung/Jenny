@@ -2,17 +2,12 @@ package com.young.util.jni.generator;
 
 import com.young.util.jni.JNIHelper;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
 /**
- * Author: landerlyoung@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2016-06-05
  * Time:   00:42
  * Life with Passion, Code with Creativity.

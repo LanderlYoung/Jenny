@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Author: landerlyoung@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2016-06-02
  * Time:   20-01
  * Life with Passion, Code with Creativity.

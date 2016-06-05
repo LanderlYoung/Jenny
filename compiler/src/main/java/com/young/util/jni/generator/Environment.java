@@ -7,7 +7,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 /**
- * Author: LanderlYoung
+ * Author: landerlyoung@gmail.com
  * Date:   2014-12-18
  * Time:   10:02
  * Life with passion. Code with creativity!
