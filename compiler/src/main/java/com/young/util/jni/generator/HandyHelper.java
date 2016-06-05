@@ -170,7 +170,7 @@ public final class HandyHelper {
         sb.append("return ");
         String typeName = e.getReturnType().toString();
         if (String.class.getName().equals(typeName)) {
-            sb.append("env->NewStringUTF(\"Hello From Jni\")");
+            sb.append("env->NewStringUTF(\"Hello From Jenny\")");
         } else if (int.class.getName().equals(typeName)
                 || byte.class.getName().equals(typeName)
                 || char.class.getName().equals(typeName)
@@ -185,7 +185,7 @@ public final class HandyHelper {
             //eat that space
             sb.replace(sb.length() - 1, sb.length(), "");
         } else {
-            sb.append("0"/*nullptr*/);
+            sb.append("nullptr");
         }
         sb.append(";");
         return sb.toString();

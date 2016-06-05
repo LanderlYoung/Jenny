@@ -1,2 +1,2 @@
-${type} ${cpp_class_name}::${name} = 0;
+${type} ${cpp_class_name}::${name} = nullptr;
 

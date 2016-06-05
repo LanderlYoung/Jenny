@@ -10,7 +10,7 @@ static const JNINativeMethod gsNativeMethods[] = {
 ${jni_method_struct}
 };
 static const int gsMethodCount =
-    sizeof(gsNativeMethods) / sizeof(JNINativeMethod); //8
+    sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
 
 /*
  * registe Native functions

@@ -55,9 +55,11 @@ public class FileTemplate {
         NATIVE_REFLECT_FIELD_ID_DECLARE("native_reflect_field_id_declare.h"),
         NATIVE_REFLECT_FIELD_ID_INIT("native_reflect_field_id_init.h"),
         NATIVE_REFLECT_FIELDS_GETTER_SETTER("native_reflect_fields_getter_setters.h"),
+        NATIVE_REFLECT_STATIC_FIELDS_GETTER_SETTER("native_reflect_static_fields_getter_setters.h"),
         NATIVE_REFLECT_METHOD_ID_DECLARE("native_reflect_method_id_declare.h"),
         NATIVE_REFLECT_METHOD_ID_INIT("native_reflect_method_id_init.h"),
         NATIVE_REFLECT_METHODS("native_reflect_methods.h"),
+        NATIVE_REFLECT_STATIC_METHODS("native_reflect_static_methods.h"),
         NATIVE_REFLECT_CPP_STATIC_INIT("native_reflect_cpp_static_init.h");
 
         private String mName;

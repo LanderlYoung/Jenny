@@ -18,12 +18,12 @@ private:
 ${constructors_id_declare}
 ${methods_id_declare}
 ${fields_id_declare}
-    bool mGlobal;
+    const bool mGlobal;
     jobject mJavaObjectReference;
 
 public:
     static bool init_clazz(JNIEnv *env) {
-        if (sClazz == 0) {
+        if (sClazz == nullptr) {
             auto localClazz = env->FindClass(FULL_CLASS_NAME);
             CHECK_NULL(localClazz);
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
@@ -37,9 +37,9 @@ public:
     }
 
     static void release_clazz(JNIEnv *env) {
-        if (sClazz != 0) {
+        if (sClazz != nullptr) {
             env->DeleteGlobalRef(sClazz);
-            sClazz = 0;
+            sClazz = nullptr;
         }
     }
 
@@ -50,17 +50,19 @@ ${constructors}
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
 #endif
-            : mGlobal(global),
-              mJavaObjectReference(global ? env->NewGlobalRef(javaObj) : javaObj) {
+            : mGlobal(global) {
+        if (init_clazz(env)) {
+            mJavaObjectReference = global ? env->NewGlobalRef(javaObj) : javaObj;
+        }
 #ifdef __EXCEPTIONS
-        if (mGlobal && mJavaObjectReference == 0) {
+        if (mGlobal && mJavaObjectReference == nullptr) {
             throw std::runtime_error("cannot create global reference");
         }
 #endif
     }
 
     bool isGlobalJavaReferencePresent() {
-        return mJavaObjectReference != 0;
+        return mJavaObjectReference != nullptr;
     }
 
     ///no copy construct
@@ -69,12 +71,12 @@ ${constructors}
     void deleteGlobalReference(JNIEnv *env) {
         if (mGlobal) {
             env->DeleteGlobalRef(mJavaObjectReference);
-            mJavaObjectReference = 0;
+            mJavaObjectReference = nullptr;
         }
     }
 
     ~${cpp_class_name}() {
-        assert(!mGlobal || mJavaObjectReference == 0);
+        assert(!mGlobal || mJavaObjectReference == nullptr);
     }
 
 ${methods}
@@ -83,7 +85,7 @@ ${fields_getter_setter}
 };
 
 //static fields
-jclass ${cpp_class_name}::sClazz = 0;
+jclass ${cpp_class_name}::sClazz = nullptr;
 ${static_declare}
 
 #undef CHECK_NULL

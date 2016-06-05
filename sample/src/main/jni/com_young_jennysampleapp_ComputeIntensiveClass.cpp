@@ -1,4 +1,5 @@
 #include "com_young_jennysampleapp_ComputeIntensiveClass.h"
+#include "com_young_jennysampleapp_Callback.h"
 
 #define __USE_ANDROID_LOG__ 1
 
@@ -99,14 +100,14 @@ jobject returnsObject(JNIEnv *env, jclass clazz) {
  */
 jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
     LOGV("Hello world");
-    JavaCallbackReflect callback(env, listener, false);
+    com_young_jennysampleapp_Callback callback(env, listener, false);
     callback.onJobStart(env);
-    jobject newInstance = JavaCallbackReflect::newInstance(env);
-    callback.setObject(env, newInstance);
+    jobject newInstance = com_young_jennysampleapp_Callback::newInstance(env);
+    callback.setLock(env, newInstance);
     callback.onJobProgress(env, 100);
     callback.setCount(env, 100);
     LOGV("count=%d", callback.getCount(env));
-    callback.setObject(env, listener);
+    callback.setLock(env, listener);
     callback.onJobDone(env, JNI_TRUE, env->NewStringUTF("Yes, callback from jni"));
     return 0;
 }
@@ -171,6 +172,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
         return -1;
     }
     register_com_young_jennysampleapp_ComputeIntensiveClass(env);
+    //com_young_jennysampleapp_Callback::init_clazz(env);
     bool success = JavaCallbackReflect::init_clazz(env);
     LOGE("init reflect %d", success);
     return JNI_VERSION_1_6;

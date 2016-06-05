@@ -27,10 +27,12 @@ public class Callback {
     public Callback() {
     }
 
+    @NativeReflectMethod
     public Callback(int a) {
 
     }
 
+    @NativeReflectMethod
     public Callback(HashMap<?,?> sth) {
 
     }

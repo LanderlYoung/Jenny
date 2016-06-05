@@ -203,10 +203,12 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                 .forEach(m -> {
                     final boolean isStatic = m.getModifiers().contains(Modifier.STATIC);
                     sb.append(FileTemplate
-                            .withType(FileTemplate.Type.NATIVE_REFLECT_METHODS)
+                            .withType(
+                                    isStatic ? FileTemplate.Type.NATIVE_REFLECT_STATIC_METHODS
+                                            : FileTemplate.Type.NATIVE_REFLECT_METHODS)
                             .add("name", m.getSimpleName().toString())
                             .add("method_id", getMethodName(m, mDummyIndex++))
-                            .add("static_modifier", isStatic ? "static " : "")
+                            //.add("static_modifier", isStatic ? "static " : "")
                             .add("static", isStatic ? "Static" : "")
                             .add("return_value", mHelper.toJNIType(m.getReturnType()))
                             .add("param_declare", getJniMethodParam(m))
@@ -228,7 +230,9 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                .forEach(f -> {
                    final boolean isStatic = f.getModifiers().contains(Modifier.STATIC);
                    sb.append(FileTemplate
-                           .withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
+                           .withType(
+                                   isStatic ? FileTemplate.Type.NATIVE_REFLECT_STATIC_FIELDS_GETTER_SETTER
+                                   :FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
                            .add("return_val", mHelper.toJNIType(f.asType()))
                            .add("camel_case_name", camelCase(f.getSimpleName().toString()))
                            .add("static", isStatic ? "Static" : "")
@@ -352,7 +356,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
     private String getJniMethodParam(ExecutableElement m) {
         StringBuilder sb = new StringBuilder(64);
         m.getParameters().forEach(p -> {
-            sb.append(" ,")
+            sb.append(", ")
               .append(mHelper.toJNIType(p.asType()))
               .append(" ")
               .append(p.getSimpleName());
@@ -363,7 +367,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
     private String getJniMethodParamVal(ExecutableElement m) {
         StringBuilder sb = new StringBuilder(64);
         m.getParameters().forEach(p -> {
-            sb.append(" ,")
+            sb.append(", ")
               .append(p.getSimpleName());
         });
         return sb.toString();

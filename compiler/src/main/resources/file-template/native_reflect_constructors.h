@@ -3,5 +3,5 @@
         if (init_clazz(env)) {
             return env->NewObject(sClazz, ${constructor_method_id}${param_val});
         }
-        return 0;
+        return nullptr;
     }

@@ -31,7 +31,7 @@ private:
     static jfieldID s_object_lock_5;
     static jfieldID s_int_count_6;
 
-    bool mGlobal;
+    const bool mGlobal;
     jobject mJavaObjectReference;
 
 public:
@@ -75,7 +75,7 @@ public:
     }
 
     //construct
-    static jobject newInstance(JNIEnv *env) noexcept {
+    static jobject newInstance(JNIEnv *env) noexcept  {
         if (init_clazz(env)) {
             return env->NewObject(sClazz, sConstructor_0);
         }
@@ -87,8 +87,10 @@ public:
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
 #endif
-            : mGlobal(global),
-              mJavaObjectReference(global ? env->NewGlobalRef(javaObj) : javaObj) {
+            : mGlobal(global) {
+        if (init_clazz(env)) {
+            mJavaObjectReference = global ? env->NewGlobalRef(javaObj) : javaObj;
+        }
 #ifdef __EXCEPTIONS
         if (mGlobal && mJavaObjectReference == 0) {
             throw std::runtime_error("Out of memory");
@@ -96,7 +98,7 @@ public:
 #endif
     }
 
-    bool isGlobalJavaReferencePresent() {
+    bool isGlobalJavaReferencePresent() const {
         return mJavaObjectReference != 0;
     }
 
