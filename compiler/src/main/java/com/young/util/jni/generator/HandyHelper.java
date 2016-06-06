@@ -331,6 +331,17 @@ public final class HandyHelper {
         //same as java
         private String getMethodSignature() {
             mCache.append('(');
+            if (mMethod.getSimpleName().contentEquals("<init>")) {
+                //constructor
+                Element clazz = mMethod.getEnclosingElement();
+                Element enclosingClazz;
+                if (clazz != null
+                        && !clazz.getModifiers().contains(Modifier.STATIC)
+                        && (enclosingClazz = clazz.getEnclosingElement()) != null) {
+                    //generate this$0 param for nested class
+                    getSignatureClassName(enclosingClazz.asType());
+                }
+            }
             for (VariableElement param : mMethod.getParameters()) {
                 getSignatureClassName(param.asType());
             }

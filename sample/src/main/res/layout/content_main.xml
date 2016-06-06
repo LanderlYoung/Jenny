@@ -11,9 +11,10 @@
     tools:context="com.young.jennysampleapp.MainActivity">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:text="Hello World!"
+        android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="@+id/content_main"
         app:layout_constraintLeft_toLeftOf="@+id/content_main"
         app:layout_constraintRight_toRightOf="@+id/content_main"

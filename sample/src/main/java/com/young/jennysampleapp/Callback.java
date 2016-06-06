@@ -19,7 +19,7 @@ public class Callback {
     protected Object lock;
 
     @NativeAccessField(getter = true, setter = true, auto = false)
-    public int count;
+    public final int count = 0;
 
     public static ArrayList<String> aStaticField;
 
@@ -34,6 +34,11 @@ public class Callback {
 
     @NativeReflectMethod
     public Callback(HashMap<?,?> sth) {
+
+    }
+
+    @NativeReflect
+    public class NestedClass {
 
     }
 

@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +26,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         final ComputeIntensiveClass nativeClass = new ComputeIntensiveClass();
+        mTextView = (TextView) findViewById(R.id.text);
+        mTextView.setMovementMethod(ScrollingMovementMethod.getInstance());
+        mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2) + "\n");
+        mTextView.append(ComputeIntensiveClass.greet());
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         assert fab != null;
@@ -58,15 +64,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mTextView = (TextView) findViewById(R.id.text);
-
-        mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2) + "\n");
-        mTextView.append(ComputeIntensiveClass.greet());
-
     }
 
     private void toast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        mTextView.append("\n");
+        mTextView.append(msg);
     }
 
     @Override

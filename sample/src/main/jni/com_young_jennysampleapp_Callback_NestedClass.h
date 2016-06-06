@@ -9,15 +9,16 @@
 
 #define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
 
-class ${cpp_class_name} {
+class com_young_jennysampleapp_Callback_NestedClass {
 public:
-    static constexpr const char *const FULL_CLASS_NAME = "${full_class_name_const}";
+    static constexpr const char *const FULL_CLASS_NAME = "com/young/jennysampleapp/Callback$NestedClass";
 private:
     static jclass sClazz;
 
-${constructors_id_declare}
-${methods_id_declare}
-${fields_id_declare}
+    static jmethodID sConstruct_0;
+
+
+
     const bool mGlobal;
     jobject mJavaObjectReference;
 
@@ -29,9 +30,11 @@ public:
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
             CHECK_NULL(sClazz);
 
-${constructors_id_init}
-${methods_id_init}
-${fields_id_init}
+            sConstruct_0 = env->GetMethodID(sClazz, "<init>", "(Lcom/young/jennysampleapp/Callback;)V");
+            CHECK_NULL(sConstruct_0);
+
+
+
             return true;
         }
         return true;
@@ -44,10 +47,18 @@ ${fields_id_init}
         }
     }
 
-${constructors}
+    //construct
+    static jobject newInstance(JNIEnv *env, jobject enclosingClass) noexcept {
+        if (init_clazz(env)) {
+            return env->NewObject(sClazz, sConstruct_0, enclosingClass);
+        }
+        return nullptr;
+    }
+
+
 
     ///throw std::runtime_error when construct GlobalRef failed
-    ${cpp_class_name}(JNIEnv *env, jobject javaObj, bool global)
+    com_young_jennysampleapp_Callback_NestedClass(JNIEnv *env, jobject javaObj, bool global)
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
 #endif
@@ -67,7 +78,7 @@ ${constructors}
     }
 
     ///no copy construct
-    ${cpp_class_name}(const ${cpp_class_name} &from) = delete;
+    com_young_jennysampleapp_Callback_NestedClass(const com_young_jennysampleapp_Callback_NestedClass &from) = delete;
 
     void deleteGlobalReference(JNIEnv *env) {
         if (mGlobal) {
@@ -76,18 +87,19 @@ ${constructors}
         }
     }
 
-    ~${cpp_class_name}() {
+    ~com_young_jennysampleapp_Callback_NestedClass() {
         assert(!mGlobal || mJavaObjectReference == nullptr);
     }
 
-${methods}
 
-${fields_getter_setter}
+
+
 
 };
 
 //static fields
-jclass ${cpp_class_name}::sClazz = nullptr;
-${static_declare}
+jclass com_young_jennysampleapp_Callback_NestedClass::sClazz = nullptr;
+jmethodID com_young_jennysampleapp_Callback_NestedClass::sConstruct_0 = nullptr;
+
 
 #undef CHECK_NULL

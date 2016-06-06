@@ -355,6 +355,15 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
 
     private String getJniMethodParam(ExecutableElement m) {
         StringBuilder sb = new StringBuilder(64);
+        Element enclosingElement;
+        if ((enclosingElement = mClazz.getEnclosingElement()) != null
+                && !mClazz.getModifiers().contains(Modifier.STATIC)) {
+            //nested class has an this$0 in its constructor
+            sb.append(", ")
+              .append(mHelper.toJNIType(enclosingElement.asType()))
+              .append(" ")
+              .append("enclosingClass");
+        }
         m.getParameters().forEach(p -> {
             sb.append(", ")
               .append(mHelper.toJNIType(p.asType()))
@@ -366,6 +375,12 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
 
     private String getJniMethodParamVal(ExecutableElement m) {
         StringBuilder sb = new StringBuilder(64);
+        if (mClazz.getEnclosingElement() != null
+                && !mClazz.getModifiers().contains(Modifier.STATIC)) {
+            //nested class has an this$0 in its constructor
+            sb.append(", ")
+              .append("enclosingClass");
+        }
         m.getParameters().forEach(p -> {
             sb.append(", ")
               .append(p.getSimpleName());

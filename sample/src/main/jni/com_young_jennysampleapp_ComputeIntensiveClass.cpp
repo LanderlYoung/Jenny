@@ -1,5 +1,6 @@
 #include "com_young_jennysampleapp_ComputeIntensiveClass.h"
 #include "com_young_jennysampleapp_Callback.h"
+#include "com_young_jennysampleapp_Callback_NestedClass.h"
 
 #define __USE_ANDROID_LOG__ 1
 
@@ -102,12 +103,20 @@ jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
     LOGV("Hello world");
     com_young_jennysampleapp_Callback callback(env, listener, false);
     callback.onJobStart(env);
+
     jobject newInstance = com_young_jennysampleapp_Callback::newInstance(env);
     callback.setLock(env, newInstance);
-    callback.onJobProgress(env, 100);
+    callback.onJobProgress(env, 20);
+
+    jobject nestedClass = com_young_jennysampleapp_Callback_NestedClass::newInstance(env, listener);
+    callback.setLock(env, nestedClass);
+    callback.onJobProgress(env, 50);
+
     callback.setCount(env, 100);
     LOGV("count=%d", callback.getCount(env));
     callback.setLock(env, listener);
+    callback.onJobProgress(env, 100);
+
     callback.onJobDone(env, JNI_TRUE, env->NewStringUTF("Yes, callback from jni"));
     return 0;
 }
