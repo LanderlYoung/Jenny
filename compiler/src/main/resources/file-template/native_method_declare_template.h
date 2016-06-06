@@ -4,3 +4,4 @@
  * Signature: ${method_signature}
  */
 ${jni_return_type} ${method_name}(${native_parameters})${end}
+

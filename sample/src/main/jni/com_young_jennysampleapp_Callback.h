@@ -19,15 +19,18 @@ private:
     static jmethodID sConstruct_1;
     static jmethodID sConstruct_2;
 
+
     static jmethodID sMethod_prepareRun_0;
     static jmethodID sMethod_onJobStart_1;
     static jmethodID sMethod_onJobDone_2;
     static jmethodID sMethod_onJobProgress_3;
     static jmethodID sMethod_aStaticMethod_4;
 
+
     static jfieldID sField_count_0;
     static jfieldID sField_aStaticField_1;
     static jfieldID sField_lock_2;
+
 
     const bool mGlobal;
     jobject mJavaObjectReference;
@@ -39,36 +42,31 @@ public:
             CHECK_NULL(localClazz);
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
             CHECK_NULL(sClazz);
-                        sConstruct_0 = env->GetMethodID(sClazz, "<init>", "()V");
+            sConstruct_0 = env->GetMethodID(sClazz, "<init>", "()V");
             CHECK_NULL(sConstruct_0);
-
             sConstruct_1 = env->GetMethodID(sClazz, "<init>", "(I)V");
             CHECK_NULL(sConstruct_1);
-
             sConstruct_2 = env->GetMethodID(sClazz, "<init>", "(Ljava/util/HashMap;)V");
             CHECK_NULL(sConstruct_2);
 
-;
-                        sMethod_prepareRun_0 = env->GetMethodID(sClazz, "prepareRun", "()I");
+            sMethod_prepareRun_0 = env->GetMethodID(sClazz, "prepareRun", "()I");
             CHECK_NULL(sMethod_prepareRun_0);
-
             sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart", "()V");
             CHECK_NULL(sMethod_onJobStart_1);
-
             sMethod_onJobDone_2 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
             CHECK_NULL(sMethod_onJobDone_2);
-
             sMethod_onJobProgress_3 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
             CHECK_NULL(sMethod_onJobProgress_3);
-
             sMethod_aStaticMethod_4 = env->GetStaticMethodID(sClazz, "aStaticMethod", "()I");
             CHECK_NULL(sMethod_aStaticMethod_4);
 
-;
-                        sField_count_0 = env->GetFieldID(sClazz, "count", "I");
-            CHECK_NULL(sField_count_0);            sField_aStaticField_1 = env->GetStaticFieldID(sClazz, "aStaticField", "Ljava/util/ArrayList;");
-            CHECK_NULL(sField_aStaticField_1);            sField_lock_2 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
-            CHECK_NULL(sField_lock_2);;
+            sField_count_0 = env->GetFieldID(sClazz, "count", "I");
+            CHECK_NULL(sField_count_0);
+            sField_aStaticField_1 = env->GetStaticFieldID(sClazz, "aStaticField", "Ljava/util/ArrayList;");
+            CHECK_NULL(sField_aStaticField_1);
+            sField_lock_2 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
+            CHECK_NULL(sField_lock_2);
+
             return true;
         }
         return true;
@@ -87,19 +85,25 @@ public:
             return env->NewObject(sClazz, sConstruct_0);
         }
         return nullptr;
-    }    //construct
+    }
+
+    //construct
     static jobject newInstance(JNIEnv *env, jint a) noexcept {
         if (init_clazz(env)) {
             return env->NewObject(sClazz, sConstruct_1, a);
         }
         return nullptr;
-    }    //construct
+    }
+
+    //construct
     static jobject newInstance(JNIEnv *env, jobject sth) noexcept {
         if (init_clazz(env)) {
             return env->NewObject(sClazz, sConstruct_2, sth);
         }
         return nullptr;
     }
+
+
 
     ///throw std::runtime_error when construct GlobalRef failed
     com_young_jennysampleapp_Callback(JNIEnv *env, jobject javaObj, bool global)
@@ -138,19 +142,24 @@ public:
     jint prepareRun(JNIEnv *env) const {
         return env->CallIntMethod(mJavaObjectReference, sMethod_prepareRun_0);
     }
+
     void onJobStart(JNIEnv *env) const {
         env->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_1);
     }
+
     void onJobDone(JNIEnv *env, jboolean success, jstring result) const {
         env->CallVoidMethod(mJavaObjectReference, sMethod_onJobDone_2, success, result);
     }
+
     void onJobProgress(JNIEnv *env, jlong progress) const {
         env->CallVoidMethod(mJavaObjectReference, sMethod_onJobProgress_3, progress);
     }
+
     static jint aStaticMethod(JNIEnv *env) {
         init_clazz(env);
         return env->CallStaticIntMethod(sClazz, sMethod_aStaticMethod_4);
     }
+
 
 
     jint getCount(JNIEnv *env) const {
@@ -159,7 +168,9 @@ public:
 
     void setCount(JNIEnv *env, jint count) const {
         env->SetIntField(mJavaObjectReference, sField_count_0, count);
-    }    static jobject getAStaticField(JNIEnv *env) {
+    }
+
+    static jobject getAStaticField(JNIEnv *env) {
         init_clazz(env);
         return env->GetStaticObjectField(sClazz, sField_aStaticField_1);
     }
@@ -167,13 +178,17 @@ public:
     static void setAStaticField(JNIEnv *env, jobject aStaticField) {
         init_clazz(env);
         env->SetStaticObjectField(sClazz, sField_aStaticField_1, aStaticField);
-    }    jobject getLock(JNIEnv *env) const {
+    }
+    jobject getLock(JNIEnv *env) const {
         return env->GetObjectField(mJavaObjectReference, sField_lock_2);
     }
 
     void setLock(JNIEnv *env, jobject lock) const {
         env->SetObjectField(mJavaObjectReference, sField_lock_2, lock);
     }
+
+
+
 };
 
 //static fields

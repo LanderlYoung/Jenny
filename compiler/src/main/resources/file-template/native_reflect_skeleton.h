@@ -16,8 +16,11 @@ private:
     static jclass sClazz;
 
 ${constructors_id_declare}
+
 ${methods_id_declare}
+
 ${fields_id_declare}
+
     const bool mGlobal;
     jobject mJavaObjectReference;
 
@@ -28,9 +31,10 @@ public:
             CHECK_NULL(localClazz);
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
             CHECK_NULL(sClazz);
-            ${constructors_id_init};
-            ${methods_id_init};
-            ${fields_id_init};
+
+${constructors_id_init}
+${methods_id_init}
+${fields_id_init}
             return true;
         }
         return true;
@@ -82,6 +86,7 @@ ${constructors}
 ${methods}
 
 ${fields_getter_setter}
+
 };
 
 //static fields

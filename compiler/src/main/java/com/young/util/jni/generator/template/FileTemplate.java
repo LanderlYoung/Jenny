@@ -1,12 +1,17 @@
 package com.young.util.jni.generator.template;
 
+import com.young.util.jni.generator.IOUtils;
+
 import org.apache.commons.lang3.text.StrSubstitutor;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.CharBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -30,6 +35,10 @@ public class FileTemplate {
         return this;
     }
 
+    public String getTemplate() {
+        return mTemplate;
+    }
+
     public String create() {
         return StrSubstitutor.replace(mTemplate, mTemplateParams);
     }
@@ -46,7 +55,7 @@ public class FileTemplate {
     public enum Type {
         NATIVE_CPP_SKELETON("native_cpp_skeleton.cpp"),
         JNI_HEADER_TEMPLATE("native_header_skeleton.h"),
-        NATIVE_JNI_NATIVE_METHOD_STRUCT("native_jni_nativeMethosStruct.cpp"),
+        NATIVE_JNI_NATIVE_METHOD_STRUCT("native_jni_nativeMethodsStruct.cpp"),
         NATIVE_METHOD_DECLARE_TEMPLATE("native_method_declare_template.h"),
         NATIVE_METHOD_TEMPLATE("native_method_template.cpp"),
         CONSTANT_TEMPLATE("cpp_constant.h"),
@@ -98,10 +107,21 @@ public class FileTemplate {
 
         private static String readStream(InputStream in) {
             if (in != null) {
-                return new Scanner(in).useDelimiter("\\Z").next();
-            } else {
-                return null;
+                try {
+                    InputStreamReader reader = new InputStreamReader(new BufferedInputStream(in));
+                    StringBuilder sb = new StringBuilder(in.available());
+                    CharBuffer buffer = CharBuffer.allocate(in.available());
+                    while (reader.read(buffer) != -1) {
+                        buffer.flip();
+                        sb.append(buffer);
+                        buffer.clear();
+                    }
+                    return sb.toString();
+                } catch (IOException e) {
+                    IOUtils.closeSilently(in);
+                }
             }
+                return null;
         }
     }
 }

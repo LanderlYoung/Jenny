@@ -45,6 +45,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         mMethods = new LinkedList<>();
     }
 
+    @Override
     public void doGenerate() {
         if (init() && !mMethods.isEmpty()) {
             generateHeader();

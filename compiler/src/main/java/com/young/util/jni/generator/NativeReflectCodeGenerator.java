@@ -40,11 +40,11 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
     //------ get/setXxxField ----
     //field
 
-    final LinkedList<ExecutableElement> mConstructors;
-    final ArrayListMultimap<String, ExecutableElement> mMethods;
-    final ArrayListMultimap<String, Element> mFields;
+    private final LinkedList<ExecutableElement> mConstructors;
+    private final ArrayListMultimap<String, ExecutableElement> mMethods;
+    private final ArrayListMultimap<String, Element> mFields;
 
-    final String mFileName;
+    private final String mFileName;
 
     private int mDummyIndex;
 
@@ -53,9 +53,10 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
         mConstructors = new LinkedList<>();
         mMethods = ArrayListMultimap.create(16, 16);
         mFields = ArrayListMultimap.create(16, 16);
-        mFileName = mJNIClassName + ".h";
+        mFileName = getCppClassName() + ".h";
     }
 
+    @Override
     public void doGenerate() {
         init();
         writeToFile(FileTemplate
@@ -203,9 +204,9 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                 .forEach(m -> {
                     final boolean isStatic = m.getModifiers().contains(Modifier.STATIC);
                     sb.append(FileTemplate
-                            .withType(
-                                    isStatic ? FileTemplate.Type.NATIVE_REFLECT_STATIC_METHODS
-                                            : FileTemplate.Type.NATIVE_REFLECT_METHODS)
+                            .withType(isStatic
+                                    ? FileTemplate.Type.NATIVE_REFLECT_STATIC_METHODS
+                                    : FileTemplate.Type.NATIVE_REFLECT_METHODS)
                             .add("name", m.getSimpleName().toString())
                             .add("method_id", getMethodName(m, mDummyIndex++))
                             //.add("static_modifier", isStatic ? "static " : "")
@@ -230,8 +231,8 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                .forEach(f -> {
                    final boolean isStatic = f.getModifiers().contains(Modifier.STATIC);
                    sb.append(FileTemplate
-                           .withType(
-                                   isStatic ? FileTemplate.Type.NATIVE_REFLECT_STATIC_FIELDS_GETTER_SETTER
+                           .withType(isStatic
+                                   ? FileTemplate.Type.NATIVE_REFLECT_STATIC_FIELDS_GETTER_SETTER
                                    :FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
                            .add("return_val", mHelper.toJNIType(f.asType()))
                            .add("camel_case_name", camelCase(f.getSimpleName().toString()))
@@ -284,7 +285,6 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                            .add("name", getFieldName(f, mDummyIndex++))
                            .create());
                });
-
         return sb.toString();
     }
 
