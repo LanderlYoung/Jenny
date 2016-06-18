@@ -117,6 +117,11 @@ jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
     callback.setLock(env, listener);
     callback.onJobProgress(env, 100);
 
+    LOGV("get CMPILE_TIME_CONSTNT %d", callback.getCOMPILE_CONSTANT_INT(env));
+
+    callback.setCOMPILE_CONSTANT_INT(env, 100);
+    LOGV("get after set CMPILE_TIME_CONSTNT %d", callback.getCOMPILE_CONSTANT_INT(env));
+
     callback.onJobDone(env, JNI_TRUE, env->NewStringUTF("Yes, callback from jni"));
     return 0;
 }

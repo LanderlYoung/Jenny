@@ -19,18 +19,16 @@ private:
     static jmethodID sConstruct_1;
     static jmethodID sConstruct_2;
 
-
     static jmethodID sMethod_prepareRun_0;
     static jmethodID sMethod_onJobStart_1;
     static jmethodID sMethod_onJobDone_2;
     static jmethodID sMethod_onJobProgress_3;
     static jmethodID sMethod_aStaticMethod_4;
 
-
-    static jfieldID sField_count_0;
-    static jfieldID sField_aStaticField_1;
-    static jfieldID sField_lock_2;
-
+    static jfieldID sField_COMPILE_CONSTANT_INT_0;
+    static jfieldID sField_count_1;
+    static jfieldID sField_aStaticField_2;
+    static jfieldID sField_lock_3;
 
     const bool mGlobal;
     jobject mJavaObjectReference;
@@ -42,6 +40,7 @@ public:
             CHECK_NULL(localClazz);
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
             CHECK_NULL(sClazz);
+
             sConstruct_0 = env->GetMethodID(sClazz, "<init>", "()V");
             CHECK_NULL(sConstruct_0);
             sConstruct_1 = env->GetMethodID(sClazz, "<init>", "(I)V");
@@ -60,12 +59,14 @@ public:
             sMethod_aStaticMethod_4 = env->GetStaticMethodID(sClazz, "aStaticMethod", "()I");
             CHECK_NULL(sMethod_aStaticMethod_4);
 
-            sField_count_0 = env->GetFieldID(sClazz, "count", "I");
-            CHECK_NULL(sField_count_0);
-            sField_aStaticField_1 = env->GetStaticFieldID(sClazz, "aStaticField", "Ljava/util/ArrayList;");
-            CHECK_NULL(sField_aStaticField_1);
-            sField_lock_2 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
-            CHECK_NULL(sField_lock_2);
+            sField_COMPILE_CONSTANT_INT_0 = env->GetStaticFieldID(sClazz, "COMPILE_CONSTANT_INT", "I");
+            CHECK_NULL(sField_COMPILE_CONSTANT_INT_0);
+            sField_count_1 = env->GetFieldID(sClazz, "count", "I");
+            CHECK_NULL(sField_count_1);
+            sField_aStaticField_2 = env->GetStaticFieldID(sClazz, "aStaticField", "Ljava/util/ArrayList;");
+            CHECK_NULL(sField_aStaticField_2);
+            sField_lock_3 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
+            CHECK_NULL(sField_lock_3);
 
             return true;
         }
@@ -162,29 +163,40 @@ public:
 
 
 
+    static jint getCOMPILE_CONSTANT_INT(JNIEnv *env) {
+        init_clazz(env);
+        return env->GetStaticIntField(sClazz, sField_COMPILE_CONSTANT_INT_0);
+    }
+
+    static void setCOMPILE_CONSTANT_INT(JNIEnv *env, jint COMPILE_CONSTANT_INT) {
+        init_clazz(env);
+        env->SetStaticIntField(sClazz, sField_COMPILE_CONSTANT_INT_0, COMPILE_CONSTANT_INT);
+    }
+
     jint getCount(JNIEnv *env) const {
-        return env->GetIntField(mJavaObjectReference, sField_count_0);
+        return env->GetIntField(mJavaObjectReference, sField_count_1);
     }
 
     void setCount(JNIEnv *env, jint count) const {
-        env->SetIntField(mJavaObjectReference, sField_count_0, count);
+        env->SetIntField(mJavaObjectReference, sField_count_1, count);
     }
 
     static jobject getAStaticField(JNIEnv *env) {
         init_clazz(env);
-        return env->GetStaticObjectField(sClazz, sField_aStaticField_1);
+        return env->GetStaticObjectField(sClazz, sField_aStaticField_2);
     }
 
     static void setAStaticField(JNIEnv *env, jobject aStaticField) {
         init_clazz(env);
-        env->SetStaticObjectField(sClazz, sField_aStaticField_1, aStaticField);
+        env->SetStaticObjectField(sClazz, sField_aStaticField_2, aStaticField);
     }
+
     jobject getLock(JNIEnv *env) const {
-        return env->GetObjectField(mJavaObjectReference, sField_lock_2);
+        return env->GetObjectField(mJavaObjectReference, sField_lock_3);
     }
 
     void setLock(JNIEnv *env, jobject lock) const {
-        env->SetObjectField(mJavaObjectReference, sField_lock_2, lock);
+        env->SetObjectField(mJavaObjectReference, sField_lock_3, lock);
     }
 
 
@@ -201,9 +213,10 @@ jmethodID com_young_jennysampleapp_Callback::sMethod_onJobStart_1 = nullptr;
 jmethodID com_young_jennysampleapp_Callback::sMethod_onJobDone_2 = nullptr;
 jmethodID com_young_jennysampleapp_Callback::sMethod_onJobProgress_3 = nullptr;
 jmethodID com_young_jennysampleapp_Callback::sMethod_aStaticMethod_4 = nullptr;
-jfieldID com_young_jennysampleapp_Callback::sField_count_0 = nullptr;
-jfieldID com_young_jennysampleapp_Callback::sField_aStaticField_1 = nullptr;
-jfieldID com_young_jennysampleapp_Callback::sField_lock_2 = nullptr;
+jfieldID com_young_jennysampleapp_Callback::sField_COMPILE_CONSTANT_INT_0 = nullptr;
+jfieldID com_young_jennysampleapp_Callback::sField_count_1 = nullptr;
+jfieldID com_young_jennysampleapp_Callback::sField_aStaticField_2 = nullptr;
+jfieldID com_young_jennysampleapp_Callback::sField_lock_3 = nullptr;
 
 
 #undef CHECK_NULL

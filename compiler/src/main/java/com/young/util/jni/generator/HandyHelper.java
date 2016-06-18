@@ -91,6 +91,7 @@ public final class HandyHelper {
 
     /**
      * @param className
+     *
      * @return like com_example_1package_SomeClass_InnerClass
      */
     public String toJNIClassName(String className) {
@@ -306,6 +307,13 @@ public final class HandyHelper {
         }
     }
 
+    public boolean isNestedClass(Element clazz) {
+        Element enclosingElement;
+        return (enclosingElement = clazz.getEnclosingElement()) != null
+                && enclosingElement.getKind() == ElementKind.CLASS
+                && !clazz.getModifiers().contains(Modifier.STATIC);
+    }
+
     private class Signature {
         private final boolean mIsNative;
         private final ExecutableElement mMethod;
@@ -325,7 +333,7 @@ public final class HandyHelper {
         }
 
         public Signature(TypeMirror type, boolean isNative) {
-            this((ExecutableElement) null, type, isNative);
+            this(null, type, isNative);
         }
 
         //same as java
@@ -334,10 +342,8 @@ public final class HandyHelper {
             if (mMethod.getSimpleName().contentEquals("<init>")) {
                 //constructor
                 Element clazz = mMethod.getEnclosingElement();
-                Element enclosingClazz;
-                if (clazz != null
-                        && !clazz.getModifiers().contains(Modifier.STATIC)
-                        && (enclosingClazz = clazz.getEnclosingElement()) != null) {
+                if (isNestedClass(clazz)) {
+                    Element enclosingClazz = clazz.getEnclosingElement();
                     //generate this$0 param for nested class
                     getSignatureClassName(enclosingClazz.asType());
                 }

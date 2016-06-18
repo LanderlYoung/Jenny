@@ -18,6 +18,8 @@ public class Callback {
 
     protected Object lock;
 
+    public static final int COMPILE_CONSTANT_INT = 0;
+
     @NativeAccessField(getter = true, setter = true, auto = false)
     public final int count = 0;
 
@@ -39,7 +41,9 @@ public class Callback {
 
     @NativeReflect
     public class NestedClass {
+        public void hello() {
 
+        }
     }
 
     public static int aStaticMethod() {

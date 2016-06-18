@@ -17,6 +17,7 @@ private:
 
     static jmethodID sConstruct_0;
 
+    static jmethodID sMethod_hello_0;
 
 
     const bool mGlobal;
@@ -33,6 +34,8 @@ public:
             sConstruct_0 = env->GetMethodID(sClazz, "<init>", "(Lcom/young/jennysampleapp/Callback;)V");
             CHECK_NULL(sConstruct_0);
 
+            sMethod_hello_0 = env->GetMethodID(sClazz, "hello", "()V");
+            CHECK_NULL(sMethod_hello_0);
 
 
             return true;
@@ -91,6 +94,10 @@ public:
         assert(!mGlobal || mJavaObjectReference == nullptr);
     }
 
+    void hello(JNIEnv *env, jobject enclosingClass) const {
+        env->CallVoidMethod(mJavaObjectReference, sMethod_hello_0, enclosingClass);
+    }
+
 
 
 
@@ -100,6 +107,7 @@ public:
 //static fields
 jclass com_young_jennysampleapp_Callback_NestedClass::sClazz = nullptr;
 jmethodID com_young_jennysampleapp_Callback_NestedClass::sConstruct_0 = nullptr;
+jmethodID com_young_jennysampleapp_Callback_NestedClass::sMethod_hello_0 = nullptr;
 
 
 #undef CHECK_NULL
