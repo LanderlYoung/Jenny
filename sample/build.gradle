@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.2.0-alpha3'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -18,12 +18,6 @@ apply plugin: 'com.neenbedankt.android-apt'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
-    sourceSets {
-        main {
-            jni.srcDirs = []
-            jniLibs.srcDirs = ['src/main/libs']
-        }
-    }
     defaultConfig {
         applicationId "com.young.jennysampleapp"
         minSdkVersion 15
@@ -31,6 +25,15 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        cmake {
+            cppFlags "-std=c++11"
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'src/main/cpp/CMakeLists.txt'
+        }
     }
 
     lintOptions {
@@ -45,25 +48,26 @@ android {
     }
 }
 
-tasks.withType(JavaCompile) {
-    compileTask ->  compileTask.finalizedBy(jennyNdkBuild)
-}
-
+//no more ndk tricks
+//
+//tasks.withType(JavaCompile) {
+//    compileTask ->  compileTask.finalizedBy(jennyNdkBuild)
+//}
 //not chained in
-task ndkLibsToJar(type: Zip, dependsOn: 'ndkBuild', description: 'Create a JAR of the native libs') {
-    destinationDir new File(buildDir, 'libs')
-    baseName 'ndk-libs'
-    extension 'jar'
-    from(new File(buildDir, 'libs')) { include '**/*.so' }
-    into 'lib/'
-}
-
-task jennyNdkBuild(type: Exec, description: 'Compile JNI source via NDK') {
-    def ndkDir = project.plugins.findPlugin('com.android.application').sdkHandler.ndkFolder
-    workingDir 'src/main/jni'
-    commandLine "$ndkDir/ndk-build"
-    args = ['NDK_DEBUG=1']
-}
+//task ndkLibsToJar(type: Zip, dependsOn: 'ndkBuild', description: 'Create a JAR of the native libs') {
+//    destinationDir new File(buildDir, 'libs')
+//    baseName 'ndk-libs'
+//    extension 'jar'
+//    from(new File(buildDir, 'libs')) { include '**/*.so' }
+//    into 'lib/'
+//}
+//
+//task jennyNdkBuild(type: Exec, description: 'Compile JNI source via NDK') {
+//    def ndkDir = project.plugins.findPlugin('com.android.application').sdkHandler.ndkFolder
+//    workingDir 'src/main/jni'
+//    commandLine "$ndkDir/ndk-build"
+//    args = ['NDK_DEBUG=1']
+//}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
