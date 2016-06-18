@@ -1,2 +1,2 @@
-include ':api', ':compiler', ':sample'
+include ':annotation', ':compiler', ':sample'
 

@@ -74,7 +74,7 @@ dependencies {
 }
 
 dependencies {
-    provided project(':api')
+    provided project(':annotation')
     apt project(':compiler')
 }
 
