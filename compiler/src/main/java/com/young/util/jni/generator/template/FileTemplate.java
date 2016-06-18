@@ -69,6 +69,7 @@ public class FileTemplate {
         NATIVE_REFLECT_METHOD_ID_INIT("native_reflect_method_id_init.h"),
         NATIVE_REFLECT_METHODS("native_reflect_methods.h"),
         NATIVE_REFLECT_STATIC_METHODS("native_reflect_static_methods.h"),
+        NATIVE_REFLECT_CONSTANT("native_reflect_constant.h"),
         NATIVE_REFLECT_CPP_STATIC_INIT("native_reflect_cpp_static_init.h");
 
         private String mName;

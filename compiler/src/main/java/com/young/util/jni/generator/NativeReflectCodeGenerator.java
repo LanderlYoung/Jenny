@@ -5,13 +5,16 @@ import com.young.util.jni.generator.template.FileTemplate;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.FileObject;
@@ -43,6 +46,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
     private final LinkedList<ExecutableElement> mConstructors;
     private final ArrayListMultimap<String, ExecutableElement> mMethods;
     private final ArrayListMultimap<String, Element> mFields;
+    private final Set<String> mConsts;
 
     private final String mFileName;
 
@@ -53,6 +57,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
         mConstructors = new LinkedList<>();
         mMethods = ArrayListMultimap.create(16, 16);
         mFields = ArrayListMultimap.create(16, 16);
+        mConsts = new HashSet<>();
         mFileName = getCppClassName() + ".h";
     }
 
@@ -62,6 +67,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
         writeToFile(FileTemplate
                 .withType(FileTemplate.Type.NATIVE_REFLECT_SKELETON)
                 .add("cpp_class_name", getCppClassName())
+                .add("consts", generateConstantsDefinition())
                 .add("full_class_name_const", mSlashClassName)
                 .add("constructors_id_declare", generateConstructorIdDeclare())
                 .add("methods_id_declare", generateMethodIdDeclare())
@@ -79,6 +85,31 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
 
     private String getCppClassName() {
         return mJNIClassName;
+    }
+
+    private String generateConstantsDefinition() {
+        StringBuilder sb = new StringBuilder();
+        //if this field is a compile-time constant value it's
+        //value will be returned, otherwise null will be returned.
+        mClazz.getEnclosedElements()
+              .stream()
+              .filter(e -> e.getKind() == ElementKind.FIELD)
+              .map(e -> (VariableElement) e)
+              .filter(ve -> ve.getConstantValue() != null)
+              .forEach(ve -> {
+                  //if this field is a compile-time constant value it's
+                  //value will be returned, otherwise null will be returned.
+                  Object constValue = ve.getConstantValue();
+
+                  mConsts.add(ve.getSimpleName().toString());
+                  sb.append(FileTemplate.withType(FileTemplate.Type.NATIVE_REFLECT_CONSTANT)
+                                        .add("type", mHelper.toNativeType(ve.asType()))
+                                        .add("name", ve.getSimpleName().toString())
+                                        .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
+                                        .create()
+                    );
+              });
+        return sb.toString();
     }
 
     private String generateConstructorIdDeclare() {
@@ -115,6 +146,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
         StringBuilder sb = new StringBuilder();
         mFields.values()
                .stream()
+               .filter(e -> !mConsts.contains(e.getSimpleName().toString()))
                .forEach(f -> {
                    sb.append(FileTemplate
                            .withType(FileTemplate.Type.NATIVE_REFLECT_FIELD_ID_DECLARE)
@@ -166,6 +198,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
         StringBuilder sb = new StringBuilder();
         mFields.values()
                .stream()
+               .filter(e -> !mConsts.contains(e.getSimpleName().toString()))
                .forEach(f -> {
                    sb.append(FileTemplate
                            .withType(FileTemplate.Type.NATIVE_REFLECT_FIELD_ID_INIT)
@@ -228,12 +261,13 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
         StringBuilder sb = new StringBuilder();
         mFields.values()
                .stream()
+               .filter(e -> !mConsts.contains(e.getSimpleName().toString()))
                .forEach(f -> {
                    final boolean isStatic = f.getModifiers().contains(Modifier.STATIC);
                    sb.append(FileTemplate
                            .withType(isStatic
                                    ? FileTemplate.Type.NATIVE_REFLECT_STATIC_FIELDS_GETTER_SETTER
-                                   :FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
+                                   : FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
                            .add("return_val", mHelper.toJNIType(f.asType()))
                            .add("camel_case_name", camelCase(f.getSimpleName().toString()))
                            .add("static", isStatic ? "Static" : "")
@@ -277,6 +311,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
 
         mDummyIndex = 0;
         mFields.values().stream()
+               .filter(e -> !mConsts.contains(e.getSimpleName().toString()))
                .forEach(f -> {
                    sb.append(FileTemplate
                            .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)

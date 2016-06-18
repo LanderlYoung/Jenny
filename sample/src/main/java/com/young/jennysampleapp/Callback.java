@@ -18,10 +18,13 @@ public class Callback {
 
     protected Object lock;
 
-    public static final int COMPILE_CONSTANT_INT = 0;
+    public static final int COMPILE_CONSTANT_INT = 015;
 
-    @NativeAccessField(getter = true, setter = true, auto = false)
-    public final int count = 0;
+    public final int count = 160;
+
+    public String name = "callback";
+
+    public static String staticName = "static";
 
     public static ArrayList<String> aStaticField;
 
@@ -35,14 +38,16 @@ public class Callback {
     }
 
     @NativeReflectMethod
-    public Callback(HashMap<?,?> sth) {
+    public Callback(HashMap<?, ?> sth) {
 
     }
 
     @NativeReflect
     public class NestedClass {
         public void hello() {
-
+            int a = COMPILE_CONSTANT_INT;
+            int b = count;
+            int c = a + b;
         }
     }
 

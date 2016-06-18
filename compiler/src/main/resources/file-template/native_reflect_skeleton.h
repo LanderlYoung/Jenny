@@ -12,6 +12,8 @@
 class ${cpp_class_name} {
 public:
     static constexpr const char *const FULL_CLASS_NAME = "${full_class_name_const}";
+
+${consts}
 private:
     static jclass sClazz;
 
