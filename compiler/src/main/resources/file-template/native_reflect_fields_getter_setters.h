@@ -1,4 +1,3 @@
 ${getter}
-
 ${setter}
 

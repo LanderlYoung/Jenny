@@ -53,12 +53,13 @@ public class FileTemplate {
     }
 
     public enum Type {
+        CONSTANT_TEMPLATE("cpp_constant.h"),
+        REINTERPRET_CAST("reinterpret_cast.h"),
         NATIVE_CPP_SKELETON("native_cpp_skeleton.cpp"),
         JNI_HEADER_TEMPLATE("native_header_skeleton.h"),
         NATIVE_JNI_NATIVE_METHOD_STRUCT("native_jni_nativeMethodsStruct.cpp"),
         NATIVE_METHOD_DECLARE_TEMPLATE("native_method_declare_template.h"),
         NATIVE_METHOD_TEMPLATE("native_method_template.cpp"),
-        CONSTANT_TEMPLATE("cpp_constant.h"),
         NATIVE_REFLECT_SKELETON("native_reflect_skeleton.h"),
         NATIVE_REFLECT_CONSTRUCTORS("native_reflect_constructors.h"),
         NATIVE_REFLECT_FIELD_ID_DECLARE("native_reflect_field_id_declare.h"),
@@ -66,10 +67,11 @@ public class FileTemplate {
         NATIVE_REFLECT_FIELDS_GETTER_SETTER("native_reflect_fields_getter_setters.h"),
         NATIVE_REFLECT_FIELDS_GETTER("native_reflect_fields_getter.h"),
         NATIVE_REFLECT_FIELDS_SETTER("native_reflect_fields_setter.h"),
+        NATIVE_REFLECT_FIELDS_GETTER_RETURN("native_reflect_fields_getter_return.h"),
         NATIVE_REFLECT_METHOD_ID_DECLARE("native_reflect_method_id_declare.h"),
         NATIVE_REFLECT_METHOD_ID_INIT("native_reflect_method_id_init.h"),
         NATIVE_REFLECT_METHODS("native_reflect_methods.h"),
-        NATIVE_REFLECT_STATIC_METHODS("native_reflect_static_methods.h"),
+        NATIVE_REFLECT_METHOD_RETURN("native_reflect_method_return.h"),
         NATIVE_REFLECT_CONSTANT("native_reflect_constant.h"),
         NATIVE_REFLECT_CPP_STATIC_INIT("native_reflect_cpp_static_init.h");
 

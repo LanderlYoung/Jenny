@@ -1,0 +1,1 @@
+env->Call${static}${type}Method(${clazz_or_obj}, ${method_id}${param_value})

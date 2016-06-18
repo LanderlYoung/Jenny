@@ -5,7 +5,10 @@ import com.young.jenny.annotation.NativeReflect;
 import com.young.jenny.annotation.NativeReflectMethod;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -30,7 +33,7 @@ public class Callback {
 
     public static String staticName = "static";
 
-    public static ArrayList<String> aStaticField;
+    public static List<String> aStaticField = Collections.emptyList();
 
     @NativeReflectMethod
     public Callback() {
@@ -72,6 +75,10 @@ public class Callback {
     @NativeReflectMethod
     void onJobStart() {
 
+    }
+
+    public static Class<Callback> getMyClass() {
+        return Callback.class;
     }
 
     int prepareRun() {

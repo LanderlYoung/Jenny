@@ -112,8 +112,9 @@ jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
     callback.setLock(env, nestedClass);
     callback.onJobProgress(env, 50);
 
-    callback.getAStaticField(env);
+    LOGV("staticField=%p", callback.getAStaticField(env));
     callback.setAStaticField(env, nullptr);
+    LOGV("set staticField=%p", callback.getAStaticField(env));
 
     callback.setCount(env, 100);
     LOGV("count=%d", callback.getCount(env));

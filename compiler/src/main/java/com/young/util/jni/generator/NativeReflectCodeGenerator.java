@@ -244,20 +244,31 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                 .stream()
                 .forEach(m -> {
                     final boolean isStatic = m.getModifiers().contains(Modifier.STATIC);
-                    sb.append(FileTemplate
-                            .withType(isStatic
-                                    ? FileTemplate.Type.NATIVE_REFLECT_STATIC_METHODS
-                                    : FileTemplate.Type.NATIVE_REFLECT_METHODS)
-                            .add("name", m.getSimpleName().toString())
-                            .add("method_id", getMethodName(m, mDummyIndex++))
-                            //.add("static_modifier", isStatic ? "static " : "")
+                    final String returnType = mHelper.toJNIType(m.getReturnType());
+                    log("m=" + m.getSimpleName() + " r=" + m.getReturnType() + " re=" + returnType);
+                    final String returnStatement = FileTemplate
+                            .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_RETURN)
                             .add("static", isStatic ? "Static" : "")
-                            .add("return_value", mHelper.toJNIType(m.getReturnType()))
-                            .add("param_declare", getJniMethodParam(m))
                             .add("param_value", getJniMethodParamVal(m))
                             .add("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference")
                             .add("type", getTypeForJniCall(m.getReturnType()))
+                            .create();
+
+                    sb.append(FileTemplate
+                            .withType(FileTemplate.Type.NATIVE_REFLECT_METHODS)
+                            .add("name", m.getSimpleName().toString())
+                            .add("method_id", getMethodName(m, mDummyIndex++))
+                            .add("_static", isStatic ? "static " : "")
+                            .add("_const", isStatic ? "" : "const ")
+                            .add("return_type", returnType)
+                            .add("param_declare", getJniMethodParam(m))
                             .add("return", m.getReturnType().getKind() != TypeKind.VOID ? "return " : "")
+                            .add("return_statement", !returnTypeNeedCast(returnType)
+                                    ? returnStatement
+                                    : FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
+                                                  .add("type", returnType)
+                                                  .add("expression", returnStatement)
+                                                  .create())
                             .create()
                     );
                 });
@@ -273,11 +284,12 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                .forEach(f -> {
                    final boolean isStatic = f.getModifiers().contains(Modifier.STATIC);
                    final String camelCaseName = camelCase(f.getSimpleName().toString());
+                   final String returnType = mHelper.toJNIType(f.asType());
                    final EnumSet<GetterSetter> getterSetters = hasGetterSetter(f);
 
                    final Map<String, String> r = new HashMap<>();
                    r.put("_static", isStatic ? "static " : "");
-                   r.put("return_type", mHelper.toJNIType(f.asType()));
+                   r.put("return_type", returnType);
                    r.put("camel_case_name", camelCaseName);
                    r.put("_const", isStatic ? "" : "const ");
                    r.put("static", isStatic ? "Static" : "");
@@ -287,11 +299,21 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                    r.put("name", f.getSimpleName().toString());
                    r.put("type", mHelper.toJNIType(f.asType()));
 
+                   final String returnStatement = FileTemplate.withType(
+                           FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_RETURN)
+                                                              .create(r);
+
                    sb.append(FileTemplate
                            .withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
                            .add("getter", !getterSetters.contains(GetterSetter.GETTER)
                                    ? ""
                                    : FileTemplate.withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER)
+                                                 .add("return_statement", !returnTypeNeedCast(returnType)
+                                                         ? returnStatement
+                                                         : FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
+                                                                       .add("type", returnType)
+                                                                       .add("expression", returnStatement)
+                                                                       .create())
                                                  .create(r))
                            .add("setter", !getterSetters.contains(GetterSetter.SETTER)
                                    ? ""
@@ -341,6 +363,29 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
             return EnumSet.of(GetterSetter.SETTER);
         } else {
             return EnumSet.noneOf(GetterSetter.class);
+        }
+    }
+
+    private boolean returnTypeNeedCast(String returnType) {
+        switch (returnType) {
+            case "jclass":
+            case "jstring":
+            case "jarray":
+            case "jobjectArray":
+            case "jbooleanArray":
+            case "jbyteArray":
+            case "jcharArray":
+            case "jshortArray":
+            case "jintArray":
+            case "jlongArray":
+            case "jfloatArray":
+            case "jdoubleArray":
+            case "jthrowable":
+            case "jweak":
+                return true;
+            default:
+                //primitive type or jobject
+                return false;
         }
     }
 
