@@ -1,12 +1,16 @@
 package com.young.util.jni.generator;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.young.jenny.annotation.NativeAccessField;
 import com.young.util.jni.generator.template.FileTemplate;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
@@ -19,6 +23,10 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
+
+import static com.sun.javafx.fxml.expression.Expression.add;
+import static com.sun.javafx.fxml.expression.Expression.get;
+import static com.sun.javafx.fxml.expression.Expression.set;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -107,7 +115,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                                         .add("name", ve.getSimpleName().toString())
                                         .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
                                         .create()
-                    );
+                  );
               });
         return sb.toString();
     }
@@ -264,23 +272,76 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
                .filter(e -> !mConsts.contains(e.getSimpleName().toString()))
                .forEach(f -> {
                    final boolean isStatic = f.getModifiers().contains(Modifier.STATIC);
+                   final String camelCaseName = camelCase(f.getSimpleName().toString());
+                   final EnumSet<GetterSetter> getterSetters = hasGetterSetter(f);
+
+                   final Map<String, String> r = new HashMap<>();
+                   r.put("_static", isStatic ? "static " : "");
+                   r.put("return_type", mHelper.toJNIType(f.asType()));
+                   r.put("camel_case_name", camelCaseName);
+                   r.put("_const", isStatic ? "" : "const ");
+                   r.put("static", isStatic ? "Static" : "");
+                   r.put("_type", getTypeForJniCall(f.asType()));
+                   r.put("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference");
+                   r.put("field_id", getFieldName(f, mDummyIndex++));
+                   r.put("name", f.getSimpleName().toString());
+                   r.put("type", mHelper.toJNIType(f.asType()));
+
                    sb.append(FileTemplate
-                           .withType(isStatic
-                                   ? FileTemplate.Type.NATIVE_REFLECT_STATIC_FIELDS_GETTER_SETTER
-                                   : FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
-                           .add("return_val", mHelper.toJNIType(f.asType()))
-                           .add("camel_case_name", camelCase(f.getSimpleName().toString()))
-                           .add("static", isStatic ? "Static" : "")
-                           .add("_type", getTypeForJniCall(f.asType()))
-                           .add("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference")
-                           .add("field_id", getFieldName(f, mDummyIndex++))
-                           .add("name", f.getSimpleName().toString())
-                           .add("type", mHelper.toJNIType(f.asType()))
+                           .withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
+                           .add("getter", !getterSetters.contains(GetterSetter.GETTER)
+                                   ? ""
+                                   : FileTemplate.withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER)
+                                                 .create(r))
+                           .add("setter", !getterSetters.contains(GetterSetter.SETTER)
+                                   ? ""
+                                   : FileTemplate.withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_SETTER)
+                                                 .create(r))
                            .create()
                    );
                });
 
         return sb.toString();
+    }
+
+    private enum GetterSetter {
+        GETTER, SETTER
+    }
+
+    private EnumSet<GetterSetter> hasGetterSetter(Element field) {
+        boolean getter = false;
+        boolean setter = false;
+
+        boolean auto = true;
+        NativeAccessField annotation = field.getAnnotation(NativeAccessField.class);
+        if (annotation != null) {
+            if (!annotation.auto()) {
+                auto = false;
+                getter = annotation.getter();
+                setter = annotation.setter();
+            }
+        }
+
+        if (auto) {
+            final String camelCaseName = camelCase(field.getSimpleName().toString());
+            setter = !mMethods.containsKey("set" + camelCaseName);
+
+            final String type = mHelper.toJNIType(field.asType());
+            getter = !mMethods.containsKey("get" + camelCaseName);
+            if ("jboolean".equals(type)) {
+                getter &= !mMethods.containsKey("is" + camelCaseName);
+            }
+        }
+
+        if (getter && setter) {
+            return EnumSet.of(GetterSetter.GETTER, GetterSetter.SETTER);
+        } else if (getter) {
+            return EnumSet.of(GetterSetter.GETTER);
+        } else if (setter) {
+            return EnumSet.of(GetterSetter.SETTER);
+        } else {
+            return EnumSet.noneOf(GetterSetter.class);
+        }
     }
 
     private String generateCppStaticDeclare() {

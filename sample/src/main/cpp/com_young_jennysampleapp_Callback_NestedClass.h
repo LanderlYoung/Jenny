@@ -12,6 +12,8 @@
 class com_young_jennysampleapp_Callback_NestedClass {
 public:
     static constexpr const char *const FULL_CLASS_NAME = "com/young/jennysampleapp/Callback$NestedClass";
+
+
 private:
     static jclass sClazz;
 

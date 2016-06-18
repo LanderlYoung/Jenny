@@ -112,15 +112,16 @@ jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
     callback.setLock(env, nestedClass);
     callback.onJobProgress(env, 50);
 
+    callback.getAStaticField(env);
+    callback.setAStaticField(env, nullptr);
+
     callback.setCount(env, 100);
     LOGV("count=%d", callback.getCount(env));
     callback.setLock(env, listener);
     callback.onJobProgress(env, 100);
 
-    LOGV("get CMPILE_TIME_CONSTNT %d", callback.getCOMPILE_CONSTANT_INT(env));
+    LOGV("get CMPILE_TIME_CONSTNT %d", callback.COMPILE_CONSTANT_INT);
 
-    callback.setCOMPILE_CONSTANT_INT(env, 100);
-    LOGV("get after set CMPILE_TIME_CONSTNT %d", callback.getCOMPILE_CONSTANT_INT(env));
 
     callback.onJobDone(env, JNI_TRUE, env->NewStringUTF("Yes, callback from jni"));
     return 0;

@@ -18,11 +18,15 @@ public class Callback {
 
     protected Object lock;
 
-    public static final int COMPILE_CONSTANT_INT = 015;
+    public static final int COMPILE_CONSTANT_INT = 15;
+    public final int ANOTHER_COMPILE_CONSTANT_INT = 16;
 
-    public final int count = 160;
+    public int count = 160;
+    public static int staticCount = 10;
 
+    @NativeAccessField(auto = true)
     public String name = "callback";
+
 
     public static String staticName = "static";
 
@@ -72,5 +76,10 @@ public class Callback {
 
     int prepareRun() {
         return 0;
+    }
+
+
+    public void setName(String name) {
+        this.name = name.toUpperCase();
     }
 }
