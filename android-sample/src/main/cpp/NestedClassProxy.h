@@ -9,7 +9,7 @@
 
 #define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
 
-class NestedClass {
+class NestedClassProxy {
 public:
     static constexpr const char *const FULL_CLASS_NAME = "com/young/jennysampleapp/Callback$NestedClass";
 
@@ -63,7 +63,7 @@ public:
 
 
     ///throw std::runtime_error when construct GlobalRef failed
-    NestedClass(JNIEnv *env, jobject javaObj, bool global)
+    NestedClassProxy(JNIEnv *env, jobject javaObj, bool global)
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
 #endif
@@ -83,7 +83,7 @@ public:
     }
 
     ///no copy construct
-    NestedClass(const NestedClass &from) = delete;
+    NestedClassProxy(const NestedClassProxy &from) = delete;
 
     void deleteGlobalReference(JNIEnv *env) {
         if (mGlobal) {
@@ -92,7 +92,7 @@ public:
         }
     }
 
-    ~NestedClass() {
+    ~NestedClassProxy() {
         assert(!mGlobal || mJavaObjectReference == nullptr);
     }
 
@@ -107,9 +107,9 @@ public:
 };
 
 //static fields
-jclass NestedClass::sClazz = nullptr;
-jmethodID NestedClass::sConstruct_0 = nullptr;
-jmethodID NestedClass::sMethod_hello_0 = nullptr;
+jclass NestedClassProxy::sClazz = nullptr;
+jmethodID NestedClassProxy::sConstruct_0 = nullptr;
+jmethodID NestedClassProxy::sMethod_hello_0 = nullptr;
 
 
 #undef CHECK_NULL

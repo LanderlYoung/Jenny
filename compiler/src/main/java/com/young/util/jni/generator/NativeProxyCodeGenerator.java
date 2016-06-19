@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -96,6 +97,12 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         );
     }
 
+    private void init() {
+        findConstructors();
+        findMethods();
+        findFields();
+    }
+
     private String getCppClassName() {
         String fileName = mNativeProxyAnnotation.fileName();
         if (fileName.length() > 0) {
@@ -107,6 +114,84 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
             ) + "Proxy";
         }
     }
+
+    private Stream<Element> fieldsStream() {
+        return mFields.values()
+                      .stream()
+                      .filter(this::shouldGenerateField);
+    }
+
+    private Stream<ExecutableElement> constructorsStream() {
+        return mConstructors.stream()
+                            .filter(this::shouldGenerateMethod);
+    }
+
+    private Stream<ExecutableElement> methodsStream() {
+        return mMethods.values()
+                       .stream()
+                       .filter(this::shouldGenerateMethod);
+    }
+
+    private boolean shouldGenerateMethod(ExecutableElement m) {
+        NativeMethodProxy annotation = m.getAnnotation(NativeMethodProxy.class);
+        if (annotation != null) {
+            return annotation.enabled();
+        } else {
+            return mNativeProxyAnnotation.allMethods();
+        }
+    }
+
+    private boolean shouldGenerateField(Element f) {
+        return !hasGetterSetter(f).isEmpty();
+    }
+
+    private enum GetterSetter {
+        GETTER, SETTER
+    }
+
+    private EnumSet<GetterSetter> hasGetterSetter(Element field) {
+        boolean getter = false;
+        boolean setter = false;
+
+        boolean auto = true;
+        NativeFieldProxy annotation = field.getAnnotation(NativeFieldProxy.class);
+        if (annotation != null) {
+            if (!annotation.auto()) {
+                auto = false;
+                getter = annotation.getter();
+                setter = annotation.setter();
+            }
+        } else {
+            if (mConsts.contains(field.getSimpleName().toString())) {
+                auto = false;
+                //don't generate
+                getter = false;
+                setter = false;
+            }
+        }
+
+        if (auto) {
+            final String camelCaseName = camelCase(field.getSimpleName().toString());
+            setter = !mMethods.containsKey("set" + camelCaseName);
+
+            final String type = mHelper.toJNIType(field.asType());
+            getter = !mMethods.containsKey("get" + camelCaseName);
+            if ("jboolean".equals(type)) {
+                getter &= !mMethods.containsKey("is" + camelCaseName);
+            }
+        }
+
+        if (getter && setter) {
+            return EnumSet.of(GetterSetter.GETTER, GetterSetter.SETTER);
+        } else if (getter) {
+            return EnumSet.of(GetterSetter.GETTER);
+        } else if (setter) {
+            return EnumSet.of(GetterSetter.SETTER);
+        } else {
+            return EnumSet.noneOf(GetterSetter.class);
+        }
+    }
+
 
     private String generateConstantsDefinition() {
         StringBuilder sb = new StringBuilder();
@@ -136,48 +221,39 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
     private String generateConstructorIdDeclare() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        mConstructors.stream()
-                     .filter(this::shouldGenerateMethod)
-                     .forEach(c -> {
-                         sb.append(FileTemplate
-                                 .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_ID_DECLARE)
-                                 .add("name", getConstructorName(c, mDummyIndex++))
-                                 .create()
-                         );
-                     });
+        constructorsStream().forEach(c -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_ID_DECLARE)
+                    .add("name", getConstructorName(c, mDummyIndex++))
+                    .create()
+            );
+        });
         return sb.toString();
     }
 
     private String generateMethodIdDeclare() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        mMethods.values()
-                .stream()
-                .filter(this::shouldGenerateMethod)
-                .forEach(m -> {
-                    sb.append(FileTemplate
-                            .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_ID_DECLARE)
-                            .add("name", getMethodName(m, mDummyIndex++))
-                            .create()
-                    );
-                });
+        methodsStream().forEach(m -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_ID_DECLARE)
+                    .add("name", getMethodName(m, mDummyIndex++))
+                    .create()
+            );
+        });
         return sb.toString();
     }
 
     private String generateFieldIdDeclare() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        mFields.values()
-               .stream()
-               .filter(e -> !mConsts.contains(e.getSimpleName().toString())
-                       && !hasGetterSetter(e).isEmpty())
-               .forEach(f -> {
-                   sb.append(FileTemplate
-                           .withType(FileTemplate.Type.NATIVE_REFLECT_FIELD_ID_DECLARE)
-                           .add("name", getFieldName(f, mDummyIndex++))
-                           .create()
-                   );
-               });
+        fieldsStream().forEach(f -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_FIELD_ID_DECLARE)
+                    .add("name", getFieldName(f, mDummyIndex++))
+                    .create()
+            );
+        });
 
         return sb.toString();
     }
@@ -185,57 +261,48 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
     private String generateConstructorIdInit() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        mConstructors.stream()
-                     .filter(this::shouldGenerateMethod)
-                     .forEach(c -> {
-                         sb.append(FileTemplate
-                                 .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_ID_INIT)
-                                 .add("name", getConstructorName(c, mDummyIndex++))
-                                 .add("static", "")
-                                 .add("method_name", "<init>")
-                                 .add("method_signature", mHelper.getBinaryMethodSignature(c))
-                                 .create()
-                         );
-                     });
+        constructorsStream().forEach(c -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_ID_INIT)
+                    .add("name", getConstructorName(c, mDummyIndex++))
+                    .add("static", "")
+                    .add("method_name", "<init>")
+                    .add("method_signature", mHelper.getBinaryMethodSignature(c))
+                    .create()
+            );
+        });
         return sb.toString();
     }
 
     private String generateMethodIdInit() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        mMethods.values()
-                .stream()
-                .filter(this::shouldGenerateMethod)
-                .forEach(m -> {
-                    sb.append(FileTemplate
-                            .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_ID_INIT)
-                            .add("name", getMethodName(m, mDummyIndex++))
-                            .add("static", m.getModifiers().contains(Modifier.STATIC) ? "Static" : "")
-                            .add("method_name", m.getSimpleName().toString())
-                            .add("method_signature", mHelper.getBinaryMethodSignature(m))
-                            .create()
-                    );
-                });
+        methodsStream().forEach(m -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_ID_INIT)
+                    .add("name", getMethodName(m, mDummyIndex++))
+                    .add("static", m.getModifiers().contains(Modifier.STATIC) ? "Static" : "")
+                    .add("method_name", m.getSimpleName().toString())
+                    .add("method_signature", mHelper.getBinaryMethodSignature(m))
+                    .create()
+            );
+        });
         return sb.toString();
     }
 
     private String generateFieldIdInit() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        mFields.values()
-               .stream()
-               .filter(e -> !mConsts.contains(e.getSimpleName().toString())
-                       && !hasGetterSetter(e).isEmpty())
-               .forEach(f -> {
-                   sb.append(FileTemplate
-                           .withType(FileTemplate.Type.NATIVE_REFLECT_FIELD_ID_INIT)
-                           .add("name", getFieldName(f, mDummyIndex++))
-                           .add("static", f.getModifiers().contains(Modifier.STATIC) ? "Static" : "")
-                           .add("field_name", f.getSimpleName().toString())
-                           .add("field_signature", mHelper.getBinaryTypeSignature(f.asType()))
-                           .create()
-                   );
-               });
+        fieldsStream().forEach(f -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_FIELD_ID_INIT)
+                    .add("name", getFieldName(f, mDummyIndex++))
+                    .add("static", f.getModifiers().contains(Modifier.STATIC) ? "Static" : "")
+                    .add("field_name", f.getSimpleName().toString())
+                    .add("field_signature", mHelper.getBinaryTypeSignature(f.asType()))
+                    .create()
+            );
+        });
 
         return sb.toString();
     }
@@ -243,157 +310,100 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
     private String generateConstructors() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        mConstructors.stream()
-                     .filter(this::shouldGenerateMethod)
-                     .forEach(c -> {
-                         sb.append(FileTemplate
-                                 .withType(FileTemplate.Type.NATIVE_REFLECT_CONSTRUCTORS)
-                                 .add("constructor_method_id", getConstructorName(c, mDummyIndex++))
-                                 .add("param_declare", getJniMethodParam(c))
-                                 .add("param_val", getJniMethodParamVal(c))
-                                 .create()
-                         );
-                     });
+        constructorsStream().forEach(c -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_CONSTRUCTORS)
+                    .add("constructor_method_id", getConstructorName(c, mDummyIndex++))
+                    .add("param_declare", getJniMethodParam(c))
+                    .add("param_val", getJniMethodParamVal(c))
+                    .create()
+            );
+        });
         return sb.toString();
     }
 
     private String generateMethods() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        mMethods.values()
-                .stream()
-                .filter(this::shouldGenerateMethod)
-                .forEach(m -> {
-                    final boolean isStatic = m.getModifiers().contains(Modifier.STATIC);
-                    final String returnType = mHelper.toJNIType(m.getReturnType());
-                    log("m=" + m.getSimpleName() + " r=" + m.getReturnType() + " re=" + returnType);
-                    final String returnStatement = FileTemplate
-                            .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_RETURN)
-                            .add("static", isStatic ? "Static" : "")
-                            .add("param_value", getJniMethodParamVal(m))
-                            .add("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference")
-                            .add("type", getTypeForJniCall(m.getReturnType()))
-                            .create();
+        methodsStream().forEach(m -> {
+            final boolean isStatic = m.getModifiers().contains(Modifier.STATIC);
+            final String returnType = mHelper.toJNIType(m.getReturnType());
+            log("m=" + m.getSimpleName() + " r=" + m.getReturnType() + " re=" + returnType);
+            final String returnStatement = FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_RETURN)
+                    .add("static", isStatic ? "Static" : "")
+                    .add("param_value", getJniMethodParamVal(m))
+                    .add("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference")
+                    .add("type", getTypeForJniCall(m.getReturnType()))
+                    .create();
 
-                    sb.append(FileTemplate
-                            .withType(FileTemplate.Type.NATIVE_REFLECT_METHODS)
-                            .add("name", m.getSimpleName().toString())
-                            .add("method_id", getMethodName(m, mDummyIndex++))
-                            .add("_static", isStatic ? "static " : "")
-                            .add("_const", isStatic ? "" : "const ")
-                            .add("return_type", returnType)
-                            .add("param_declare", getJniMethodParam(m))
-                            .add("return", m.getReturnType().getKind() != TypeKind.VOID ? "return " : "")
-                            .add("return_statement", !returnTypeNeedCast(returnType)
-                                    ? returnStatement
-                                    : FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
-                                                  .add("type", returnType)
-                                                  .add("expression", returnStatement)
-                                                  .create())
-                            .create()
-                    );
-                });
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_METHODS)
+                    .add("name", m.getSimpleName().toString())
+                    .add("method_id", getMethodName(m, mDummyIndex++))
+                    .add("_static", isStatic ? "static " : "")
+                    .add("_const", isStatic ? "" : "const ")
+                    .add("return_type", returnType)
+                    .add("param_declare", getJniMethodParam(m))
+                    .add("return", m.getReturnType().getKind() != TypeKind.VOID ? "return " : "")
+                    .add("return_statement", !returnTypeNeedCast(returnType)
+                            ? returnStatement
+                            : FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
+                                          .add("type", returnType)
+                                          .add("expression", returnStatement)
+                                          .create())
+                    .create()
+            );
+        });
         return sb.toString();
-    }
-
-    private boolean shouldGenerateMethod(ExecutableElement m) {
-        NativeMethodProxy annotation = m.getAnnotation(NativeMethodProxy.class);
-        if (annotation != null) {
-            return annotation.enabled();
-        } else {
-            return mNativeProxyAnnotation.allMethods();
-        }
     }
 
     private String generateFields() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        mFields.values()
-               .stream()
-               .filter(e -> !mConsts.contains(e.getSimpleName().toString()))
-               .forEach(f -> {
-                   final boolean isStatic = f.getModifiers().contains(Modifier.STATIC);
-                   final String camelCaseName = camelCase(f.getSimpleName().toString());
-                   final String returnType = mHelper.toJNIType(f.asType());
-                   final EnumSet<GetterSetter> getterSetters = hasGetterSetter(f);
+        fieldsStream().forEach(f -> {
+            final boolean isStatic = f.getModifiers().contains(Modifier.STATIC);
+            final String camelCaseName = camelCase(f.getSimpleName().toString());
+            final String returnType = mHelper.toJNIType(f.asType());
+            final EnumSet<GetterSetter> getterSetters = hasGetterSetter(f);
 
-                   final Map<String, String> r = new HashMap<>();
-                   r.put("_static", isStatic ? "static " : "");
-                   r.put("return_type", returnType);
-                   r.put("camel_case_name", camelCaseName);
-                   r.put("_const", isStatic ? "" : "const ");
-                   r.put("static", isStatic ? "Static" : "");
-                   r.put("_type", getTypeForJniCall(f.asType()));
-                   r.put("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference");
-                   r.put("field_id", getFieldName(f, mDummyIndex++));
-                   r.put("name", f.getSimpleName().toString());
-                   r.put("type", mHelper.toJNIType(f.asType()));
+            final Map<String, String> r = new HashMap<>();
+            r.put("_static", isStatic ? "static " : "");
+            r.put("return_type", returnType);
+            r.put("camel_case_name", camelCaseName);
+            r.put("_const", isStatic ? "" : "const ");
+            r.put("static", isStatic ? "Static" : "");
+            r.put("_type", getTypeForJniCall(f.asType()));
+            r.put("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference");
+            r.put("field_id", getFieldName(f, mDummyIndex++));
+            r.put("name", f.getSimpleName().toString());
+            r.put("type", mHelper.toJNIType(f.asType()));
 
-                   final String returnStatement = FileTemplate.withType(
-                           FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_RETURN)
-                                                              .create(r);
+            final String returnStatement = FileTemplate.withType(
+                    FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_RETURN)
+                                                       .create(r);
 
-                   sb.append(FileTemplate
-                           .withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
-                           .add("getter", !getterSetters.contains(GetterSetter.GETTER)
-                                   ? ""
-                                   : FileTemplate.withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER)
-                                                 .add("return_statement", !returnTypeNeedCast(returnType)
-                                                         ? returnStatement
-                                                         : FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
-                                                                       .add("type", returnType)
-                                                                       .add("expression", returnStatement)
-                                                                       .create())
-                                                 .create(r))
-                           .add("setter", !getterSetters.contains(GetterSetter.SETTER)
-                                   ? ""
-                                   : FileTemplate.withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_SETTER)
-                                                 .create(r))
-                           .create()
-                   );
-               });
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER_SETTER)
+                    .add("getter", !getterSetters.contains(GetterSetter.GETTER)
+                            ? ""
+                            : FileTemplate.withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_GETTER)
+                                          .add("return_statement", !returnTypeNeedCast(returnType)
+                                                  ? returnStatement
+                                                  : FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
+                                                                .add("type", returnType)
+                                                                .add("expression", returnStatement)
+                                                                .create())
+                                          .create(r))
+                    .add("setter", !getterSetters.contains(GetterSetter.SETTER)
+                            ? ""
+                            : FileTemplate.withType(FileTemplate.Type.NATIVE_REFLECT_FIELDS_SETTER)
+                                          .create(r))
+                    .create()
+            );
+        });
 
         return sb.toString();
-    }
-
-    private enum GetterSetter {
-        GETTER, SETTER
-    }
-
-    private EnumSet<GetterSetter> hasGetterSetter(Element field) {
-        boolean getter = false;
-        boolean setter = false;
-
-        boolean auto = true;
-        NativeFieldProxy annotation = field.getAnnotation(NativeFieldProxy.class);
-        if (annotation != null) {
-            if (!annotation.auto()) {
-                auto = false;
-                getter = annotation.getter();
-                setter = annotation.setter();
-            }
-        }
-
-        if (auto) {
-            final String camelCaseName = camelCase(field.getSimpleName().toString());
-            setter = !mMethods.containsKey("set" + camelCaseName);
-
-            final String type = mHelper.toJNIType(field.asType());
-            getter = !mMethods.containsKey("get" + camelCaseName);
-            if ("jboolean".equals(type)) {
-                getter &= !mMethods.containsKey("is" + camelCaseName);
-            }
-        }
-
-        if (getter && setter) {
-            return EnumSet.of(GetterSetter.GETTER, GetterSetter.SETTER);
-        } else if (getter) {
-            return EnumSet.of(GetterSetter.GETTER);
-        } else if (setter) {
-            return EnumSet.of(GetterSetter.SETTER);
-        } else {
-            return EnumSet.noneOf(GetterSetter.class);
-        }
     }
 
     private boolean returnTypeNeedCast(String returnType) {
@@ -423,39 +433,35 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         StringBuilder sb = new StringBuilder(2048);
 
         mDummyIndex = 0;
-        mConstructors.stream()
-                     .forEach(c -> {
-                         sb.append(FileTemplate
-                                 .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)
-                                 .add("type", "jmethodID")
-                                 .add("cpp_class_name", getCppClassName())
-                                 .add("name", getConstructorName(c, mDummyIndex++))
-                                 .create()
-                         );
-                     });
+        constructorsStream().forEach(c -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)
+                    .add("type", "jmethodID")
+                    .add("cpp_class_name", getCppClassName())
+                    .add("name", getConstructorName(c, mDummyIndex++))
+                    .create()
+            );
+        });
 
         mDummyIndex = 0;
-        mMethods.values().stream()
-                .forEach(m -> {
-                    sb.append(FileTemplate
-                            .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)
-                            .add("type", "jmethodID")
-                            .add("cpp_class_name", getCppClassName())
-                            .add("name", getMethodName(m, mDummyIndex++))
-                            .create());
-                });
+        methodsStream().forEach(m -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)
+                    .add("type", "jmethodID")
+                    .add("cpp_class_name", getCppClassName())
+                    .add("name", getMethodName(m, mDummyIndex++))
+                    .create());
+        });
 
         mDummyIndex = 0;
-        mFields.values().stream()
-               .filter(e -> !mConsts.contains(e.getSimpleName().toString()))
-               .forEach(f -> {
-                   sb.append(FileTemplate
-                           .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)
-                           .add("type", "jfieldID")
-                           .add("cpp_class_name", getCppClassName())
-                           .add("name", getFieldName(f, mDummyIndex++))
-                           .create());
-               });
+        fieldsStream().forEach(f -> {
+            sb.append(FileTemplate
+                    .withType(FileTemplate.Type.NATIVE_REFLECT_CPP_STATIC_INIT)
+                    .add("type", "jfieldID")
+                    .add("cpp_class_name", getCppClassName())
+                    .add("name", getFieldName(f, mDummyIndex++))
+                    .create());
+        });
         return sb.toString();
     }
 
@@ -484,12 +490,6 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         } finally {
             IOUtils.closeSilently(w);
         }
-    }
-
-    private void init() {
-        findConstructors();
-        findMethods();
-        findFields();
     }
 
     private void findConstructors() {

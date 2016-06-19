@@ -1,5 +1,7 @@
 package com.young.jenny;
 
+import java.util.HashMap;
+
 /**
  * Author: taylorcyang@tencent.com
  * Date:   2016-06-19
@@ -9,5 +11,12 @@ package com.young.jenny;
 
 public class Main {
     public static void main(String[] args) {
+        ComputeInNative engine = new ComputeInNative();
+        engine.init();
+        engine.setParam(new HashMap<>());
+        engine.request("{req:0}", ((success, rsp) -> {
+            System.out.println("success=" + success + ", rsp=" + rsp);
+        }));
+        engine.release();
     }
 }

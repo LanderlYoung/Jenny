@@ -9,7 +9,7 @@
 
 #define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
 
-class Callback {
+class CallbackProxy {
 public:
     static constexpr const char *const FULL_CLASS_NAME = "com/young/jennysampleapp/Callback";
 
@@ -23,13 +23,9 @@ private:
     static jmethodID sConstruct_1;
     static jmethodID sConstruct_2;
 
-    static jmethodID sMethod_setName_0;
-    static jmethodID sMethod_prepareRun_1;
-    static jmethodID sMethod_getMyClass_2;
-    static jmethodID sMethod_onJobStart_3;
-    static jmethodID sMethod_onJobDone_4;
-    static jmethodID sMethod_onJobProgress_5;
-    static jmethodID sMethod_aStaticMethod_6;
+    static jmethodID sMethod_onJobStart_0;
+    static jmethodID sMethod_onJobDone_1;
+    static jmethodID sMethod_onJobProgress_2;
 
     static jfieldID sField_count_0;
     static jfieldID sField_staticName_1;
@@ -56,20 +52,12 @@ public:
             sConstruct_2 = env->GetMethodID(sClazz, "<init>", "(Ljava/util/HashMap;)V");
             CHECK_NULL(sConstruct_2);
 
-            sMethod_setName_0 = env->GetMethodID(sClazz, "setName", "(Ljava/lang/String;)V");
-            CHECK_NULL(sMethod_setName_0);
-            sMethod_prepareRun_1 = env->GetMethodID(sClazz, "prepareRun", "()I");
-            CHECK_NULL(sMethod_prepareRun_1);
-            sMethod_getMyClass_2 = env->GetStaticMethodID(sClazz, "getMyClass", "()Ljava/lang/Class;");
-            CHECK_NULL(sMethod_getMyClass_2);
-            sMethod_onJobStart_3 = env->GetMethodID(sClazz, "onJobStart", "()V");
-            CHECK_NULL(sMethod_onJobStart_3);
-            sMethod_onJobDone_4 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
-            CHECK_NULL(sMethod_onJobDone_4);
-            sMethod_onJobProgress_5 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
-            CHECK_NULL(sMethod_onJobProgress_5);
-            sMethod_aStaticMethod_6 = env->GetStaticMethodID(sClazz, "aStaticMethod", "()I");
-            CHECK_NULL(sMethod_aStaticMethod_6);
+            sMethod_onJobStart_0 = env->GetMethodID(sClazz, "onJobStart", "()V");
+            CHECK_NULL(sMethod_onJobStart_0);
+            sMethod_onJobDone_1 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
+            CHECK_NULL(sMethod_onJobDone_1);
+            sMethod_onJobProgress_2 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
+            CHECK_NULL(sMethod_onJobProgress_2);
 
             sField_count_0 = env->GetFieldID(sClazz, "count", "I");
             CHECK_NULL(sField_count_0);
@@ -123,7 +111,7 @@ public:
 
 
     ///throw std::runtime_error when construct GlobalRef failed
-    Callback(JNIEnv *env, jobject javaObj, bool global)
+    CallbackProxy(JNIEnv *env, jobject javaObj, bool global)
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
 #endif
@@ -143,7 +131,7 @@ public:
     }
 
     ///no copy construct
-    Callback(const Callback &from) = delete;
+    CallbackProxy(const CallbackProxy &from) = delete;
 
     void deleteGlobalReference(JNIEnv *env) {
         if (mGlobal) {
@@ -152,36 +140,20 @@ public:
         }
     }
 
-    ~Callback() {
+    ~CallbackProxy() {
         assert(!mGlobal || mJavaObjectReference == nullptr);
     }
 
-    void setName(JNIEnv *env, jstring name) const {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_setName_0, name);
-    }
-
-    jint prepareRun(JNIEnv *env) const {
-        return env->CallIntMethod(mJavaObjectReference, sMethod_prepareRun_1);
-    }
-
-    static jclass getMyClass(JNIEnv *env) {
-        return reinterpret_cast<jclass>(env->CallStaticObjectMethod(sClazz, sMethod_getMyClass_2));
-    }
-
     void onJobStart(JNIEnv *env) const {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_3);
+        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_0);
     }
 
     void onJobDone(JNIEnv *env, jboolean success, jstring result) const {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobDone_4, success, result);
+        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobDone_1, success, result);
     }
 
     void onJobProgress(JNIEnv *env, jlong progress) const {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobProgress_5, progress);
-    }
-
-    static jint aStaticMethod(JNIEnv *env) {
-        return env->CallStaticIntMethod(sClazz, sMethod_aStaticMethod_6);
+        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobProgress_2, progress);
     }
 
 
@@ -258,23 +230,19 @@ public:
 };
 
 //static fields
-jclass Callback::sClazz = nullptr;
-jmethodID Callback::sConstruct_0 = nullptr;
-jmethodID Callback::sConstruct_1 = nullptr;
-jmethodID Callback::sConstruct_2 = nullptr;
-jmethodID Callback::sMethod_setName_0 = nullptr;
-jmethodID Callback::sMethod_prepareRun_1 = nullptr;
-jmethodID Callback::sMethod_getMyClass_2 = nullptr;
-jmethodID Callback::sMethod_onJobStart_3 = nullptr;
-jmethodID Callback::sMethod_onJobDone_4 = nullptr;
-jmethodID Callback::sMethod_onJobProgress_5 = nullptr;
-jmethodID Callback::sMethod_aStaticMethod_6 = nullptr;
-jfieldID Callback::sField_count_0 = nullptr;
-jfieldID Callback::sField_staticName_1 = nullptr;
-jfieldID Callback::sField_aStaticField_2 = nullptr;
-jfieldID Callback::sField_name_3 = nullptr;
-jfieldID Callback::sField_lock_4 = nullptr;
-jfieldID Callback::sField_staticCount_5 = nullptr;
+jclass CallbackProxy::sClazz = nullptr;
+jmethodID CallbackProxy::sConstruct_0 = nullptr;
+jmethodID CallbackProxy::sConstruct_1 = nullptr;
+jmethodID CallbackProxy::sConstruct_2 = nullptr;
+jmethodID CallbackProxy::sMethod_onJobStart_0 = nullptr;
+jmethodID CallbackProxy::sMethod_onJobDone_1 = nullptr;
+jmethodID CallbackProxy::sMethod_onJobProgress_2 = nullptr;
+jfieldID CallbackProxy::sField_count_0 = nullptr;
+jfieldID CallbackProxy::sField_staticName_1 = nullptr;
+jfieldID CallbackProxy::sField_aStaticField_2 = nullptr;
+jfieldID CallbackProxy::sField_name_3 = nullptr;
+jfieldID CallbackProxy::sField_lock_4 = nullptr;
+jfieldID CallbackProxy::sField_staticCount_5 = nullptr;
 
 
 #undef CHECK_NULL

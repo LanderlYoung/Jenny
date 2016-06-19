@@ -19,6 +19,7 @@ import java.util.Map;
  except for those we explicitly annotated with {@link NativeFieldProxy}
  */
 @NativeProxy(allFields = false, allMethods = false)
+//java project should disable android log marcos
 @NativeClass(androidLog = false)
 public class ComputeInNative {
     static {

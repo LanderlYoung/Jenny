@@ -20,6 +20,8 @@ public class Callback {
     protected Object lock;
 
     public static final int COMPILE_CONSTANT_INT = 15;
+
+    @NativeFieldProxy(auto = false, setter = true)
     public final int ANOTHER_COMPILE_CONSTANT_INT = 16;
 
     public int count = 160;
