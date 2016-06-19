@@ -57,6 +57,7 @@ public class FileTemplate {
         REINTERPRET_CAST("reinterpret_cast.h"),
         NATIVE_CPP_SKELETON("native_cpp_skeleton.cpp"),
         JNI_HEADER_TEMPLATE("native_header_skeleton.h"),
+        ANDROID_LOG_MARCOS("android_log_marcos.h"),
         NATIVE_JNI_NATIVE_METHOD_STRUCT("native_jni_nativeMethodsStruct.cpp"),
         NATIVE_METHOD_DECLARE_TEMPLATE("native_method_declare_template.h"),
         NATIVE_METHOD_TEMPLATE("native_method_template.cpp"),

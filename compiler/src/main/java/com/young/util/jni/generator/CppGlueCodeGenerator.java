@@ -1,9 +1,9 @@
 package com.young.util.jni.generator;
 
+import com.young.jenny.annotation.NativeClass;
 import com.young.jenny.annotation.NativeCode;
 import com.young.util.jni.generator.template.FileTemplate;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
@@ -30,6 +30,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
     //source file Name
     private String mSourceName;
     private List<Element> mMethods;
+    private final NativeClass mNativeClassAnnotation;
 
     //DONE HandyHelper.toJNIType throwable
     //DONE Use NativeClass to mark generate, NativeCode to add implements
@@ -43,6 +44,11 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
     public CppGlueCodeGenerator(Environment env, TypeElement clazz) {
         super(env, clazz);
         mMethods = new LinkedList<>();
+        NativeClass annotation = clazz.getAnnotation(NativeClass.class);
+        if (annotation == null) {
+            annotation = AnnotationResolver.getDefaultImplementation(NativeClass.class);
+        }
+        mNativeClassAnnotation = annotation;
     }
 
     @Override
@@ -113,9 +119,13 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
 
             w.write(FileTemplate.withType(FileTemplate.Type.NATIVE_CPP_SKELETON)
                                 .add("header", mHeaderName)
+                                .add("android_log_marcos", mNativeClassAnnotation.androidLog()
+                                        ? FileTemplate.withType(FileTemplate.Type.ANDROID_LOG_MARCOS).create()
+                                        : "")
                                 .add("full_java_class_name", mClassName)
                                 .add("full_slash_class_name", mSlashClassName)
                                 .add("full_native_class_name", mJNIClassName)
+                                .add("simple_class_name", mSimpleClassName)
                                 .add("methods", generateFunctions(true))
                                 .add("jni_method_struct", generateJniNativeMethodStruct())
                                 .create()

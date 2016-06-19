@@ -2,9 +2,7 @@
 #include "com_young_jennysampleapp_Callback.h"
 #include "com_young_jennysampleapp_Callback_NestedClass.h"
 
-#define __USE_ANDROID_LOG__ 1
-
-#if __USE_ANDROID_LOG__ == 1
+#ifdef DEBUG
 #include <android/log.h>
 #define LOGV(...)   __android_log_print((int)ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__)
 #define LOGD(...)   __android_log_print((int)ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)

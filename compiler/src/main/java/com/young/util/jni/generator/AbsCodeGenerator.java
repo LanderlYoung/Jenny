@@ -30,6 +30,8 @@ public abstract class AbsCodeGenerator {
      */
     protected final String mSlashClassName;
 
+    protected final String mSimpleClassName;
+
     public AbsCodeGenerator(Environment env, TypeElement clazz) {
         if (clazz.getKind() != ElementKind.CLASS) {
             throw new IllegalArgumentException("type element clazz is not class type");
@@ -41,6 +43,7 @@ public abstract class AbsCodeGenerator {
         mClassName = mHelper.getClassName(mClazz);
         mJNIClassName = mHelper.toJNIClassName(mClassName);
         mSlashClassName = mHelper.getSlashClassName(mClassName);
+        mSimpleClassName = mHelper.getSimpleName(mClazz);
     }
 
     public abstract void doGenerate();
