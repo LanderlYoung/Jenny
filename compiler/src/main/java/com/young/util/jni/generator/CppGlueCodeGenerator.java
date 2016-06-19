@@ -195,7 +195,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                                 .add("jni_return_type", mHelper.toJNIType(e.getReturnType()))
                                 .add("method_signature", mHelper.getMethodSignature(e))
                                 .add("native_parameters", mHelper.getNativeMethodParam(e))
-                                .add("end", isSource ? "" : ";\n")
+                                .add("end", isSource ? "" : ";\n\n")
                                 .create();
             if (isSource) {
                 result = generateFunctionWithReturnStatement(result, e);

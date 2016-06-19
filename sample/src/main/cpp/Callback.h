@@ -9,7 +9,7 @@
 
 #define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
 
-class com_young_jennysampleapp_Callback {
+class Callback {
 public:
     static constexpr const char *const FULL_CLASS_NAME = "com/young/jennysampleapp/Callback";
 
@@ -123,7 +123,7 @@ public:
 
 
     ///throw std::runtime_error when construct GlobalRef failed
-    com_young_jennysampleapp_Callback(JNIEnv *env, jobject javaObj, bool global)
+    Callback(JNIEnv *env, jobject javaObj, bool global)
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
 #endif
@@ -143,7 +143,7 @@ public:
     }
 
     ///no copy construct
-    com_young_jennysampleapp_Callback(const com_young_jennysampleapp_Callback &from) = delete;
+    Callback(const Callback &from) = delete;
 
     void deleteGlobalReference(JNIEnv *env) {
         if (mGlobal) {
@@ -152,7 +152,7 @@ public:
         }
     }
 
-    ~com_young_jennysampleapp_Callback() {
+    ~Callback() {
         assert(!mGlobal || mJavaObjectReference == nullptr);
     }
 
@@ -258,23 +258,23 @@ public:
 };
 
 //static fields
-jclass com_young_jennysampleapp_Callback::sClazz = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sConstruct_0 = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sConstruct_1 = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sConstruct_2 = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sMethod_setName_0 = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sMethod_prepareRun_1 = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sMethod_getMyClass_2 = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sMethod_onJobStart_3 = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sMethod_onJobDone_4 = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sMethod_onJobProgress_5 = nullptr;
-jmethodID com_young_jennysampleapp_Callback::sMethod_aStaticMethod_6 = nullptr;
-jfieldID com_young_jennysampleapp_Callback::sField_count_0 = nullptr;
-jfieldID com_young_jennysampleapp_Callback::sField_staticName_1 = nullptr;
-jfieldID com_young_jennysampleapp_Callback::sField_aStaticField_2 = nullptr;
-jfieldID com_young_jennysampleapp_Callback::sField_name_3 = nullptr;
-jfieldID com_young_jennysampleapp_Callback::sField_lock_4 = nullptr;
-jfieldID com_young_jennysampleapp_Callback::sField_staticCount_5 = nullptr;
+jclass Callback::sClazz = nullptr;
+jmethodID Callback::sConstruct_0 = nullptr;
+jmethodID Callback::sConstruct_1 = nullptr;
+jmethodID Callback::sConstruct_2 = nullptr;
+jmethodID Callback::sMethod_setName_0 = nullptr;
+jmethodID Callback::sMethod_prepareRun_1 = nullptr;
+jmethodID Callback::sMethod_getMyClass_2 = nullptr;
+jmethodID Callback::sMethod_onJobStart_3 = nullptr;
+jmethodID Callback::sMethod_onJobDone_4 = nullptr;
+jmethodID Callback::sMethod_onJobProgress_5 = nullptr;
+jmethodID Callback::sMethod_aStaticMethod_6 = nullptr;
+jfieldID Callback::sField_count_0 = nullptr;
+jfieldID Callback::sField_staticName_1 = nullptr;
+jfieldID Callback::sField_aStaticField_2 = nullptr;
+jfieldID Callback::sField_name_3 = nullptr;
+jfieldID Callback::sField_lock_4 = nullptr;
+jfieldID Callback::sField_staticCount_5 = nullptr;
 
 
 #undef CHECK_NULL
