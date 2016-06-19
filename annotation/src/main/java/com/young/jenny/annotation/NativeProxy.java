@@ -7,27 +7,22 @@ import java.lang.annotation.Target;
 
 /**
  * Author: landerlyoung@gmail.com
- * Date:   2014-12-17
- * Time:   9:59
- * Life with passion. Code with creativity!
- * <p>
- * <p>
- * An annotation to mark an class as native, thus causing
- * {@link com.young.util.jni.generator.JNICppSourceGenerateProcessor}
- * to process annotations and to generate corresponding JNI header and source
- * file.
- * </p>
- * <p>
- * <b>note</b>: The @{code arch} value is currently not used.
- * <p>
+ * Date:   2016-06-02
+ * Time:   19-59
+ * Life with Passion, Code with Creativity.
+ *
+ * mark a class/interface that will be called by native code
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface NativeClass {
+public @interface NativeProxy {
     /**
-     * generate android log marcos
+     * should jenny generate native glue code for all method,
+     * inside this class/interface.
      */
-    boolean androidLog() default true;
+    boolean allMethods() default true;
+
+    boolean allFields() default true;
 
     /**
      * use simple class name instead of full java class name for

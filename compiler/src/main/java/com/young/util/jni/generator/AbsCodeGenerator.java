@@ -17,26 +17,27 @@ public abstract class AbsCodeGenerator {
 
     public static final String PKG_NAME = "jenny";
 
-    /**
-     * like com.example_package.SomeClass$InnerClass
-     */
+    /** like com.example_package.SomeClass$InnerClass */
     protected final String mClassName;
-    /**
-     * like com_example_1package_SomeClass_InnerClass
-     */
+
+    /** like com_example_1package_SomeClass_InnerClass */
     protected final String mJNIClassName;
-    /**
-     * like com/example_package/SomeClass$InnerClass
-     */
+
+    /** like com/example_package/SomeClass$InnerClass */
     protected final String mSlashClassName;
 
+    /** like String for java.lang.String class */
     protected final String mSimpleClassName;
 
     public AbsCodeGenerator(Environment env, TypeElement clazz) {
-        if (clazz.getKind() != ElementKind.CLASS) {
-            throw new IllegalArgumentException("type element clazz is not class type");
-        }
         mEnv = env;
+
+        if (clazz.getKind() != ElementKind.CLASS
+                && clazz.getKind() != ElementKind.INTERFACE
+                && clazz.getKind() != ElementKind.ENUM
+                && clazz.getKind() != ElementKind.ANNOTATION_TYPE) {
+            error("type element " + clazz.toString() + " is not class type");
+        }
         mClazz = clazz;
         mHelper = new HandyHelper(env);
 
@@ -50,14 +51,14 @@ public abstract class AbsCodeGenerator {
 
 
     public void log(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.NOTE, msg);
+        mEnv.messager.printMessage(Diagnostic.Kind.NOTE, "Jenny" + msg);
     }
 
     public void warn(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.WARNING, msg);
+        mEnv.messager.printMessage(Diagnostic.Kind.WARNING, "Jenny" + msg);
     }
 
     public void error(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.ERROR, msg);
+        mEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Jenny" + msg);
     }
 }

@@ -74,7 +74,12 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
     }
 
     private String getCppClassName() {
-        return mNativeClassAnnotation.simpleName() ? mSimpleClassName : mJNIClassName;
+        String fileName = mNativeClassAnnotation.fileName();
+        if (fileName.length() > 0) {
+            return fileName;
+        } else {
+            return mNativeClassAnnotation.simpleName() ? mSimpleClassName : mJNIClassName;
+        }
     }
 
     private void findNativeMethods() {

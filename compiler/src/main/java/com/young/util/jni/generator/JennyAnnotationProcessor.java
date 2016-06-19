@@ -3,8 +3,8 @@ package com.young.util.jni.generator;
 import com.google.auto.service.AutoService;
 import com.young.jenny.annotation.NativeClass;
 import com.young.jenny.annotation.NativeCode;
-import com.young.jenny.annotation.NativeReflect;
-import com.young.jenny.annotation.NativeReflectMethod;
+import com.young.jenny.annotation.NativeMethodProxy;
+import com.young.jenny.annotation.NativeProxy;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,8 +40,8 @@ public class JennyAnnotationProcessor extends AbstractProcessor {
         SUPPORTED_ANNOTATIONS = new HashSet<>();
         SUPPORTED_ANNOTATIONS.add(NativeClass.class.getName());
         SUPPORTED_ANNOTATIONS.add(NativeCode.class.getName());
-        SUPPORTED_ANNOTATIONS.add(NativeReflect.class.getName());
-        SUPPORTED_ANNOTATIONS.add(NativeReflectMethod.class.getName());
+        SUPPORTED_ANNOTATIONS.add(NativeProxy.class.getName());
+        SUPPORTED_ANNOTATIONS.add(NativeMethodProxy.class.getName());
     }
 
     public JennyAnnotationProcessor() {
@@ -80,14 +80,14 @@ public class JennyAnnotationProcessor extends AbstractProcessor {
     }
 
     private boolean generateNativeReflect(RoundEnvironment roundEnv) {
-        Set<? extends Element> classes = roundEnv.getElementsAnnotatedWith(NativeReflect.class);
+        Set<? extends Element> classes = roundEnv.getElementsAnnotatedWith(NativeProxy.class);
         if (classes.isEmpty()) return false;
 
         Environment env = new Environment(mMessager,
                 mTypeUtils, mElementsUtils, mFiler, roundEnv);
         classes.parallelStream()
                .filter(ec -> ec instanceof TypeElement)
-               .forEach(ec -> new NativeReflectCodeGenerator(env, (TypeElement) ec).doGenerate());
+               .forEach(ec -> new NativeProxyCodeGenerator(env, (TypeElement) ec).doGenerate());
         return false;
     }
 
