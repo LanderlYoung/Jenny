@@ -25,5 +25,14 @@ import java.lang.reflect.Method;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface NativeClass {
+    /**
+     * generate android log marcos
+     */
     boolean androidLog() default true;
+
+    /**
+     * use simple class name instead of full java class name for
+     * file name or cpp class name
+     */
+    boolean simpleName() default true;
 }

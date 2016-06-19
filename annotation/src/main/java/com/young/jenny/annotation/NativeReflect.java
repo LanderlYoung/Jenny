@@ -23,4 +23,10 @@ public @interface NativeReflect {
     boolean allMethods() default true;
 
     boolean allFields() default true;
+
+    /**
+     * use simple class name instead of full java class name for
+     * file name or cpp class name
+     */
+    boolean simpleName() default true;
 }

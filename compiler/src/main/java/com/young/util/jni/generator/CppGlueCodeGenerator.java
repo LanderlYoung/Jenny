@@ -62,8 +62,8 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
     private boolean init() {
         if (!mClazz.getKind().equals(ElementKind.CLASS)) return false;
 
-        mHeaderName = mJNIClassName + ".h";
-        mSourceName = mJNIClassName + ".cpp";
+        mHeaderName = getCppClassName() + ".h";
+        mSourceName = getCppClassName() + ".cpp";
         log("jenny begin generate glue code for class [" + mClassName + "]");
         log("header : [" + mHeaderName + "]");
         log("source : [" + mSourceName + "]");
@@ -71,6 +71,10 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         findNativeMethods();
 
         return true;
+    }
+
+    private String getCppClassName() {
+        return mNativeClassAnnotation.simpleName() ? mSimpleClassName : mJNIClassName;
     }
 
     private void findNativeMethods() {

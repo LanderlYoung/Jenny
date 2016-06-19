@@ -2,6 +2,7 @@ package com.young.util.jni.generator;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.young.jenny.annotation.NativeAccessField;
+import com.young.jenny.annotation.NativeReflect;
 import com.young.util.jni.generator.template.FileTemplate;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
     private final ArrayListMultimap<String, ExecutableElement> mMethods;
     private final ArrayListMultimap<String, Element> mFields;
     private final Set<String> mConsts;
-
+    private final NativeReflect mNativeReflectAnnotation;
     private final String mFileName;
 
     private int mDummyIndex;
@@ -66,6 +67,13 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
         mMethods = ArrayListMultimap.create(16, 16);
         mFields = ArrayListMultimap.create(16, 16);
         mConsts = new HashSet<>();
+
+        NativeReflect annotation = clazz.getAnnotation(NativeReflect.class);
+        if (annotation == null) {
+            annotation = AnnotationResolver.getDefaultImplementation(NativeReflect.class);
+        }
+        mNativeReflectAnnotation = annotation;
+
         mFileName = getCppClassName() + ".h";
     }
 
@@ -92,7 +100,7 @@ public class NativeReflectCodeGenerator extends AbsCodeGenerator {
     }
 
     private String getCppClassName() {
-        return mJNIClassName;
+        return mNativeReflectAnnotation.simpleName() ? mSimpleClassName : mJNIClassName;
     }
 
     private String generateConstantsDefinition() {
