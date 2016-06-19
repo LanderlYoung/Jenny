@@ -14,21 +14,21 @@ import java.util.List;
  * Time:   19-58
  * Life with Passion, Code with Creativity.
  */
-@NativeProxy(allFields = false, allMethods = false)
+@NativeProxy(allFields = true, allMethods = false)
 public class Callback {
 
     protected Object lock;
 
     public static final int COMPILE_CONSTANT_INT = 15;
 
-    @NativeFieldProxy(auto = false, setter = true)
+    @NativeFieldProxy(setter = true)
     public final int ANOTHER_COMPILE_CONSTANT_INT = 16;
 
     public int count = 160;
     public static int staticCount = 10;
 
-    @NativeFieldProxy(auto = true)
     public String name = "callback";
+
 
 
     public static String staticName = "static";

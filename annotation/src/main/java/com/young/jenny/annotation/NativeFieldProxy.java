@@ -12,8 +12,31 @@ import java.lang.annotation.Target;
  * Life with Passion, Code with Creativity.
  * <p/>
  * Control whether should Jenny generate proxy getter/setter functions for this field.
- * Regardless of the {@link NativeProxy @NativeReflace(allFields = flse) or @NativeReflace(allFields = true)} config.
+ * Regardless of the {@link NativeProxy @NativeProxy(allFields = flse) or @NativeProxy(allFields = true)} config.
  * <p/>
+ *
+ * <hr/>
+ * If a field is not annotated with this Annotation,
+ * and @NativeProxy(allFields = true) for the enclosing class is set,
+ * the "auto" strategy is applied.
+ * The algorithm of "auto" is described below:
+ * <ul>
+ *     <li> If you already have a set&lt;FieldName&gt; method, Jenny will not generate setter. </li>
+ *     <li> If you already have a get&lt;FieldName&gt; method, or is&lt;FieldName&gt; for boolean field,
+ *     Jenny will not generate getter. </li>
+ * </ul>
+ *
+ * NOTE: for compile-time constant field who is not annotated with this Annotation,
+ * Jenny behaves like it were annotated with @NativeFieldProxy(getter = false, setter = false).
+ * Since, in common case, there is no meaning to change a compile-time constant,
+ * because all code referencing to it get inlined when compile.
+ * And if you really do so to a "static" compile-time constant,
+ * the jvm will gracefully raise an IllegalAccessException.
+ * But, you can still indicate Jenny to generate getter/setter to that field,
+ * in case you may remove the final keyword latter or just want to make die.
+ * The choice is on you.
+ *
+ * @see NativeProxy#allFields()
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
@@ -23,14 +46,4 @@ public @interface NativeFieldProxy {
 
     /** generate setter function or not */
     boolean setter() default false;
-
-    /**
-     * Smart algorithm to check whether should Jenny generate getter or setter.
-     * <ul>
-     *     <li> If you already have a set&lt;FieldName&gt; method, Jenny will not generate setter. </li>
-     *     <li> If you already have a get&lt;FieldName&gt; method, or is&lt;FieldName&gt; for boolean field,
-     *     Jenny will not generate getter. </li>
-     * </ul>
-     */
-    boolean auto() default true;
 }

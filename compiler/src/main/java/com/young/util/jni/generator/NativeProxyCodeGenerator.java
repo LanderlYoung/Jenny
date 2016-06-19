@@ -153,14 +153,12 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         boolean getter = false;
         boolean setter = false;
 
-        boolean auto = true;
+        boolean auto = mNativeProxyAnnotation.allFields();
         NativeFieldProxy annotation = field.getAnnotation(NativeFieldProxy.class);
         if (annotation != null) {
-            if (!annotation.auto()) {
-                auto = false;
-                getter = annotation.getter();
-                setter = annotation.setter();
-            }
+            auto = false;
+            getter = annotation.getter();
+            setter = annotation.setter();
         } else {
             if (mConsts.contains(field.getSimpleName().toString())) {
                 auto = false;

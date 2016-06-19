@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * Control whether should Jenny generate proxy function for this method/constructor.
  * Regardless of the {@link NativeProxy @NativeReflace(allMethos = flse) or @NativeReflace(allMethos = true)} config.
  * <p/>
- * @see NativeProxy
+ * @see NativeProxy#allMethods()
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
