@@ -1,1 +1,1 @@
-static constexpr const ${type} ${full_class_name}_${name} = ${value};
+static constexpr const ${type} ${_const}${full_class_name}_${name} = ${value};

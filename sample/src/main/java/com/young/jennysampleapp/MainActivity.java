@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onJobProgress(long progress) {
-                        toast("onJobProgress = " + progress + " lock = " + lock);
+                        toast("onJobProgress = " + progress + " lock = " + System.identityHashCode(lock));
                     }
 
                     @Override

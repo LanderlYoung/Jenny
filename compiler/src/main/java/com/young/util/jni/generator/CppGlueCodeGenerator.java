@@ -155,8 +155,11 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                   //value will be returned, otherwise null will be returned.
                   Object constValue = ve.getConstantValue();
 
+                  String nativeType = mHelper.toNativeType(ve.asType());
+
                   sb.append(FileTemplate.withType(FileTemplate.Type.CONSTANT_TEMPLATE)
-                                        .add("type", mHelper.toNativeType(ve.asType()))
+                                        .add("type", nativeType)
+                                        .add("_const", nativeType.contains("*") ? "const " : "")
                                         .add("name", ve.getSimpleName().toString())
                                         .add("full_class_name", mJNIClassName)
                                         .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))

@@ -138,7 +138,7 @@ public:
 #endif
     }
 
-    bool isGlobalJavaReferencePresent() {
+    bool isGlobalReferencePresent() {
         return mJavaObjectReference != nullptr;
     }
 
