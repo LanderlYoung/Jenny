@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * Time:   19-59
  * Life with Passion, Code with Creativity.
  *
- * mark a class/interface that is will be called by native code
+ * mark a class/interface that will be called by native code
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
@@ -26,7 +26,7 @@ public @interface NativeReflect {
 
     /**
      * use simple class name instead of full java class name for
-     * file name or cpp class name
+     * generated file name or cpp class name
      */
     boolean simpleName() default true;
 }

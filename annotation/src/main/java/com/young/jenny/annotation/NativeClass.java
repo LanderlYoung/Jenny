@@ -32,7 +32,7 @@ public @interface NativeClass {
 
     /**
      * use simple class name instead of full java class name for
-     * file name or cpp class name
+     * generated file name or cpp class name
      */
     boolean simpleName() default true;
 }
