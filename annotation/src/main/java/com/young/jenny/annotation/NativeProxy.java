@@ -11,7 +11,10 @@ import java.lang.annotation.Target;
  * Time:   19-59
  * Life with Passion, Code with Creativity.
  *
- * mark a class/interface that will be called by native code
+ * Mark a class/interface that will be called by native code.
+ * So that, jenny will generate cpp proxy class for you to access
+ * java object with ease.
+ * Jenny does the reflect work, and leave you with a clean world!
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)

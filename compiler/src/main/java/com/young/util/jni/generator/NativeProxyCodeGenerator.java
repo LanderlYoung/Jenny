@@ -245,13 +245,19 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
     private String generateFieldIdDeclare() {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
-        fieldsStream().forEach(f -> {
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_REFLECT_FIELD_ID_DECLARE)
-                    .add("name", getFieldName(f, mDummyIndex++))
-                    .create()
-            );
-        });
+        fieldsStream()
+                .map(e -> (VariableElement) e)
+                .forEach(f -> {
+                    if (f.getConstantValue() != null) {
+                        warn("you are trying to add getter/setter to a compile-time constant "
+                                + f.getSimpleName().toString());
+                    }
+                    sb.append(FileTemplate
+                            .withType(FileTemplate.Type.NATIVE_REFLECT_FIELD_ID_DECLARE)
+                            .add("name", getFieldName(f, mDummyIndex++))
+                            .create()
+                    );
+                });
 
         return sb.toString();
     }
@@ -326,7 +332,6 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         methodsStream().forEach(m -> {
             final boolean isStatic = m.getModifiers().contains(Modifier.STATIC);
             final String returnType = mHelper.toJNIType(m.getReturnType());
-            log("m=" + m.getSimpleName() + " r=" + m.getReturnType() + " re=" + returnType);
             final String returnStatement = FileTemplate
                     .withType(FileTemplate.Type.NATIVE_REFLECT_METHOD_RETURN)
                     .add("static", isStatic ? "Static" : "")

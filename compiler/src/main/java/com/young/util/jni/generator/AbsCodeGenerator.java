@@ -11,6 +11,8 @@ import javax.tools.Diagnostic;
  * Life with Passion, Code with Creativity.
  */
 public abstract class AbsCodeGenerator {
+    private static final String LOG_PREFIX = "Jenny | ";
+
     protected final Environment mEnv;
     protected final TypeElement mClazz;
     protected final HandyHelper mHelper;
@@ -49,16 +51,15 @@ public abstract class AbsCodeGenerator {
 
     public abstract void doGenerate();
 
-
     public void log(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.NOTE, "Jenny" + msg);
+        mEnv.messager.printMessage(Diagnostic.Kind.NOTE, LOG_PREFIX + msg);
     }
 
     public void warn(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.WARNING, "Jenny" + msg);
+        mEnv.messager.printMessage(Diagnostic.Kind.WARNING, LOG_PREFIX + msg);
     }
 
     public void error(String msg) {
-        mEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Jenny" + msg);
+        mEnv.messager.printMessage(Diagnostic.Kind.ERROR, LOG_PREFIX + msg);
     }
 }

@@ -14,25 +14,28 @@ import java.lang.annotation.Target;
  * Control whether should Jenny generate proxy getter/setter functions for this field.
  * Regardless of the {@link NativeProxy @NativeProxy(allFields = flse) or @NativeProxy(allFields = true)} config.
  * <p/>
- *
+ * <p>
  * <hr/>
  * If a field is not annotated with this Annotation,
  * and @NativeProxy(allFields = true) for the enclosing class is set,
  * the "auto" strategy is applied.
  * The algorithm of "auto" is described below:
  * <ul>
- *     <li> If you already have a set&lt;FieldName&gt; method, Jenny will not generate setter. </li>
- *     <li> If you already have a get&lt;FieldName&gt; method, or is&lt;FieldName&gt; for boolean field,
- *     Jenny will not generate getter. </li>
+ * <li> If you already have a set&lt;FieldName&gt; method, Jenny will not generate setter. </li>
+ * <li> If you already have a get&lt;FieldName&gt; method, or is&lt;FieldName&gt; for boolean field,
+ * Jenny will not generate getter. </li>
  * </ul>
- *
+ * <p>
  * NOTE: for compile-time constant field who is not annotated with this Annotation,
  * Jenny behaves like it were annotated with @NativeFieldProxy(getter = false, setter = false).
  * Since, in common case, there is no meaning to change a compile-time constant,
  * because all code referencing to it get inlined when compile.
- * And if you really do so to a "static" compile-time constant,
- * the jvm will gracefully raise an IllegalAccessException.
- * But, you can still indicate Jenny to generate getter/setter to that field,
+ * And if you really do that to a "static" compile-time constant,
+ * the jvm will gracefully raise an {@link IllegalAccessException}.
+ *
+ * But Jenny tries to be help, so she logs a warning in the console,
+ * and pray to god that you might see it.
+ * However, you can still indicate Jenny to generate getter/setter to that field,
  * in case you may remove the final keyword latter or just want to make die.
  * The choice is on you.
  *

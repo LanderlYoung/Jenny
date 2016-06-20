@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
  * Date:   2014-12-16
  * Time:   19:36
  * Life with passion. Code with creativity!
+ * Fill the native method body with given c/cpp code! Cool!
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
