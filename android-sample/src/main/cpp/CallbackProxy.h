@@ -27,12 +27,13 @@ private:
     static jmethodID sMethod_onJobDone_1;
     static jmethodID sMethod_onJobProgress_2;
 
-    static jfieldID sField_count_0;
-    static jfieldID sField_staticName_1;
-    static jfieldID sField_aStaticField_2;
-    static jfieldID sField_name_3;
-    static jfieldID sField_lock_4;
-    static jfieldID sField_staticCount_5;
+    static jfieldID sField_ANOTHER_COMPILE_CONSTANT_INT_0;
+    static jfieldID sField_count_1;
+    static jfieldID sField_staticName_2;
+    static jfieldID sField_aStaticField_3;
+    static jfieldID sField_name_4;
+    static jfieldID sField_lock_5;
+    static jfieldID sField_staticCount_6;
 
     const bool mGlobal;
     jobject mJavaObjectReference;
@@ -59,18 +60,20 @@ public:
             sMethod_onJobProgress_2 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
             CHECK_NULL(sMethod_onJobProgress_2);
 
-            sField_count_0 = env->GetFieldID(sClazz, "count", "I");
-            CHECK_NULL(sField_count_0);
-            sField_staticName_1 = env->GetStaticFieldID(sClazz, "staticName", "Ljava/lang/String;");
-            CHECK_NULL(sField_staticName_1);
-            sField_aStaticField_2 = env->GetStaticFieldID(sClazz, "aStaticField", "Ljava/util/List;");
-            CHECK_NULL(sField_aStaticField_2);
-            sField_name_3 = env->GetFieldID(sClazz, "name", "Ljava/lang/String;");
-            CHECK_NULL(sField_name_3);
-            sField_lock_4 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
-            CHECK_NULL(sField_lock_4);
-            sField_staticCount_5 = env->GetStaticFieldID(sClazz, "staticCount", "I");
-            CHECK_NULL(sField_staticCount_5);
+            sField_ANOTHER_COMPILE_CONSTANT_INT_0 = env->GetFieldID(sClazz, "ANOTHER_COMPILE_CONSTANT_INT", "I");
+            CHECK_NULL(sField_ANOTHER_COMPILE_CONSTANT_INT_0);
+            sField_count_1 = env->GetFieldID(sClazz, "count", "I");
+            CHECK_NULL(sField_count_1);
+            sField_staticName_2 = env->GetStaticFieldID(sClazz, "staticName", "Ljava/lang/String;");
+            CHECK_NULL(sField_staticName_2);
+            sField_aStaticField_3 = env->GetStaticFieldID(sClazz, "aStaticField", "Ljava/util/List;");
+            CHECK_NULL(sField_aStaticField_3);
+            sField_name_4 = env->GetFieldID(sClazz, "name", "Ljava/lang/String;");
+            CHECK_NULL(sField_name_4);
+            sField_lock_5 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
+            CHECK_NULL(sField_lock_5);
+            sField_staticCount_6 = env->GetStaticFieldID(sClazz, "staticCount", "I");
+            CHECK_NULL(sField_staticCount_6);
 
             return true;
         }
@@ -158,69 +161,77 @@ public:
 
 
 
+
+    void setANOTHER_COMPILE_CONSTANT_INT(JNIEnv *env, jint ANOTHER_COMPILE_CONSTANT_INT) const {
+        init_clazz(env);
+        env->SetIntField(mJavaObjectReference, sField_ANOTHER_COMPILE_CONSTANT_INT_0, ANOTHER_COMPILE_CONSTANT_INT);
+    }
+
+
+
     jint getCount(JNIEnv *env) const {
         init_clazz(env);
-        return env->GetIntField(mJavaObjectReference, sField_count_0);
+        return env->GetIntField(mJavaObjectReference, sField_count_1);
     }
 
     void setCount(JNIEnv *env, jint count) const {
         init_clazz(env);
-        env->SetIntField(mJavaObjectReference, sField_count_0, count);
+        env->SetIntField(mJavaObjectReference, sField_count_1, count);
     }
 
 
 
     static jstring getStaticName(JNIEnv *env) {
         init_clazz(env);
-        return reinterpret_cast<jstring>(env->GetStaticObjectField(sClazz, sField_staticName_1));
+        return reinterpret_cast<jstring>(env->GetStaticObjectField(sClazz, sField_staticName_2));
     }
 
     static void setStaticName(JNIEnv *env, jstring staticName) {
         init_clazz(env);
-        env->SetStaticObjectField(sClazz, sField_staticName_1, staticName);
+        env->SetStaticObjectField(sClazz, sField_staticName_2, staticName);
     }
 
 
 
     static jobject getAStaticField(JNIEnv *env) {
         init_clazz(env);
-        return env->GetStaticObjectField(sClazz, sField_aStaticField_2);
+        return env->GetStaticObjectField(sClazz, sField_aStaticField_3);
     }
 
     static void setAStaticField(JNIEnv *env, jobject aStaticField) {
         init_clazz(env);
-        env->SetStaticObjectField(sClazz, sField_aStaticField_2, aStaticField);
+        env->SetStaticObjectField(sClazz, sField_aStaticField_3, aStaticField);
     }
 
 
 
     jstring getName(JNIEnv *env) const {
         init_clazz(env);
-        return reinterpret_cast<jstring>(env->GetObjectField(mJavaObjectReference, sField_name_3));
+        return reinterpret_cast<jstring>(env->GetObjectField(mJavaObjectReference, sField_name_4));
     }
 
 
 
     jobject getLock(JNIEnv *env) const {
         init_clazz(env);
-        return env->GetObjectField(mJavaObjectReference, sField_lock_4);
+        return env->GetObjectField(mJavaObjectReference, sField_lock_5);
     }
 
     void setLock(JNIEnv *env, jobject lock) const {
         init_clazz(env);
-        env->SetObjectField(mJavaObjectReference, sField_lock_4, lock);
+        env->SetObjectField(mJavaObjectReference, sField_lock_5, lock);
     }
 
 
 
     static jint getStaticCount(JNIEnv *env) {
         init_clazz(env);
-        return env->GetStaticIntField(sClazz, sField_staticCount_5);
+        return env->GetStaticIntField(sClazz, sField_staticCount_6);
     }
 
     static void setStaticCount(JNIEnv *env, jint staticCount) {
         init_clazz(env);
-        env->SetStaticIntField(sClazz, sField_staticCount_5, staticCount);
+        env->SetStaticIntField(sClazz, sField_staticCount_6, staticCount);
     }
 
 
@@ -237,12 +248,13 @@ jmethodID CallbackProxy::sConstruct_2 = nullptr;
 jmethodID CallbackProxy::sMethod_onJobStart_0 = nullptr;
 jmethodID CallbackProxy::sMethod_onJobDone_1 = nullptr;
 jmethodID CallbackProxy::sMethod_onJobProgress_2 = nullptr;
-jfieldID CallbackProxy::sField_count_0 = nullptr;
-jfieldID CallbackProxy::sField_staticName_1 = nullptr;
-jfieldID CallbackProxy::sField_aStaticField_2 = nullptr;
-jfieldID CallbackProxy::sField_name_3 = nullptr;
-jfieldID CallbackProxy::sField_lock_4 = nullptr;
-jfieldID CallbackProxy::sField_staticCount_5 = nullptr;
+jfieldID CallbackProxy::sField_ANOTHER_COMPILE_CONSTANT_INT_0 = nullptr;
+jfieldID CallbackProxy::sField_count_1 = nullptr;
+jfieldID CallbackProxy::sField_staticName_2 = nullptr;
+jfieldID CallbackProxy::sField_aStaticField_3 = nullptr;
+jfieldID CallbackProxy::sField_name_4 = nullptr;
+jfieldID CallbackProxy::sField_lock_5 = nullptr;
+jfieldID CallbackProxy::sField_staticCount_6 = nullptr;
 
 
 #undef CHECK_NULL

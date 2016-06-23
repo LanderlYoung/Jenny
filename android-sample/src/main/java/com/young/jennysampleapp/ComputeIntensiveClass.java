@@ -53,4 +53,14 @@ public class ComputeIntensiveClass {
     public void hello() {
 
     }
+
+    @NativeClass(dynamicRegisterJniMethods = false)
+    public static class NestedNativeClass {
+
+        public native HashMap<String, String> one(String param);
+
+        public native long nativeInit();
+
+        public native void nativeRelease(long handle);
+    }
 }

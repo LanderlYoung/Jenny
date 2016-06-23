@@ -108,6 +108,9 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                                 .add("include_guard", "_Included_" + mJNIClassName)
                                 .add("consts", generateConstantsDefinition())
                                 .add("methods", generateFunctions(false))
+                                .add("jni_on_load_declare", mNativeClassAnnotation.dynamicRegisterJniMethods()
+                                        ? FileTemplate.withType(FileTemplate.Type.JNI_ONLOAD_DECLARE).create()
+                                        : "")
                                 .create()
             );
 
@@ -136,7 +139,19 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                                 .add("full_native_class_name", mJNIClassName)
                                 .add("simple_class_name", mSimpleClassName)
                                 .add("methods", generateFunctions(true))
-                                .add("jni_method_struct", generateJniNativeMethodStruct())
+                                .add("dynamic_jni_register", mNativeClassAnnotation.dynamicRegisterJniMethods()
+                                        ? FileTemplate.withType(FileTemplate.Type.CPP_DYNAMIC_JNI_REGISTER)
+                                                      .add("jni_method_struct", generateJniNativeMethodStruct())
+                                                      .add("full_native_class_name", mJNIClassName)
+                                                      .create()
+                                        : "")
+                                .add("jni_onload_impl",
+                                     mNativeClassAnnotation.dynamicRegisterJniMethods()
+                                             ? FileTemplate.withType(
+                                             FileTemplate.Type.JNI_ONLOAD_IMPL)
+                                                           .add("full_native_class_name", mJNIClassName)
+                                                           .create()
+                                             : "")
                                 .create()
             );
         } catch (IOException e) {
@@ -197,8 +212,10 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                     FileTemplate.withType(FileTemplate.Type.NATIVE_METHOD_DECLARE_TEMPLATE)
                                 .add("full_java_class_name", mJNIClassName)
                                 .add("modifiers", mHelper.getMethodModifiers(e))
+                                .add("export_", mNativeClassAnnotation.dynamicRegisterJniMethods() ? "" : "JNIEXPORT ")
                                 .add("java_return_type", e.getReturnType().toString())
-                                .add("method_name", e.getSimpleName().toString())
+                                .add("note_method_name", e.getSimpleName().toString())
+                                .add("method_name", getMethodName(e))
                                 .add("java_parameters", mHelper.getJavaMethodParam(e))
                                 .add("jni_return_type", mHelper.toJNIType(e.getReturnType()))
                                 .add("method_signature", mHelper.getMethodSignature(e))
@@ -210,7 +227,20 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
             }
             sb.append(result).append("\n");
         }
+        if (!isSource && sb.length() != 0 && !mNativeClassAnnotation.dynamicRegisterJniMethods()) {
+            sb.insert(0, FileTemplate.withType(FileTemplate.Type.CPP_EXPORT_MARCO_BEGIN).create());
+            sb.append(FileTemplate.withType(FileTemplate.Type.CPP_EXPORT_MARCO_END).create());
+        }
         return sb.toString();
+    }
+
+    private String getMethodName(ExecutableElement m) {
+        String simpleName = m.getSimpleName().toString();
+        if (mNativeClassAnnotation.dynamicRegisterJniMethods()) {
+            return simpleName;
+        } else {
+            return "Java_" + mJNIClassName + "_" + simpleName;
+        }
     }
 
     private String generateFunctionWithReturnStatement(String declare, ExecutableElement m) {

@@ -22,7 +22,12 @@ public abstract class AbsCodeGenerator {
     /** like com.example_package.SomeClass$InnerClass */
     protected final String mClassName;
 
-    /** like com_example_1package_SomeClass_InnerClass */
+    /**
+     *  like com_example_1package_SomeClass_InnerClass
+     *  NestedClass
+     *  com.young.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
+     *  com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+     */
     protected final String mJNIClassName;
 
     /** like com/example_package/SomeClass$InnerClass */

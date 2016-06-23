@@ -60,8 +60,7 @@ jstring greet(JNIEnv *env, jclass clazz) {
  * Method:    public final void testParamParse(int a, java.lang.String b, long[] c, float[][] d, java.lang.Exception e, java.lang.Class<java.lang.String> f, java.util.HashMap<?,?> g)
  * Signature: (ILjava/lang/String;[J[[FLjava/lang/Exception;Ljava/lang/Class;Ljava/util/HashMap;)V
  */
-void testParamParse(JNIEnv *env, jobject thiz, jint a, jstring b, jlongArray c, jobjectArray d,
-                    jthrowable e, jclass f, jobject g) {
+void testParamParse(JNIEnv *env, jobject thiz, jint a, jstring b, jlongArray c, jobjectArray d, jthrowable e, jclass f, jobject g) {
     return;
 }
 
@@ -133,62 +132,60 @@ jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
 }
 
 
+
+
 static const JNINativeMethod gsNativeMethods[] = {
-        {
-                /* method name      */ const_cast<char *>("addInNative"),
-                /* method signature */ const_cast<char *>("(II)I"),
-                /* function pointer */ reinterpret_cast<void *>(addInNative)
-        },
-        {
-                /* method name      */ const_cast<char *>("computeSomething"),
-                /* method signature */ const_cast<char *>("([B)V"),
-                /* function pointer */ reinterpret_cast<void *>(computeSomething)
-        },
-        {
-                /* method name      */ const_cast<char *>("greet"),
-                /* method signature */ const_cast<char *>("()Ljava/lang/String;"),
-                /* function pointer */ reinterpret_cast<void *>(greet)
-        },
-        {
-                /* method name      */ const_cast<char *>("testParamParse"),
-                /* method signature */ const_cast<char *>("(ILjava/lang/String;[J[[FLjava/lang/Exception;Ljava/lang/Class;Ljava/util/HashMap;)V"),
-                /* function pointer */ reinterpret_cast<void *>(testParamParse)
-        },
-        {
-                /* method name      */ const_cast<char *>("returnsLong"),
-                /* method signature */ const_cast<char *>("()J"),
-                /* function pointer */ reinterpret_cast<void *>(returnsLong)
-        },
-        {
-                /* method name      */ const_cast<char *>("returnsBool"),
-                /* method signature */ const_cast<char *>("()Z"),
-                /* function pointer */ reinterpret_cast<void *>(returnsBool)
-        },
-        {
-                /* method name      */ const_cast<char *>("returnsObject"),
-                /* method signature */ const_cast<char *>("()Ljava/lang/Object;"),
-                /* function pointer */ reinterpret_cast<void *>(returnsObject)
-        },
-        {
-                /* method name      */ const_cast<char *>("computeThenCallback"),
-                /* method signature */ const_cast<char *>("(Lcom/young/jennysampleapp/Callback;)I"),
-                /* function pointer */ reinterpret_cast<void *>(computeThenCallback)
-        }
+    {
+        /* method name      */ const_cast<char *>("addInNative"),
+        /* method signature */ const_cast<char *>("(II)I"),
+        /* function pointer */ reinterpret_cast<void *>(addInNative)
+    },    {
+        /* method name      */ const_cast<char *>("computeSomething"),
+        /* method signature */ const_cast<char *>("([B)V"),
+        /* function pointer */ reinterpret_cast<void *>(computeSomething)
+    },    {
+        /* method name      */ const_cast<char *>("greet"),
+        /* method signature */ const_cast<char *>("()Ljava/lang/String;"),
+        /* function pointer */ reinterpret_cast<void *>(greet)
+    },    {
+        /* method name      */ const_cast<char *>("testParamParse"),
+        /* method signature */ const_cast<char *>("(ILjava/lang/String;[J[[FLjava/lang/Exception;Ljava/lang/Class;Ljava/util/HashMap;)V"),
+        /* function pointer */ reinterpret_cast<void *>(testParamParse)
+    },    {
+        /* method name      */ const_cast<char *>("returnsLong"),
+        /* method signature */ const_cast<char *>("()J"),
+        /* function pointer */ reinterpret_cast<void *>(returnsLong)
+    },    {
+        /* method name      */ const_cast<char *>("returnsBool"),
+        /* method signature */ const_cast<char *>("()Z"),
+        /* function pointer */ reinterpret_cast<void *>(returnsBool)
+    },    {
+        /* method name      */ const_cast<char *>("returnsObject"),
+        /* method signature */ const_cast<char *>("()Ljava/lang/Object;"),
+        /* function pointer */ reinterpret_cast<void *>(returnsObject)
+    },    {
+        /* method name      */ const_cast<char *>("computeThenCallback"),
+        /* method signature */ const_cast<char *>("(Lcom/young/jennysampleapp/Callback;)I"),
+        /* function pointer */ reinterpret_cast<void *>(computeThenCallback)
+    }
 };
 static const int gsMethodCount =
-        sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
+    sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
 
 /*
  * registe Native functions
  */
 void register_com_young_jennysampleapp_ComputeIntensiveClass(JNIEnv *env) {
     jclass clazz = env->FindClass(FULL_CLASS_NAME);
-    env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
+    env->RegisterNatives(clazz, gsNativeMethods,gsMethodCount);
 }
 
+
+
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    JNIEnv *env;
-    if (vm->GetEnv(reinterpret_cast<void **>(&env),
+    JNIEnv* env;
+    if (vm->GetEnv(reinterpret_cast<void**>(&env),
                    JNI_VERSION_1_6) != JNI_OK) {
         return -1;
     }

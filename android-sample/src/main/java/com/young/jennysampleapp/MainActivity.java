@@ -39,6 +39,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Hello", Snackbar.LENGTH_SHORT)
                         .show();
+                ComputeIntensiveClass.NestedNativeClass nestedNativeClass = new ComputeIntensiveClass.NestedNativeClass();
+                long handle = nestedNativeClass.nativeInit();
+                nestedNativeClass.nativeRelease(handle);
+                nestedNativeClass.one("hello");
                 nativeClass.computeThenCallback(new Callback() {
                     @Override
                     public void onJobDone(boolean success, String result) {
