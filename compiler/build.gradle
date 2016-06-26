@@ -25,7 +25,7 @@ dependencies {
 }
 
 publish {
-    artifactId = 'com.young.jenny'
+    artifactId = 'compiler'
     userOrg = rootProject.userOrg
     groupId = rootProject.groupId
     uploadName = rootProject.uploadName

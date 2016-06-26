@@ -25,7 +25,7 @@ dependencies {
 }
 
 publish {
-    artifactId = 'com.young.jenny.annotation'
+    artifactId = 'annotation'
     userOrg = rootProject.userOrg
     groupId = rootProject.groupId
     uploadName = rootProject.uploadName
