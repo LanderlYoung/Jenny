@@ -21,15 +21,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Author: landerlyoung@gmail.com
- * Date:   2016-06-02
- * Time:   19-59
- * Life with Passion, Code with Creativity.
- *
  * Mark a class/interface that will be called by native code.
  * So that, jenny will generate cpp proxy class for you to access
  * java object with ease.
  * Jenny does the reflect work, and leave you with a clean world!
+ *
+ * <pre>
+ * Author: landerlyoung@gmail.com
+ * Date:   2016-06-02
+ * Time:   19-59
+ * Life with Passion, Code with Creativity.
+ * </pre>
+
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)

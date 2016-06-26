@@ -21,16 +21,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Author: landerlyoung@gmail.com
- * Date:   2016-06-02
- * Time:   20-52
- * Life with Passion, Code with Creativity.
- * <p/>
- * Control whether should Jenny generate proxy getter/setter functions for this field.
+ *Control whether should Jenny generate proxy getter/setter functions for this field.
  * Regardless of the {@link NativeProxy @NativeProxy(allFields = flse) or @NativeProxy(allFields = true)} config.
- * <p/>
+ * <br>
  * <p>
- * <hr/>
+ * <hr>
  * If a field is not annotated with this Annotation,
  * and @NativeProxy(allFields = true) for the enclosing class is set,
  * the "auto" strategy is applied.
@@ -53,6 +48,14 @@ import java.lang.annotation.Target;
  * However, you can still indicate Jenny to generate getter/setter to that field,
  * in case you may remove the final keyword latter or just want to make die.
  * The choice is on you.
+ *
+ * <pre>
+ * Author: landerlyoung@gmail.com
+ * Date:   2016-06-02
+ * Time:   20-52
+ * Life with Passion, Code with Creativity.
+ * </pre>
+ *
  *
  * @see NativeProxy#allFields()
  */

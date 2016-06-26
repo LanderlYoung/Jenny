@@ -21,14 +21,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * <p>
+ * Control whether should Jenny generate proxy function for this method/constructor.
+ * Regardless of the {@link NativeProxy @NativeReflace(allMethos = flse) or @NativeReflace(allMethos = true)} config.
+ * <p>
+ *
+ * <pre>
  * Author: landerlyoung@gmail.com
  * Date:   2016-06-02
  * Time:   20-01
  * Life with Passion, Code with Creativity.
- * <p/>
- * Control whether should Jenny generate proxy function for this method/constructor.
- * Regardless of the {@link NativeProxy @NativeReflace(allMethos = flse) or @NativeReflace(allMethos = true)} config.
- * <p/>
+ * </pre>
  * @see NativeProxy#allMethods()
  */
 @Retention(RetentionPolicy.SOURCE)

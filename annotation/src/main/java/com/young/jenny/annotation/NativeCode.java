@@ -21,11 +21,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * <p>
+ * Fill the native method body with given c/cpp code! Cool!
+ * </p>
+ *
+ * <pre>
  * Author: landerlyoung@gmail.com
  * Date:   2014-12-16
  * Time:   19:36
  * Life with passion. Code with creativity!
- * Fill the native method body with given c/cpp code! Cool!
+ * </pre>
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
