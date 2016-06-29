@@ -24,8 +24,9 @@ private:
     static jmethodID sConstruct_2;
 
     static jmethodID sMethod_onJobStart_0;
-    static jmethodID sMethod_onJobDone_1;
-    static jmethodID sMethod_onJobProgress_2;
+    static jmethodID sMethod_onJobStart_1;
+    static jmethodID sMethod_onJobDone_2;
+    static jmethodID sMethod_onJobProgress_3;
 
     static jfieldID sField_ANOTHER_COMPILE_CONSTANT_INT_0;
     static jfieldID sField_count_1;
@@ -55,10 +56,12 @@ public:
 
             sMethod_onJobStart_0 = env->GetMethodID(sClazz, "onJobStart", "()V");
             CHECK_NULL(sMethod_onJobStart_0);
-            sMethod_onJobDone_1 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
-            CHECK_NULL(sMethod_onJobDone_1);
-            sMethod_onJobProgress_2 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
-            CHECK_NULL(sMethod_onJobProgress_2);
+            sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart", "(I)V");
+            CHECK_NULL(sMethod_onJobStart_1);
+            sMethod_onJobDone_2 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
+            CHECK_NULL(sMethod_onJobDone_2);
+            sMethod_onJobProgress_3 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
+            CHECK_NULL(sMethod_onJobProgress_3);
 
             sField_ANOTHER_COMPILE_CONSTANT_INT_0 = env->GetFieldID(sClazz, "ANOTHER_COMPILE_CONSTANT_INT", "I");
             CHECK_NULL(sField_ANOTHER_COMPILE_CONSTANT_INT_0);
@@ -151,12 +154,16 @@ public:
         env->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_0);
     }
 
+    void onJobStart(JNIEnv *env, jint overrloadedMethod) const {
+        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_1, overrloadedMethod);
+    }
+
     void onJobDone(JNIEnv *env, jboolean success, jstring result) const {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobDone_1, success, result);
+        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobDone_2, success, result);
     }
 
     void onJobProgress(JNIEnv *env, jlong progress) const {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobProgress_2, progress);
+        env->CallVoidMethod(mJavaObjectReference, sMethod_onJobProgress_3, progress);
     }
 
 
@@ -246,8 +253,9 @@ jmethodID CallbackProxy::sConstruct_0 = nullptr;
 jmethodID CallbackProxy::sConstruct_1 = nullptr;
 jmethodID CallbackProxy::sConstruct_2 = nullptr;
 jmethodID CallbackProxy::sMethod_onJobStart_0 = nullptr;
-jmethodID CallbackProxy::sMethod_onJobDone_1 = nullptr;
-jmethodID CallbackProxy::sMethod_onJobProgress_2 = nullptr;
+jmethodID CallbackProxy::sMethod_onJobStart_1 = nullptr;
+jmethodID CallbackProxy::sMethod_onJobDone_2 = nullptr;
+jmethodID CallbackProxy::sMethod_onJobProgress_3 = nullptr;
 jfieldID CallbackProxy::sField_ANOTHER_COMPILE_CONSTANT_INT_0 = nullptr;
 jfieldID CallbackProxy::sField_count_1 = nullptr;
 jfieldID CallbackProxy::sField_staticName_2 = nullptr;

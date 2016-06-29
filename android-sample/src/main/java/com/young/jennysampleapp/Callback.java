@@ -92,6 +92,11 @@ public class Callback {
 
     }
 
+    @NativeMethodProxy
+    void onJobStart(int overrloadedMethod) {
+
+    }
+
     public static Class<Callback> getMyClass() {
         return Callback.class;
     }
