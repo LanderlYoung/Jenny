@@ -93,9 +93,11 @@ public class Callback {
     }
 
     @NativeMethodProxy
-    void onJobStart(int overrloadedMethod) {
+    void onJobStart(NestedClass overrloadedMethod) {
 
     }
+
+
 
     public static Class<Callback> getMyClass() {
         return Callback.class;

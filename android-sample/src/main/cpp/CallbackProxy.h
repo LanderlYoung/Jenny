@@ -56,7 +56,7 @@ public:
 
             sMethod_onJobStart_0 = env->GetMethodID(sClazz, "onJobStart", "()V");
             CHECK_NULL(sMethod_onJobStart_0);
-            sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart", "(I)V");
+            sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart", "(Lcom/young/jennysampleapp/Callback$NestedClass;)V");
             CHECK_NULL(sMethod_onJobStart_1);
             sMethod_onJobDone_2 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
             CHECK_NULL(sMethod_onJobDone_2);
@@ -154,7 +154,7 @@ public:
         env->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_0);
     }
 
-    void onJobStart(JNIEnv *env, jint overrloadedMethod) const {
+    void onJobStart(JNIEnv *env, jobject overrloadedMethod) const {
         env->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_1, overrloadedMethod);
     }
 
