@@ -5,10 +5,8 @@ gradle.properties
 local.properties
 
 #jni
-*.o
-*.a
+*.[oad]
 *.so
-*.d
 gdb.setup
 gdbserver
 
