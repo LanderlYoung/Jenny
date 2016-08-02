@@ -4,6 +4,9 @@ build
 gradle.properties
 local.properties
 
+#gradel ndk plugin
+.externalNativeBuild
+
 #jni
 *.[oad]
 *.so
