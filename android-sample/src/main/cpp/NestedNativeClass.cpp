@@ -1,7 +1,6 @@
 #include "NestedNativeClass.h"
 
 #ifdef DEBUG
-#include <android/log.h>
 #define LOGV(...)   __android_log_print((int)ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__)
 #define LOGD(...)   __android_log_print((int)ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGI(...)   __android_log_print((int)ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -17,7 +16,7 @@
 
 
 //java class name: com.young.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
-static const char* FULL_CLASS_NAME = "com/young/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
+static constexpr const char * const FULL_CLASS_NAME = "com/young/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
 #define constants(cons) com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_ ## cons
 
 //change to whatever you like

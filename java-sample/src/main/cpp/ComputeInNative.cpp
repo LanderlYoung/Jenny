@@ -1,12 +1,11 @@
 #include "ComputeInNative.h"
 
 
-//java class name: com.young.jenny.ComputeInNative
-static const char* FULL_CLASS_NAME = "com/young/jenny/ComputeInNative";
-#define constants(cons) com_young_jenny_ComputeInNative_ ## cons
 
 //change to whatever you like
 #define LOG_TAG "ComputeInNative"
+
+namespace ComputeInNative {
 
 /*
  * Class:     com_young_jenny_ComputeInNative
@@ -87,20 +86,25 @@ static const int gsMethodCount =
     sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
 
 /*
- * registe Native functions
+ * register Native functions
  */
-void register_com_young_jenny_ComputeInNative(JNIEnv *env) {
-    jclass clazz = env->FindClass(FULL_CLASS_NAME);
-    env->RegisterNatives(clazz, gsNativeMethods,gsMethodCount);
+void registerNativeFunctions(JNIEnv *env) {
+    jclass clazz = env->FindClass("com/young/jenny/ComputeInNative");
+    env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
 }
 
+
+
+} //endof namespace ComputeInNative
+
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    JNIEnv* env;
+    JNIEnv *env;
     if (vm->GetEnv(reinterpret_cast<void**>(&env),
-                JNI_VERSION_1_6) != JNI_OK) {
+                   JNI_VERSION_1_6) != JNI_OK) {
         return -1;
     }
-    register_com_young_jenny_ComputeInNative(env);
+    ComputeInNative::registerNativeFunctions(env);
     return JNI_VERSION_1_6;
 }
 

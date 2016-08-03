@@ -8,10 +8,12 @@
 
 #include <jni.h>
 
-static constexpr const char * const com_young_jennysampleapp_ComputeIntensiveClass_LOG_TAG = "ComputeIntensiveClass";
-static constexpr const char * const com_young_jennysampleapp_ComputeIntensiveClass_KEY_WHERE_ARE_YOUT_FROM = "where_are_you_from";
-static constexpr const jint com_young_jennysampleapp_ComputeIntensiveClass_IDEL = -1;
-static constexpr const jint com_young_jennysampleapp_ComputeIntensiveClass_BUSY = 1;
+namespace  ComputeIntensiveClass {
+
+static constexpr const char * const LOG_TAG = "ComputeIntensiveClass";
+static constexpr const char * const KEY_WHERE_ARE_YOUT_FROM = "where_are_you_from";
+static constexpr const jint IDEL = -1;
+static constexpr const jint BUSY = 1;
 
 
 /*
@@ -80,11 +82,9 @@ jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener);
 
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved);
-JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved);
-#ifdef __cplusplus
-}
-#endif
+/*
+ * register Native functions
+ */
+void registerNativeFunctions(JNIEnv *env);
+
+} //endof namespace ComputeIntensiveClass

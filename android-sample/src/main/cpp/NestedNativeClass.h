@@ -43,5 +43,3 @@ JNIEXPORT void Java_com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNa
 #endif
 
 
-
-

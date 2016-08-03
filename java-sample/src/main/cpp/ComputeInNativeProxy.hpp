@@ -19,7 +19,6 @@ private:
 
 
 
-    static jfieldID sField_nativeContext_0;
 
     const bool mGlobal;
     jobject mJavaObjectReference;
@@ -34,8 +33,6 @@ public:
 
 
 
-            sField_nativeContext_0 = env->GetFieldID(sClazz, "nativeContext", "J");
-            CHECK_NULL(sField_nativeContext_0);
 
             return true;
         }
@@ -87,31 +84,12 @@ public:
 
 
 
-    jlong getNativeContext(JNIEnv *env) const {
-        init_clazz(env);
-        return env->GetLongField(mJavaObjectReference, sField_nativeContext_0);
-    }
-
-    void setNativeContext(JNIEnv *env, jlong nativeContext) const {
-        init_clazz(env);
-        env->SetLongField(mJavaObjectReference, sField_nativeContext_0, nativeContext);
-    }
-
-
-
 
 
 };
 
 //static fields
 jclass ComputeInNativeProxy::sClazz = nullptr;
-jmethodID ComputeInNativeProxy::sConstruct_0 = nullptr;
-jmethodID ComputeInNativeProxy::sMethod_init_0 = nullptr;
-jmethodID ComputeInNativeProxy::sMethod_request_1 = nullptr;
-jmethodID ComputeInNativeProxy::sMethod_release_2 = nullptr;
-jmethodID ComputeInNativeProxy::sMethod_getGlobalParam_3 = nullptr;
-jmethodID ComputeInNativeProxy::sMethod_setParam_4 = nullptr;
-jfieldID ComputeInNativeProxy::sField_nativeContext_0 = nullptr;
 
 
 #undef CHECK_NULL

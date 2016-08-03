@@ -1,6 +1,4 @@
 #include "ComputeIntensiveClass.h"
-#include "CallbackProxy.h"
-#include "NestedClassProxy.h"
 
 #ifdef DEBUG
 #include <android/log.h>
@@ -18,12 +16,11 @@
 #endif
 
 
-//java class name: com.young.jennysampleapp.ComputeIntensiveClass
-static const char *FULL_CLASS_NAME = "com/young/jennysampleapp/ComputeIntensiveClass";
-#define constants(cons) com_young_jennysampleapp_ComputeIntensiveClass_ ## cons
 
 //change to whatever you like
 #define LOG_TAG "ComputeIntensiveClass"
+
+namespace ComputeIntensiveClass {
 
 /*
  * Class:     com_young_jennysampleapp_ComputeIntensiveClass
@@ -31,7 +28,7 @@ static const char *FULL_CLASS_NAME = "com/young/jennysampleapp/ComputeIntensiveC
  * Signature: (II)I
  */
 jint addInNative(JNIEnv *env, jobject thiz, jint a, jint b) {
-    return a + b;
+        return a + b;
 }
 
 
@@ -95,40 +92,15 @@ jobject returnsObject(JNIEnv *env, jclass clazz) {
 }
 
 
+
 /*
  * Class:     com_young_jennysampleapp_ComputeIntensiveClass
  * Method:    public int computeThenCallback(com.young.jennysampleapp.Callback listener)
  * Signature: (Lcom/young/jennysampleapp/Callback;)I
  */
+#include "testcase.hpp"
 jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
-    LOGV("Hello world");
-    CallbackProxy callback(env, listener, false);
-    callback.onJobStart(env);
-    callback.getName(env);
-
-    jstring name = (CallbackProxy(env, listener, false)).getName(env);
-
-    jobject newInstance = CallbackProxy::newInstance(env);
-    callback.setLock(env, newInstance);
-    callback.onJobProgress(env, 20);
-
-    jobject nestedClass = NestedClassProxy::newInstance(env, listener);
-    callback.setLock(env, nestedClass);
-    callback.onJobProgress(env, 50);
-
-    LOGV("staticField=%p", callback.getAStaticField(env));
-    callback.setAStaticField(env, nullptr);
-    LOGV("set staticField=%p", callback.getAStaticField(env));
-
-    callback.setCount(env, 100);
-    LOGV("count=%d", callback.getCount(env));
-    callback.setLock(env, listener);
-    callback.onJobProgress(env, 100);
-
-    LOGV("get CMPILE_TIME_CONSTNT %d", callback.COMPILE_CONSTANT_INT);
-
-    callback.onJobDone(env, JNI_TRUE, env->NewStringUTF("Yes, callback from jni"));
-    return 0;
+    return testcase(env, thiz, listener);
 }
 
 
@@ -173,23 +145,25 @@ static const int gsMethodCount =
     sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
 
 /*
- * registe Native functions
+ * register Native functions
  */
-void register_com_young_jennysampleapp_ComputeIntensiveClass(JNIEnv *env) {
-    jclass clazz = env->FindClass(FULL_CLASS_NAME);
+void registerNativeFunctions(JNIEnv *env) {
+    jclass clazz = env->FindClass("com/young/jennysampleapp/ComputeIntensiveClass");
     env->RegisterNatives(clazz, gsNativeMethods,gsMethodCount);
 }
 
 
 
+} //endof namespace ComputeIntensiveClass
+
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    JNIEnv* env;
+    JNIEnv *env;
     if (vm->GetEnv(reinterpret_cast<void**>(&env),
                    JNI_VERSION_1_6) != JNI_OK) {
         return -1;
     }
-    register_com_young_jennysampleapp_ComputeIntensiveClass(env);
+    ComputeIntensiveClass::registerNativeFunctions(env);
     return JNI_VERSION_1_6;
 }
 
