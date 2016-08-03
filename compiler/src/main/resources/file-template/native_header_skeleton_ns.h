@@ -8,6 +8,12 @@
 
 #include <jni.h>
 
+namespace  ${namespace} {
+
 ${consts}
 
 ${methods}
+
+${registers}
+
+} //endof namespace ${namespace}

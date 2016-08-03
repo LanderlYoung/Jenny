@@ -87,7 +87,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         }
         mNativeProxyAnnotation = annotation;
 
-        mFileName = getCppClassName() + ".h";
+        mFileName = getCppClassName() + ".hpp";
     }
 
     @Override

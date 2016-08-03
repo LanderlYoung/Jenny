@@ -119,12 +119,16 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
             w = fileObject.openWriter();
 
 
-            w.write(FileTemplate.withType(FileTemplate.Type.JNI_HEADER_TEMPLATE)
-                                .add("include_guard", "_Included_" + mJNIClassName)
+            w.write(FileTemplate.withType(
+                    mNativeClassAnnotation.dynamicRegisterJniMethods()
+                            ? FileTemplate.Type.JNI_HEADER_SKELETON_NS
+                            : FileTemplate.Type.JNI_HEADER_SKELETON)
+                                .add("namespace", getCppClassName())
                                 .add("consts", generateConstantsDefinition())
                                 .add("methods", generateFunctions(false))
-                                .add("jni_on_load_declare", mNativeClassAnnotation.dynamicRegisterJniMethods()
-                                        ? FileTemplate.withType(FileTemplate.Type.JNI_ONLOAD_DECLARE).create()
+                                //ns version only
+                                .add("registers", mNativeClassAnnotation.dynamicRegisterJniMethods()
+                                        ? FileTemplate.withType(FileTemplate.Type.REGISTER_NATIVE_FUNCTIONS_NS).create()
                                         : "")
                                 .create()
             );
@@ -144,8 +148,12 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
             log("write source file [" + fileObject.getName() + "]");
             w = fileObject.openWriter();
 
-            w.write(FileTemplate.withType(FileTemplate.Type.NATIVE_CPP_SKELETON)
+            w.write(FileTemplate.withType(
+                    mNativeClassAnnotation.dynamicRegisterJniMethods()
+                            ? FileTemplate.Type.NATIVE_CPP_SKELETON_NS
+                            : FileTemplate.Type.NATIVE_CPP_SKELETON)
                                 .add("header", mHeaderName)
+                                .add("namespace", getCppClassName())
                                 .add("android_log_marcos", mNativeClassAnnotation.androidLog()
                                         ? FileTemplate.withType(FileTemplate.Type.ANDROID_LOG_MARCOS).create()
                                         : "")
@@ -155,18 +163,19 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                                 .add("simple_class_name", mSimpleClassName)
                                 .add("methods", generateFunctions(true))
                                 .add("dynamic_jni_register", mNativeClassAnnotation.dynamicRegisterJniMethods()
-                                        ? FileTemplate.withType(FileTemplate.Type.CPP_DYNAMIC_JNI_REGISTER)
+                                        ? FileTemplate.withType(FileTemplate.Type.CPP_DYNAMIC_JNI_REGISTER_NS)
                                                       .add("jni_method_struct", generateJniNativeMethodStruct())
                                                       .add("full_native_class_name", mJNIClassName)
+                                                      .add("slash_class_name", mSlashClassName)
                                                       .create()
                                         : "")
                                 .add("jni_onload_impl",
-                                     mNativeClassAnnotation.dynamicRegisterJniMethods()
-                                             ? FileTemplate.withType(
-                                             FileTemplate.Type.JNI_ONLOAD_IMPL)
-                                                           .add("full_native_class_name", mJNIClassName)
-                                                           .create()
-                                             : "")
+                                        mNativeClassAnnotation.dynamicRegisterJniMethods()
+                                                ? FileTemplate.withType(
+                                                FileTemplate.Type.JNI_ONLOAD_IMPL_NS)
+                                                              .add("namespace", getCppClassName())
+                                                              .create()
+                                                : "")
                                 .create()
             );
         } catch (IOException e) {
@@ -192,11 +201,14 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
 
                   String nativeType = mHelper.toNativeType(ve.asType());
 
-                  sb.append(FileTemplate.withType(FileTemplate.Type.CONSTANT_TEMPLATE)
+                  sb.append(FileTemplate.withType(
+                          mNativeClassAnnotation.dynamicRegisterJniMethods()
+                                  ? FileTemplate.Type.CONSTANT_TEMPLATE_NS
+                                  : FileTemplate.Type.CONSTANT_TEMPLATE)
                                         .add("type", nativeType)
                                         .add("_const", nativeType.contains("*") ? "const " : "")
                                         .add("name", ve.getSimpleName().toString())
-                                        .add("full_class_name", mJNIClassName)
+                                        .add("full_class_name", mSlashClassName)
                                         .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
                                         .create()
                   );
