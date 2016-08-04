@@ -7,6 +7,10 @@ local.properties
 #gradel ndk plugin
 .externalNativeBuild
 
+#ctags && cscope
+tags
+cscope.*
+
 #jni
 *.[oad]
 *.so
