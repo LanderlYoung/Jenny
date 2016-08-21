@@ -2,7 +2,7 @@
 // Created by landerlyoung on 8/3/16.
 //
 
-#include "CallbackProxy.h"
+#include "CallbackProxy.hpp"
 #include "NestedClassProxy.hpp"
 
 jint testcase(JNIEnv *env, jobject thiz, jobject listener) {

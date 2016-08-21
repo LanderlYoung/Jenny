@@ -22,7 +22,7 @@ import com.young.jenny.annotation.NativeProxy;
 import java.util.Map;
 
 /**
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2016-06-19
  * Time:   21:51
  * Life with Passion, Code with Creativity.
