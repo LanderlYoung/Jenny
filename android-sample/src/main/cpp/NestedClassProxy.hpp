@@ -19,7 +19,7 @@
 
 class NestedClassProxy {
 public:
-    static constexpr const char *const FULL_CLASS_NAME = "com/young/jennysampleapp/Callback$NestedClass";
+    static constexpr const char *const FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback$NestedClass";
 
 
 private:
@@ -41,7 +41,7 @@ public:
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
             CHECK_NULL(sClazz);
 
-            sConstruct_0 = env->GetMethodID(sClazz, "<init>", "(Lcom/young/jennysampleapp/Callback;)V");
+            sConstruct_0 = env->GetMethodID(sClazz, "<init>", "(Lio/github/landerlyoung/jennysampleapp/Callback;)V");
             CHECK_NULL(sConstruct_0);
 
             sMethod_hello_0 = env->GetMethodID(sClazz, "hello", "()V");

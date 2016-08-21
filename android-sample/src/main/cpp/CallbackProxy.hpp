@@ -19,7 +19,7 @@
 
 class CallbackProxy {
 public:
-    static constexpr const char *const FULL_CLASS_NAME = "com/young/jennysampleapp/Callback";
+    static constexpr const char *const FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback";
 
     static constexpr const jint COMPILE_CONSTANT_INT = 15;
     static constexpr const jint ANOTHER_COMPILE_CONSTANT_INT = 16;
@@ -64,7 +64,7 @@ public:
 
             sMethod_onJobStart_0 = env->GetMethodID(sClazz, "onJobStart", "()V");
             CHECK_NULL(sMethod_onJobStart_0);
-            sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart", "(Lcom/young/jennysampleapp/Callback$NestedClass;)V");
+            sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart", "(Lio/github/landerlyoung/jennysampleapp/Callback$NestedClass;)V");
             CHECK_NULL(sMethod_onJobStart_1);
             sMethod_onJobDone_2 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
             CHECK_NULL(sMethod_onJobDone_2);

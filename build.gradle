@@ -22,8 +22,8 @@ task clean(type: Delete) {
 }
 
 ext {
-    userOrg = 'tencent'
-    groupId = 'com.young.jenny'
+    userOrg = 'landerlyoung'
+    groupId = 'io.github.landerlyoung.jenny'
     uploadName = 'Jenny'
     description = 'Java/Android Jni glue code generator'
     publishVersion = '0.1.0'

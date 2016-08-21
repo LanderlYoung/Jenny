@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_main"
-    tools:context="com.young.jennysampleapp.MainActivity">
+    tools:context="com.young.jennysampleapp.io.github.landerlyoung.jennysampleapp.MainActivity">
 
     <TextView
         android:layout_width="match_parent"

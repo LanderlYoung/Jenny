@@ -72,10 +72,6 @@ android {
 //}
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-}
-
-dependencies {
     provided project(':annotation')
     apt project(':compiler')
 }

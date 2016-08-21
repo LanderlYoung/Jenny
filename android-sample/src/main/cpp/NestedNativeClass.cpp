@@ -24,39 +24,39 @@
 #endif
 
 
-//java class name: com.young.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
-static constexpr const char * const FULL_CLASS_NAME = "com/young/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
-#define constants(cons) com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_ ## cons
+//java class name: io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
+static constexpr const char * const FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
+#define constants(cons) io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_ ## cons
 
 //change to whatever you like
 #define LOG_TAG "NestedNativeClass"
 
 /*
- * Class:     com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+ * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public java.util.HashMap<java.lang.String,java.lang.String> one(java.lang.String param)
  * Signature: (Ljava/lang/String;)Ljava/util/HashMap;
  */
-JNIEXPORT jobject Java_com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_one(JNIEnv *env, jobject thiz, jstring param) {
+JNIEXPORT jobject Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_one(JNIEnv *env, jobject thiz, jstring param) {
     return nullptr;
 }
 
 
 /*
- * Class:     com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+ * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public long nativeInit()
  * Signature: ()J
  */
-JNIEXPORT jlong Java_com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeInit(JNIEnv *env, jobject thiz) {
+JNIEXPORT jlong Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeInit(JNIEnv *env, jobject thiz) {
     return 0;
 }
 
 
 /*
- * Class:     com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+ * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public void nativeRelease(long handle)
  * Signature: (J)V
  */
-JNIEXPORT void Java_com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeRelease(JNIEnv *env, jobject thiz, jlong handle) {
+JNIEXPORT void Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeRelease(JNIEnv *env, jobject thiz, jlong handle) {
     return;
 }
 

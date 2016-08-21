@@ -19,27 +19,27 @@ extern "C" {
 #endif
 
 /*
- * Class:     com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+ * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public java.util.HashMap<java.lang.String,java.lang.String> one(java.lang.String param)
  * Signature: (Ljava/lang/String;)Ljava/util/HashMap;
  */
-JNIEXPORT jobject Java_com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_one(JNIEnv *env, jobject thiz, jstring param);
+JNIEXPORT jobject Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_one(JNIEnv *env, jobject thiz, jstring param);
 
 
 /*
- * Class:     com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+ * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public long nativeInit()
  * Signature: ()J
  */
-JNIEXPORT jlong Java_com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeInit(JNIEnv *env, jobject thiz);
+JNIEXPORT jlong Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeInit(JNIEnv *env, jobject thiz);
 
 
 /*
- * Class:     com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+ * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public void nativeRelease(long handle)
  * Signature: (J)V
  */
-JNIEXPORT void Java_com_young_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeRelease(JNIEnv *env, jobject thiz, jlong handle);
+JNIEXPORT void Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeRelease(JNIEnv *env, jobject thiz, jlong handle);
 
 
 #ifdef __cplusplus
