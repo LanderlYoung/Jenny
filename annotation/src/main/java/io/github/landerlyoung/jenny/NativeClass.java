@@ -56,8 +56,8 @@ public @interface NativeClass {
     String fileName() default "";
 
     /**
-     * register JNI function dynamically on the JNI_OnLoad callback,
-     * instead of use JNI function name conversions.
+     * register JNI function dynamically on the JNI_OnLoad callback by <code>JNIEnv::RegisterNatives</code>,
+     * instead of using JNI function name conversions.
      * <p>
      * The dynamic way can hide your shared library export functions,
      * so it is recommended.
