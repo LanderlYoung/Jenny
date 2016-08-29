@@ -14,7 +14,7 @@
 //DO NOT modify
 static constexpr auto io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
 
-static constexpr const jint io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_CONST = 0;
+static constexpr jint io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_CONST = 0;
 
 
 #ifdef __cplusplus

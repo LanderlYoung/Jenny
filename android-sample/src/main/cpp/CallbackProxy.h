@@ -19,7 +19,7 @@
 
 class CallbackProxy {
 public:
-    static constexpr const char *const FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback";
+    static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback";
 
     static constexpr const jint COMPILE_CONSTANT_INT = 15;
     static constexpr const jint ANOTHER_COMPILE_CONSTANT_INT = 16;

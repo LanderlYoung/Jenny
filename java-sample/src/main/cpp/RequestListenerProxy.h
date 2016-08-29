@@ -19,7 +19,7 @@
 
 class RequestListenerProxy {
 public:
-    static constexpr const char *const FULL_CLASS_NAME = "io/github/landerlyoung/jennysample/RequestListener";
+    static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysample/RequestListener";
 
 
 private:

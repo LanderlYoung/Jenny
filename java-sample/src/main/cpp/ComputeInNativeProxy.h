@@ -19,7 +19,7 @@
 
 class ComputeInNativeProxy {
 public:
-    static constexpr const char *const FULL_CLASS_NAME = "io/github/landerlyoung/jennysample/ComputeInNative";
+    static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysample/ComputeInNative";
 
 
 private:

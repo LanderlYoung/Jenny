@@ -69,7 +69,6 @@ public class FileTemplate {
 
     public enum Type {
         CONSTANT_TEMPLATE("cpp_constant.h"),
-        CONSTANT_TEMPLATE_NS("cpp_constant_ns.h"),
         REINTERPRET_CAST("reinterpret_cast.h"),
         NATIVE_CPP_SKELETON("native_cpp_skeleton.cpp"),
         NATIVE_CPP_SKELETON_NS("native_cpp_skeleton_ns.cpp"),

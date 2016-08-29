@@ -230,7 +230,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
 
                   mConsts.add(ve.getSimpleName().toString());
                   sb.append(FileTemplate.withType(FileTemplate.Type.NATIVE_PROXY_CONSTANT)
-                                        .add("type", mHelper.toNativeType(ve.asType()))
+                                        .add("type", mHelper.toNativeType(ve.asType(), true))
                                         .add("name", ve.getSimpleName().toString())
                                         .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
                                         .create()

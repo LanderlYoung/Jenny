@@ -19,7 +19,7 @@
 
 class ${cpp_class_name} {
 public:
-    static constexpr const char *const FULL_CLASS_NAME = "${full_class_name_const}";
+    static constexpr auto FULL_CLASS_NAME = "${full_class_name_const}";
 
 ${consts}
 private:

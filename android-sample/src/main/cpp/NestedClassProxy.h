@@ -19,7 +19,7 @@
 
 class NestedClassProxy {
 public:
-    static constexpr const char *const FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback$NestedClass";
+    static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback$NestedClass";
 
 
 private:
