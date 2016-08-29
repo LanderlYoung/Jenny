@@ -163,7 +163,6 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                                 .add("dynamic_jni_register", mNativeClassAnnotation.dynamicRegisterJniMethods()
                                         ? FileTemplate.withType(FileTemplate.Type.CPP_DYNAMIC_JNI_REGISTER_NS)
                                                       .add("jni_method_struct", generateJniNativeMethodStruct())
-                                                      .add("full_native_class_name", mJNIClassName)
                                                       .add("slash_class_name", mSlashClassName)
                                                       .create()
                                         : "")

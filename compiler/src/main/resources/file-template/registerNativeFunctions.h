@@ -1,4 +1,5 @@
-/*
+/**
  * register Native functions
+ * @returns success or not
  */
-void registerNativeFunctions(JNIEnv *env);
+bool registerNativeFunctions(JNIEnv *env);

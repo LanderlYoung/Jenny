@@ -86,9 +86,10 @@ jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener);
 
 
 
-/*
+/**
  * register Native functions
+ * @returns success or not
  */
-void registerNativeFunctions(JNIEnv *env);
+bool registerNativeFunctions(JNIEnv *env);
 
 } //endof namespace ComputeIntensiveClass

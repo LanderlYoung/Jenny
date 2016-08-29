@@ -26,7 +26,10 @@
 
 
 //change to whatever you like
-#define LOG_TAG "ComputeIntensiveClass"
+static constexpr auto LOG_TAG = "ComputeIntensiveClass";
+
+//DO NOT modify
+static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass";
 
 #include "testcase.hpp"
 
@@ -153,12 +156,14 @@ static const JNINativeMethod gsNativeMethods[] = {
 static const int gsMethodCount =
     sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
 
-/*
+/**
  * register Native functions
+ * @returns success or not
  */
-void registerNativeFunctions(JNIEnv *env) {
-    jclass clazz = env->FindClass("io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass");
-    env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
+bool registerNativeFunctions(JNIEnv *env) {
+    jclass clazz = env->FindClass(FULL_CLASS_NAME);
+    return clazz != nullptr
+           && 0 == env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
 }
 
 

@@ -25,11 +25,11 @@
 
 
 //java class name: io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
-static constexpr const char * const FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
+static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
 #define constants(cons) io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_ ## cons
 
 //change to whatever you like
-#define LOG_TAG "NestedNativeClass"
+static constexpr auto LOG_TAG  = "NestedNativeClass";
 
 /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
