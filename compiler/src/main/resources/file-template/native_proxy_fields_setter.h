@@ -2,4 +2,3 @@
         init_clazz(env);
         env->Set${static}${_type}Field(${clazz_or_obj}, ${field_id}, ${name});
     }
-

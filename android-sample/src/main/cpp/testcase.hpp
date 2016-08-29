@@ -2,8 +2,8 @@
 // Created by landerlyoung on 8/3/16.
 //
 
-#include "CallbackProxy.hpp"
-#include "NestedClassProxy.hpp"
+#include "CallbackProxy.h"
+#include "NestedClassProxy.h"
 
 jint testcase(JNIEnv *env, jobject thiz, jobject listener) {
     LOGV("Hello world");
@@ -11,7 +11,7 @@ jint testcase(JNIEnv *env, jobject thiz, jobject listener) {
     callback.onJobStart(env);
     callback.getName(env);
 
-    jstring name = (CallbackProxy(env, listener, false)).getName(env);
+    jstring name = (CallbackProxy(env, listener)).getName(env);
 
     jobject newInstance = CallbackProxy::newInstance(env);
     callback.setLock(env, newInstance);

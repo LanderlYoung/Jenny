@@ -84,20 +84,21 @@ public class FileTemplate {
         NATIVE_JNI_NATIVE_METHOD_STRUCT("native_jni_nativeMethodsStruct.cpp"),
         NATIVE_METHOD_DECLARE_TEMPLATE("native_method_declare_template.h"),
         NATIVE_METHOD_TEMPLATE("native_method_template.cpp"),
-        NATIVE_REFLECT_SKELETON("native_reflect_skeleton.h"),
-        NATIVE_REFLECT_CONSTRUCTORS("native_reflect_constructors.h"),
-        NATIVE_REFLECT_FIELD_ID_DECLARE("native_reflect_field_id_declare.h"),
-        NATIVE_REFLECT_FIELD_ID_INIT("native_reflect_field_id_init.h"),
-        NATIVE_REFLECT_FIELDS_GETTER_SETTER("native_reflect_fields_getter_setters.h"),
-        NATIVE_REFLECT_FIELDS_GETTER("native_reflect_fields_getter.h"),
-        NATIVE_REFLECT_FIELDS_SETTER("native_reflect_fields_setter.h"),
-        NATIVE_REFLECT_FIELDS_GETTER_RETURN("native_reflect_fields_getter_return.h"),
-        NATIVE_REFLECT_METHOD_ID_DECLARE("native_reflect_method_id_declare.h"),
-        NATIVE_REFLECT_METHOD_ID_INIT("native_reflect_method_id_init.h"),
-        NATIVE_REFLECT_METHODS("native_reflect_methods.h"),
-        NATIVE_REFLECT_METHOD_RETURN("native_reflect_method_return.h"),
-        NATIVE_REFLECT_CONSTANT("native_reflect_constant.h"),
-        NATIVE_REFLECT_CPP_STATIC_INIT("native_reflect_cpp_static_init.h");
+        NATIVE_PROXY_SKELETON_HEADER("native_proxy_skeleton.h"),
+        NATIVE_PROXY_SKELETON_SOURCE("native_proxy_skeleton.cpp"),
+        NATIVE_PROXY_CONSTRUCTORS("native_proxy_constructors.h"),
+        NATIVE_PROXY_FIELD_ID_DECLARE("native_proxy_field_id_declare.h"),
+        NATIVE_PROXY_FIELD_ID_INIT("native_proxy_field_id_init.h"),
+        NATIVE_PROXY_FIELDS_GETTER_SETTER("native_proxy_fields_getter_setters.h"),
+        NATIVE_PROXY_FIELDS_GETTER("native_proxy_fields_getter.h"),
+        NATIVE_PROXY_FIELDS_SETTER("native_proxy_fields_setter.h"),
+        NATIVE_PROXY_FIELDS_GETTER_RETURN("native_proxy_fields_getter_return.h"),
+        NATIVE_PROXY_METHOD_ID_DECLARE("native_proxy_method_id_declare.h"),
+        NATIVE_PROXY_METHOD_ID_INIT("native_proxy_method_id_init.h"),
+        NATIVE_PROXY_METHODS("native_proxy_methods.h"),
+        NATIVE_PROXY_METHOD_RETURN("native_proxy_method_return.h"),
+        NATIVE_PROXY_CONSTANT("native_proxy_constant.h"),
+        NATIVE_PROXY_CPP_STATIC_INIT("native_proxy_cpp_static_init.h");
 
         private String mName;
 
@@ -133,7 +134,8 @@ public class FileTemplate {
             return result;
         }
 
-        private static String readStream(InputStream in) {
+        private static String readStream(InputStream in) throws IllegalArgumentException {
+            String ret = null;
             if (in != null) {
                 try {
                     InputStreamReader reader = new InputStreamReader(new BufferedInputStream(in));
@@ -144,12 +146,15 @@ public class FileTemplate {
                         sb.append(buffer);
                         buffer.clear();
                     }
-                    return sb.toString();
+                    ret =  sb.toString();
                 } catch (IOException e) {
                     IOUtils.closeSilently(in);
                 }
             }
-            return null;
+            if (ret == null) {
+                throw new IllegalArgumentException("cannot open stream for read, stream=" + in);
+            }
+            return ret;
         }
     }
 }

@@ -28,6 +28,8 @@
 //change to whatever you like
 #define LOG_TAG "ComputeIntensiveClass"
 
+#include "testcase.hpp"
+
 namespace ComputeIntensiveClass {
 
 /*
@@ -36,7 +38,8 @@ namespace ComputeIntensiveClass {
  * Signature: (II)I
  */
 jint addInNative(JNIEnv *env, jobject thiz, jint a, jint b) {
-        return a + b;
+        jint c = a + b;
+    return c;
 }
 
 
@@ -105,7 +108,6 @@ jobject returnsObject(JNIEnv *env, jclass clazz) {
  * Method:    public int computeThenCallback(io.github.landerlyoung.jennysampleapp.Callback listener)
  * Signature: (Lio/github/landerlyoung/jennysampleapp/Callback;)I
  */
-#include "testcase.hpp"
 jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
     return testcase(env, thiz, listener);
 }

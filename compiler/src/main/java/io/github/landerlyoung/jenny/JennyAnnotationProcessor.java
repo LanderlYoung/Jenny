@@ -72,7 +72,7 @@ public class JennyAnnotationProcessor extends AbstractProcessor {
         if (roundEnv.errorRaised() || roundEnv.processingOver()) return false;
 
         generateNativeGlueCode(roundEnv);
-        generateNativeReflect(roundEnv);
+        generateNativeProxy(roundEnv);
 
         return true;
     }
@@ -90,7 +90,7 @@ public class JennyAnnotationProcessor extends AbstractProcessor {
         return true;
     }
 
-    private boolean generateNativeReflect(RoundEnvironment roundEnv) {
+    private boolean generateNativeProxy(RoundEnvironment roundEnv) {
         Set<? extends Element> classes = roundEnv.getElementsAnnotatedWith(NativeProxy.class);
         if (classes.isEmpty()) return false;
 

@@ -125,9 +125,11 @@ public:
 
 
     ///throw std::runtime_error when construct GlobalRef failed
-    CallbackProxy(JNIEnv *env, jobject javaObj, bool global)
+    CallbackProxy(JNIEnv *env, jobject javaObj, bool global = false)
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
+#else
+    noexcept
 #endif
             : mGlobal(global) {
         if (init_clazz(env)) {
@@ -182,8 +184,6 @@ public:
         env->SetIntField(mJavaObjectReference, sField_ANOTHER_COMPILE_CONSTANT_INT_0, ANOTHER_COMPILE_CONSTANT_INT);
     }
 
-
-
     jint getCount(JNIEnv *env) const {
         init_clazz(env);
         return env->GetIntField(mJavaObjectReference, sField_count_1);
@@ -193,8 +193,6 @@ public:
         init_clazz(env);
         env->SetIntField(mJavaObjectReference, sField_count_1, count);
     }
-
-
 
     static jstring getStaticName(JNIEnv *env) {
         init_clazz(env);
@@ -206,8 +204,6 @@ public:
         env->SetStaticObjectField(sClazz, sField_staticName_2, staticName);
     }
 
-
-
     static jobject getAStaticField(JNIEnv *env) {
         init_clazz(env);
         return env->GetStaticObjectField(sClazz, sField_aStaticField_3);
@@ -217,8 +213,6 @@ public:
         init_clazz(env);
         env->SetStaticObjectField(sClazz, sField_aStaticField_3, aStaticField);
     }
-
-
 
     jstring getName(JNIEnv *env) const {
         init_clazz(env);
@@ -237,8 +231,6 @@ public:
         env->SetObjectField(mJavaObjectReference, sField_lock_5, lock);
     }
 
-
-
     static jint getStaticCount(JNIEnv *env) {
         init_clazz(env);
         return env->GetStaticIntField(sClazz, sField_staticCount_6);
@@ -251,26 +243,6 @@ public:
 
 
 
-
-
 };
-
-//static fields
-jclass CallbackProxy::sClazz = nullptr;
-jmethodID CallbackProxy::sConstruct_0 = nullptr;
-jmethodID CallbackProxy::sConstruct_1 = nullptr;
-jmethodID CallbackProxy::sConstruct_2 = nullptr;
-jmethodID CallbackProxy::sMethod_onJobStart_0 = nullptr;
-jmethodID CallbackProxy::sMethod_onJobStart_1 = nullptr;
-jmethodID CallbackProxy::sMethod_onJobDone_2 = nullptr;
-jmethodID CallbackProxy::sMethod_onJobProgress_3 = nullptr;
-jfieldID CallbackProxy::sField_ANOTHER_COMPILE_CONSTANT_INT_0 = nullptr;
-jfieldID CallbackProxy::sField_count_1 = nullptr;
-jfieldID CallbackProxy::sField_staticName_2 = nullptr;
-jfieldID CallbackProxy::sField_aStaticField_3 = nullptr;
-jfieldID CallbackProxy::sField_name_4 = nullptr;
-jfieldID CallbackProxy::sField_lock_5 = nullptr;
-jfieldID CallbackProxy::sField_staticCount_6 = nullptr;
-
 
 #undef CHECK_NULL

@@ -71,9 +71,11 @@ public:
 
 
     ///throw std::runtime_error when construct GlobalRef failed
-    NestedClassProxy(JNIEnv *env, jobject javaObj, bool global)
+    NestedClassProxy(JNIEnv *env, jobject javaObj, bool global = false)
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
+#else
+    noexcept
 #endif
             : mGlobal(global) {
         if (init_clazz(env)) {
@@ -113,11 +115,5 @@ public:
 
 
 };
-
-//static fields
-jclass NestedClassProxy::sClazz = nullptr;
-jmethodID NestedClassProxy::sConstruct_0 = nullptr;
-jmethodID NestedClassProxy::sMethod_hello_0 = nullptr;
-
 
 #undef CHECK_NULL

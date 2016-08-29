@@ -60,9 +60,11 @@ public:
 
 
     ///throw std::runtime_error when construct GlobalRef failed
-    RequestListenerProxy(JNIEnv *env, jobject javaObj, bool global)
+    RequestListenerProxy(JNIEnv *env, jobject javaObj, bool global = false)
 #ifdef __EXCEPTIONS
     throw(std::runtime_error)
+#else
+    noexcept
 #endif
             : mGlobal(global) {
         if (init_clazz(env)) {
@@ -102,10 +104,5 @@ public:
 
 
 };
-
-//static fields
-jclass RequestListenerProxy::sClazz = nullptr;
-jmethodID RequestListenerProxy::sMethod_onResponse_0 = nullptr;
-
 
 #undef CHECK_NULL

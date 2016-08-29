@@ -66,7 +66,7 @@ public class ComputeIntensiveClass {
     public native int computeThenCallback(Callback listener);
 
     // apply NativeCode annotation to non-native method
-    // will raise a compilation time error
+    // will raise a compile time error
     //@NativeCode
     public void hello() {
 
