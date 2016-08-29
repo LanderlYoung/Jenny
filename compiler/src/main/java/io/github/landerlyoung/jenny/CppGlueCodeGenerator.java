@@ -122,7 +122,9 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                             ? FileTemplate.Type.JNI_HEADER_SKELETON_NS
                             : FileTemplate.Type.JNI_HEADER_SKELETON)
                                 .add("namespace", getCppClassName())
+                                .add("full_slash_class_name", mSlashClassName)
                                 .add("consts", generateConstantsDefinition())
+                                .add("class_prefix", !mJNIClassName.isEmpty() ? mJNIClassName + "_" : "")
                                 .add("methods", generateFunctions(false))
                                 //ns version only
                                 .add("registers", mNativeClassAnnotation.dynamicRegisterJniMethods()
@@ -186,6 +188,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         StringBuilder sb = new StringBuilder();
         //if this field is a compile-time constant value it's
         //value will be returned, otherwise null will be returned.
+        final String constant_prefix = (!mNativeClassAnnotation.dynamicRegisterJniMethods() && !mJNIClassName.isEmpty() ? mJNIClassName + "_" : "");
         mClazz.getEnclosedElements()
               .stream()
               .filter(e -> e.getKind() == ElementKind.FIELD)
@@ -204,7 +207,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                                   : FileTemplate.Type.CONSTANT_TEMPLATE)
                                         .add("type", nativeType)
                                         .add("_const", nativeType.contains("*") ? "const " : "")
-                                        .add("name", ve.getSimpleName().toString())
+                                        .add("name", constant_prefix + ve.getSimpleName().toString())
                                         .add("full_class_name", mSlashClassName)
                                         .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
                                         .create()

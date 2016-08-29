@@ -28,9 +28,6 @@
 //change to whatever you like
 static constexpr auto LOG_TAG = "ComputeIntensiveClass";
 
-//DO NOT modify
-static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass";
-
 #include "testcase.hpp"
 
 namespace ComputeIntensiveClass {

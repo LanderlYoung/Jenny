@@ -11,7 +11,7 @@
 
 
 //change to whatever you like
-#define LOG_TAG "ComputeInNative"
+static constexpr auto LOG_TAG = "ComputeInNative";
 
 namespace ComputeInNative {
 
@@ -93,12 +93,14 @@ static const JNINativeMethod gsNativeMethods[] = {
 static const int gsMethodCount =
     sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
 
-/*
+/**
  * register Native functions
+ * @returns success or not
  */
-void registerNativeFunctions(JNIEnv *env) {
-    jclass clazz = env->FindClass("io/github/landerlyoung/jennysample/ComputeInNative");
-    env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
+bool registerNativeFunctions(JNIEnv *env) {
+    jclass clazz = env->FindClass(FULL_CLASS_NAME);
+    return clazz != nullptr
+           && 0 == env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
 }
 
 

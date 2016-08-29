@@ -74,6 +74,7 @@ public class ComputeIntensiveClass {
 
     @NativeClass(dynamicRegisterJniMethods = false)
     public static class NestedNativeClass {
+        public static final int CONST = 0;
 
         public native HashMap<String, String> one(String param);
 

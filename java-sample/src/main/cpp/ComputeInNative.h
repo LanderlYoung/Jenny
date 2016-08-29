@@ -14,6 +14,9 @@
 
 namespace  ComputeInNative {
 
+//DO NOT modify
+static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysample/ComputeInNative";
+
 
 
 /*
@@ -58,9 +61,10 @@ jboolean request(JNIEnv *env, jobject thiz, jstring json, jobject listener);
 
 
 
-/*
+/**
  * register Native functions
+ * @returns success or not
  */
-void registerNativeFunctions(JNIEnv *env);
+bool registerNativeFunctions(JNIEnv *env);
 
 } //endof namespace ComputeInNative

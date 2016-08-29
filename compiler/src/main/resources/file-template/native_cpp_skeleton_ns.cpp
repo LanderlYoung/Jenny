@@ -13,9 +13,6 @@ ${android_log_marcos}
 //change to whatever you like
 static constexpr auto LOG_TAG = "${simple_class_name}";
 
-//DO NOT modify
-static constexpr auto FULL_CLASS_NAME = "${full_slash_class_name}";
-
 namespace ${namespace} {
 
 ${methods}

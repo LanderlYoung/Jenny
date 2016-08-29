@@ -14,6 +14,9 @@
 
 namespace  ${namespace} {
 
+//DO NOT modify
+static constexpr auto FULL_CLASS_NAME = "${full_slash_class_name}";
+
 ${consts}
 
 ${methods}

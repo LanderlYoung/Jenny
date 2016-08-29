@@ -14,6 +14,9 @@
 
 namespace  ComputeIntensiveClass {
 
+//DO NOT modify
+static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass";
+
 static constexpr const char * const LOG_TAG = "ComputeIntensiveClass";
 static constexpr const char * const KEY_WHERE_ARE_YOUT_FROM = "where_are_you_from";
 static constexpr const jint IDEL = -1;

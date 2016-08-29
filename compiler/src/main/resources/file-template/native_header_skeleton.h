@@ -11,6 +11,8 @@
 #pragma once
 
 #include <jni.h>
+//DO NOT modify
+static constexpr auto ${class_prefix}FULL_CLASS_NAME = "${full_slash_class_name}";
 
 ${consts}
 
