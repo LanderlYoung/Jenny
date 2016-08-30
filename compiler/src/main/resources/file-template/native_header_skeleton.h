@@ -7,7 +7,7 @@
  * or contact author landerlyoung@gmail.com.
  */
 
-/* C++ header file for class com.young.jennysampleapp.ComputeIntensiveClass */
+/* C++ header file for class ${full_java_class_name} */
 #pragma once
 
 #include <jni.h>

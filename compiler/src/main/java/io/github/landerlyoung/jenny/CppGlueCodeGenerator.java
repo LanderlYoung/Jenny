@@ -123,6 +123,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                             : FileTemplate.Type.JNI_HEADER_SKELETON)
                                 .add("namespace", getCppClassName())
                                 .add("full_slash_class_name", mSlashClassName)
+                                .add("full_java_class_name", mClassName)
                                 .add("consts", generateConstantsDefinition())
                                 .add("class_prefix", !mJNIClassName.isEmpty() ? mJNIClassName + "_" : "")
                                 .add("methods", generateFunctions(false))
