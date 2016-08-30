@@ -21,12 +21,17 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+// Bintray
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 ext {
     userOrg = 'landerlyoung'
-    groupId = 'io.github.landerlyoung.jenny'
-    uploadName = 'Jenny'
+    groupId = 'io.github.landerlyoung'
     description = 'Java/Android Jni glue code generator'
     publishVersion = '0.1.0'
-    website = 'http://landerlyoung.github.io'
-    licences = ['Apache-2']
+    website = 'https://github.com/LanderlYoung/Jenny'
+    licences = ['Apache-2.0']
+
+    user = properties.getProperty("publish.bintrayUser")
+    key = properties.getProperty("publish.bintrayKey")
 }
