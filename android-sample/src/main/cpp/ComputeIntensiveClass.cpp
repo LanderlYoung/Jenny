@@ -9,7 +9,6 @@
 #include "ComputeIntensiveClass.h"
 
 #ifdef DEBUG
-#include <android/log.h>
 #define LOGV(...)   __android_log_print((int)ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__)
 #define LOGD(...)   __android_log_print((int)ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGI(...)   __android_log_print((int)ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -150,7 +149,7 @@ static const JNINativeMethod gsNativeMethods[] = {
         /* function pointer */ reinterpret_cast<void *>(computeThenCallback)
     }
 };
-static const int gsMethodCount =
+constexpr int gsMethodCount =
     sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
 
 /**

@@ -22,7 +22,10 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Fill the native function body with given cpp code! Cool!
+ *      Fill the native function body with given cpp code! Cool!
+ * </p>
+ * <p>
+ *     This Annotation is optional, and can only be applied to native method.
  * </p>
  *
  * example:

@@ -21,8 +21,8 @@ class CallbackProxy {
 public:
     static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback";
 
-    static constexpr const jint COMPILE_CONSTANT_INT = 15;
-    static constexpr const jint ANOTHER_COMPILE_CONSTANT_INT = 16;
+    static constexpr jint COMPILE_CONSTANT_INT = 15;
+    static constexpr jint ANOTHER_COMPILE_CONSTANT_INT = 16;
 
 private:
     static jclass sClazz;
@@ -64,20 +64,24 @@ public:
 
             sMethod_onJobStart_0 = env->GetMethodID(sClazz, "onJobStart", "()V");
             CHECK_NULL(sMethod_onJobStart_0);
-            sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart", "(Lio/github/landerlyoung/jennysampleapp/Callback$NestedClass;)V");
+            sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart",
+                                                    "(Lio/github/landerlyoung/jennysampleapp/Callback$NestedClass;)V");
             CHECK_NULL(sMethod_onJobStart_1);
             sMethod_onJobDone_2 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
             CHECK_NULL(sMethod_onJobDone_2);
             sMethod_onJobProgress_3 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
             CHECK_NULL(sMethod_onJobProgress_3);
 
-            sField_ANOTHER_COMPILE_CONSTANT_INT_0 = env->GetFieldID(sClazz, "ANOTHER_COMPILE_CONSTANT_INT", "I");
+            sField_ANOTHER_COMPILE_CONSTANT_INT_0 = env->GetFieldID(sClazz,
+                                                                    "ANOTHER_COMPILE_CONSTANT_INT",
+                                                                    "I");
             CHECK_NULL(sField_ANOTHER_COMPILE_CONSTANT_INT_0);
             sField_count_1 = env->GetFieldID(sClazz, "count", "I");
             CHECK_NULL(sField_count_1);
             sField_staticName_2 = env->GetStaticFieldID(sClazz, "staticName", "Ljava/lang/String;");
             CHECK_NULL(sField_staticName_2);
-            sField_aStaticField_3 = env->GetStaticFieldID(sClazz, "aStaticField", "Ljava/util/List;");
+            sField_aStaticField_3 = env->GetStaticFieldID(sClazz, "aStaticField",
+                                                          "Ljava/util/List;");
             CHECK_NULL(sField_aStaticField_3);
             sField_name_4 = env->GetFieldID(sClazz, "name", "Ljava/lang/String;");
             CHECK_NULL(sField_name_4);
@@ -122,36 +126,77 @@ public:
         return nullptr;
     }
 
-
-
+#ifdef __EXCEPTIONS
     ///throw std::runtime_error when construct GlobalRef failed
     CallbackProxy(JNIEnv *env, jobject javaObj, bool global = false)
-#ifdef __EXCEPTIONS
-    throw(std::runtime_error)
-#else
-    noexcept
-#endif
+            throw(std::runtime_error)
             : mGlobal(global) {
+        if (javaObj == nullptr) {
+            //illegal argument
+            throw std::runtime_error("parameter javaObj cannot be nullptr");
+        }
         if (init_clazz(env)) {
             mJavaObjectReference = global ? env->NewGlobalRef(javaObj) : javaObj;
+            if (mGlobal && mJavaObjectReference == nullptr) {
+                throw std::runtime_error("cannot create global reference");
+            }
+        } else {
+            //init class failed, not acceptable
+            env->ExceptionDescribe();
+            throw std::runtime_error("init class failed");
         }
-#ifdef __EXCEPTIONS
-        if (mGlobal && mJavaObjectReference == nullptr) {
-            throw std::runtime_error("cannot create global reference");
-        }
-#endif
     }
+#else
+    ///if global == true, must call isJavaReferencePresent before using instance!
+    ///since env->NewGlobalRef may fail!
+    CallbackProxy(JNIEnv *env, jobject javaObj, bool global = false)
+            noexcept
+            : mGlobal(global) {
+        assert(javaObj != nullptr);
 
-    bool isGlobalReferencePresent() {
+        bool initClazzSuccess = init_clazz(env);
+        if (initClazzSuccess) {
+            mJavaObjectReference = global ? env->NewGlobalRef(javaObj) : javaObj;
+            if (mGlobal && mJavaObjectReference == nullptr) {
+                //leave the user to check
+            }
+        } else {
+            //init class failed, not acceptable
+            env->ExceptionDescribe();
+            assert(initClazzSuccess);
+        }
+    }
+#endif //#ifdef __EXCEPTION
+
+    bool isJavaReferencePresent() {
         return mJavaObjectReference != nullptr;
     }
 
     ///no copy construct
     CallbackProxy(const CallbackProxy &from) = delete;
 
-    void deleteGlobalReference(JNIEnv *env) {
-        if (mGlobal) {
-            env->DeleteGlobalRef(mJavaObjectReference);
+    ///no =
+    CallbackProxy &operator=(CallbackProxy &) = delete;
+
+    ///move constructor
+    CallbackProxy(CallbackProxy &&from) :
+            mGlobal(from.mGlobal),
+            mJavaObjectReference(from.mJavaObjectReference) {
+        //allow to destruct
+        from.mJavaObjectReference = nullptr;
+    }
+
+    ///If this instance is constructed as global, it will call env->DeleteGlobalRef,
+    //and you must call it before destruct in order to prevent from a memory leaking.
+    ///Otherwise it will call env->DeleteLocalRef, you may do or don't call it before destruct,
+    ///depending on your case.
+    void deleteReference(JNIEnv *env) {
+        if (mJavaObjectReference) {
+            if (mGlobal) {
+                env->DeleteGlobalRef(mJavaObjectReference);
+            } else {
+                env->DeleteLocalRef(mJavaObjectReference);
+            }
             mJavaObjectReference = nullptr;
         }
     }
@@ -177,11 +222,10 @@ public:
     }
 
 
-
-
     void setANOTHER_COMPILE_CONSTANT_INT(JNIEnv *env, jint ANOTHER_COMPILE_CONSTANT_INT) const {
         init_clazz(env);
-        env->SetIntField(mJavaObjectReference, sField_ANOTHER_COMPILE_CONSTANT_INT_0, ANOTHER_COMPILE_CONSTANT_INT);
+        env->SetIntField(mJavaObjectReference, sField_ANOTHER_COMPILE_CONSTANT_INT_0,
+                         ANOTHER_COMPILE_CONSTANT_INT);
     }
 
     jint getCount(JNIEnv *env) const {
@@ -220,7 +264,6 @@ public:
     }
 
 
-
     jobject getLock(JNIEnv *env) const {
         init_clazz(env);
         return env->GetObjectField(mJavaObjectReference, sField_lock_5);
@@ -240,7 +283,6 @@ public:
         init_clazz(env);
         env->SetStaticIntField(sClazz, sField_staticCount_6, staticCount);
     }
-
 
 
 };

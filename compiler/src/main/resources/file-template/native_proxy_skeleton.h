@@ -34,7 +34,7 @@ ${fields_id_declare}
 public:
     static bool init_clazz(JNIEnv *env) {
         if (sClazz == nullptr) {
-            auto localClazz = env->FindClass(FULL_CLASS_NAME);
+            jclass localClazz = env->FindClass(FULL_CLASS_NAME);
             CHECK_NULL(localClazz);
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
             CHECK_NULL(sClazz);
