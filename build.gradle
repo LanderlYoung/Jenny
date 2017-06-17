@@ -28,7 +28,7 @@ ext {
     userOrg = 'landerlyoung'
     groupId = 'io.github.landerlyoung'
     description = 'Java/Android Jni glue code generator'
-    publishVersion = '0.1.0'
+    publishVersion = '0.2.0'
     website = 'https://github.com/LanderlYoung/Jenny'
     licences = ['Apache-2.0']
 

@@ -34,6 +34,7 @@ import java.lang.annotation.Target;
  * <li> If you already have a set&lt;FieldName&gt; method, Jenny will not generate setter. </li>
  * <li> If you already have a get&lt;FieldName&gt; method, or is&lt;FieldName&gt; for boolean field,
  * Jenny will not generate getter. </li>
+ * <li> Otherwise a set&lt;FieldName&gt; and/or get&lt;FieldName&gt; will be generated.</li>
  * </ul>
  * <p>
  * NOTE: for compile-time constant field who is not annotated with this Annotation,
@@ -43,7 +44,7 @@ import java.lang.annotation.Target;
  * And if you really do that to a "static" compile-time constant,
  * the jvm will gracefully raise an {@link IllegalAccessException}.
  *
- * But Jenny tries to be help, so she logs a warning in the console,
+ * But Jenny tries to be help, so she logs a warning message in the console,
  * and pray to god that you might see it.
  * However, you can still indicate Jenny to generate getter/setter to that field,
  * in case you may remove the final keyword latter or just want to make die.
