@@ -15,10 +15,13 @@
  */
 package io.github.landerlyoung.jennysampleapp;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.HashMap;
+
 import io.github.landerlyoung.jenny.NativeClass;
 import io.github.landerlyoung.jenny.NativeCode;
-
-import java.util.HashMap;
+import io.github.landerlyoung.jenny.NativeProxyForClass;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -27,6 +30,7 @@ import java.util.HashMap;
  * Life with Passion, Code with Creativity.
  */
 @NativeClass
+@NativeProxyForClass(classes = {Runnable.class, File.class, InputStream.class})
 public class ComputeIntensiveClass {
     static {
         System.loadLibrary("hello-jenny");

@@ -17,7 +17,9 @@ package io.github.landerlyoung.jenny
 
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
+import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 
@@ -56,8 +58,7 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         val classes = roundEnv.getElementsAnnotatedWith(NativeClass::class.java)
         if (classes.isEmpty()) return false
 
-        val env = Environment(mMessager,
-                mTypeUtils, mElementsUtils, mFiler, roundEnv)
+        val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, roundEnv)
         classes.stream()
                 .filter { ec -> ec is TypeElement }
                 .forEach { ec -> CppGlueCodeGenerator(env, ec as TypeElement).doGenerate() }
@@ -65,16 +66,28 @@ class JennyAnnotationProcessor : AbstractProcessor() {
     }
 
     private fun generateNativeProxy(roundEnv: RoundEnvironment): Boolean {
-        val classes = roundEnv.getElementsAnnotatedWith(NativeProxy::class.java)
+        @Suppress("UNCHECKED_CAST")
+        val classes: MutableSet<Element> = roundEnv.getElementsAnnotatedWith(NativeProxy::class.java) as MutableSet<Element>
+        classes.addAll(getProxyForExternalClasses(roundEnv))
         if (classes.isEmpty()) return false
 
-        val env = Environment(mMessager,
-                mTypeUtils, mElementsUtils, mFiler, roundEnv)
+        val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, roundEnv)
         classes.stream()
                 .filter { ec -> ec is TypeElement }
                 .forEach { ec -> NativeProxyCodeGenerator(env, ec as TypeElement).doGenerate() }
         return false
     }
+
+    private fun getProxyForExternalClasses(roundEnv: RoundEnvironment): Collection<TypeElement> =
+            roundEnv.getElementsAnnotatedWith(NativeProxyForClass::class.java)
+                    .map {
+                        try {
+                            it.getAnnotation(NativeProxyForClass::class.java).classes
+                            throw AssertionError("unreachable")
+                        } catch (e: MirroredTypesException) {
+                            e.typeMirrors
+                        }
+                    }.flatMap { it.map { mTypeUtils.asElement(it) as TypeElement } }
 
     override fun getSupportedSourceVersion(): SourceVersion {
         return SourceVersion.latestSupported()
