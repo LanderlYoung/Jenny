@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.landerlyoung.jenny;
+package io.github.landerlyoung.jenny
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.Proxy
 
 /**
  * Author: landerlyoung@gmail.com
@@ -25,12 +24,8 @@ import java.lang.reflect.Proxy;
  * Life with Passion, Code with Creativity.
  */
 
-public class AnnotationResolver {
-    @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getDefaultImplementation(Class<T> annotation) {
-        return (T) Proxy.newProxyInstance(
-                annotation.getClassLoader(),
-                new Class[]{annotation},
-                (proxy, method, args) -> method.getDefaultValue());
-    }
+object AnnotationResolver {
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Annotation> getDefaultImplementation(annotation: Class<T>): T =
+            Proxy.newProxyInstance(annotation.classLoader, arrayOf<Class<*>>(annotation)) { _, method, _ -> method.defaultValue } as T
 }

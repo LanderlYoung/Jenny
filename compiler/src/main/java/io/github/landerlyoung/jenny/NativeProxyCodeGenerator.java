@@ -17,8 +17,6 @@ package io.github.landerlyoung.jenny;
 
 import com.google.common.collect.ArrayListMultimap;
 
-import io.github.landerlyoung.jenny.template.FileTemplate;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.util.EnumSet;
@@ -39,6 +37,8 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
+
+import io.github.landerlyoung.jenny.template.FileTemplate;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -85,7 +85,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
 
         NativeProxy annotation = clazz.getAnnotation(NativeProxy.class);
         if (annotation == null) {
-            annotation = AnnotationResolver.getDefaultImplementation(NativeProxy.class);
+            annotation = AnnotationResolver.INSTANCE.getDefaultImplementation(NativeProxy.class);
         }
         mNativeProxyAnnotation = annotation;
 
@@ -99,7 +99,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                 .withType(FileTemplate.Type.NATIVE_PROXY_SKELETON_HEADER)
                 .add("cpp_class_name", getCppClassName())
                 .add("consts", generateConstantsDefinition())
-                .add("full_class_name_const", mSlashClassName)
+                .add("full_class_name_const", getMSlashClassName())
                 .add("constructors_id_declare", generateConstructorIdDeclare())
                 .add("methods_id_declare", generateMethodIdDeclare())
                 .add("fields_id_declare", generateFieldIdDeclare())
@@ -132,8 +132,8 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
             return fileName;
         } else {
             return (mNativeProxyAnnotation.simpleName()
-                    ? mSimpleClassName
-                    : mJNIClassName
+                    ? getMSimpleClassName()
+                    : getMJNIClassName()
             ) + "Proxy";
         }
     }
@@ -195,7 +195,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
             final String camelCaseName = camelCase(field.getSimpleName().toString());
             setter = !mMethods.containsKey("set" + camelCaseName);
 
-            final String type = mHelper.toJNIType(field.asType());
+            final String type = getMHelper().toJNIType(field.asType());
             getter = !mMethods.containsKey("get" + camelCaseName);
             if ("jboolean".equals(type)) {
                 getter &= !mMethods.containsKey("is" + camelCaseName);
@@ -218,7 +218,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         StringBuilder sb = new StringBuilder();
         //if this field is a compile-time constant value it's
         //value will be returned, otherwise null will be returned.
-        mClazz.getEnclosedElements()
+        getMClazz().getEnclosedElements()
               .stream()
               .filter(e -> e.getKind() == ElementKind.FIELD)
               .map(e -> (VariableElement) e)
@@ -230,7 +230,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
 
                   mConsts.add(ve.getSimpleName().toString());
                   sb.append(FileTemplate.withType(FileTemplate.Type.NATIVE_PROXY_CONSTANT)
-                                        .add("type", mHelper.toNativeType(ve.asType(), true))
+                                        .add("type", getMHelper().toNativeType(ve.asType(), true))
                                         .add("name", ve.getSimpleName().toString())
                                         .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
                                         .create()
@@ -273,7 +273,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                 .forEach(f -> {
                     if (f.getConstantValue() != null) {
                         warn("you are trying to add getter/setter to a compile-time constant "
-                                + f.getSimpleName().toString());
+                                + getMClassName() + "." + f.getSimpleName().toString());
                     }
                     sb.append(FileTemplate
                                       .withType(FileTemplate.Type.NATIVE_PROXY_FIELD_ID_DECLARE)
@@ -294,7 +294,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                               .add("name", getConstructorName(c, mDummyIndex++))
                               .add("static", "")
                               .add("method_name", "<init>")
-                              .add("method_signature", mHelper.getBinaryMethodSignature(c))
+                              .add("method_signature", getMHelper().getBinaryMethodSignature(c))
                               .create()
             );
         });
@@ -310,7 +310,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                               .add("name", getMethodName(m, mDummyIndex++))
                               .add("static", m.getModifiers().contains(Modifier.STATIC) ? "Static" : "")
                               .add("method_name", m.getSimpleName().toString())
-                              .add("method_signature", mHelper.getBinaryMethodSignature(m))
+                              .add("method_signature", getMHelper().getBinaryMethodSignature(m))
                               .create()
             );
         });
@@ -326,7 +326,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                               .add("name", getFieldName(f, mDummyIndex++))
                               .add("static", f.getModifiers().contains(Modifier.STATIC) ? "Static" : "")
                               .add("field_name", f.getSimpleName().toString())
-                              .add("field_signature", mHelper.getBinaryTypeSignature(f.asType()))
+                              .add("field_signature", getMHelper().getBinaryTypeSignature(f.asType()))
                               .create()
             );
         });
@@ -354,7 +354,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         StringBuilder sb = new StringBuilder();
         methodsStream().forEach(m -> {
             final boolean isStatic = m.getModifiers().contains(Modifier.STATIC);
-            final String returnType = mHelper.toJNIType(m.getReturnType());
+            final String returnType = getMHelper().toJNIType(m.getReturnType());
             final String returnStatement = FileTemplate
                     .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_RETURN)
                     .add("static", isStatic ? "Static" : "")
@@ -390,7 +390,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         fieldsStream().forEach(f -> {
             final boolean isStatic = f.getModifiers().contains(Modifier.STATIC);
             final String camelCaseName = camelCase(f.getSimpleName().toString());
-            final String returnType = mHelper.toJNIType(f.asType());
+            final String returnType = getMHelper().toJNIType(f.asType());
             final EnumSet<GetterSetter> getterSetters = hasGetterSetter(f);
 
             final Map<String, String> r = new HashMap<>();
@@ -403,7 +403,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
             r.put("clazz_or_obj", isStatic ? "sClazz" : "mJavaObjectReference");
             r.put("field_id", getFieldName(f, mDummyIndex++));
             r.put("name", f.getSimpleName().toString());
-            r.put("type", mHelper.toJNIType(f.asType()));
+            r.put("type", getMHelper().toJNIType(f.asType()));
 
             final String returnStatement = FileTemplate.withType(
                     FileTemplate.Type.NATIVE_PROXY_FIELDS_GETTER_RETURN)
@@ -506,7 +506,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
     private void writeToFile(String fileName, String content) {
         Writer w = null;
         try {
-            FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, fileName);
+            FileObject fileObject = getMEnv().getFiler().createResource(StandardLocation.SOURCE_OUTPUT, AbsCodeGenerator.PKG_NAME, fileName);
             log("write native proxy file [" + fileObject.getName() + "]");
             w = fileObject.openWriter();
             w.write(content);
@@ -519,7 +519,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
     }
 
     private void findConstructors() {
-        mClazz.getEnclosedElements()
+        getMClazz().getEnclosedElements()
               .stream()
               .filter(e -> e.getKind() == ElementKind.CONSTRUCTOR)
               .map(e -> (ExecutableElement) e)
@@ -527,7 +527,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
     }
 
     private void findMethods() {
-        mClazz.getEnclosedElements()
+        getMClazz().getEnclosedElements()
               .stream()
               .filter(e -> e.getKind() == ElementKind.METHOD)
               .map(e -> (ExecutableElement) e)
@@ -540,7 +540,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
     }
 
     private void findFields() {
-        mClazz.getEnclosedElements()
+        getMClazz().getEnclosedElements()
               .stream()
               .filter(e -> e.getKind() == ElementKind.FIELD)
               .forEach(e ->
@@ -552,17 +552,17 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
 
     private String getJniMethodParam(ExecutableElement m) {
         StringBuilder sb = new StringBuilder(64);
-        if (mHelper.isNestedClass(mClazz)) {
-            Element enclosingElement = mClazz.getEnclosingElement();
+        if (getMHelper().isNestedClass(getMClazz())) {
+            Element enclosingElement = getMClazz().getEnclosingElement();
             //nested class has an this$0 in its constructor
             sb.append(", ")
-              .append(mHelper.toJNIType(enclosingElement.asType()))
+              .append(getMHelper().toJNIType(enclosingElement.asType()))
               .append(" ")
               .append("enclosingClass");
         }
         m.getParameters().forEach(p -> {
             sb.append(", ")
-              .append(mHelper.toJNIType(p.asType()))
+              .append(getMHelper().toJNIType(p.asType()))
               .append(" ")
               .append(p.getSimpleName());
         });
@@ -571,7 +571,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
 
     private String getJniMethodParamVal(ExecutableElement m) {
         StringBuilder sb = new StringBuilder(64);
-        if (mHelper.isNestedClass(mClazz)) {
+        if (getMHelper().isNestedClass(getMClazz())) {
             //nested class has an this$0 in its constructor
             sb.append(", ")
               .append("enclosingClass");

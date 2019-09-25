@@ -15,8 +15,6 @@
  */
 package io.github.landerlyoung.jenny;
 
-import io.github.landerlyoung.jenny.template.FileTemplate;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
@@ -30,6 +28,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
+
+import io.github.landerlyoung.jenny.template.FileTemplate;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -59,7 +59,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         mMethods = new LinkedList<>();
         NativeClass annotation = clazz.getAnnotation(NativeClass.class);
         if (annotation == null) {
-            annotation = AnnotationResolver.getDefaultImplementation(NativeClass.class);
+            annotation = AnnotationResolver.INSTANCE.getDefaultImplementation(NativeClass.class);
         }
         mNativeClassAnnotation = annotation;
     }
@@ -73,11 +73,11 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
     }
 
     private boolean init() {
-        if (!mClazz.getKind().equals(ElementKind.CLASS)) return false;
+        if (!getMClazz().getKind().equals(ElementKind.CLASS)) return false;
 
         mHeaderName = getCppClassName() + ".h";
         mSourceName = getCppClassName() + ".cpp";
-        log("jenny begin generate glue code for class [" + mClassName + "]");
+        log("jenny begin generate glue code for class [" + getMClassName() + "]");
         log("header : [" + mHeaderName + "]");
         log("source : [" + mSourceName + "]");
 
@@ -91,12 +91,12 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         if (fileName.length() > 0) {
             return fileName;
         } else {
-            return mNativeClassAnnotation.simpleName() ? mSimpleClassName : mJNIClassName;
+            return mNativeClassAnnotation.simpleName() ? getMSimpleClassName() : getMJNIClassName();
         }
     }
 
     private void findNativeMethods() {
-        mClazz.getEnclosedElements()
+        getMClazz().getEnclosedElements()
               .stream()
               .filter(e -> e.getKind() == ElementKind.METHOD)
               .forEach(e -> {
@@ -112,7 +112,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
     public void generateHeader() {
         Writer w = null;
         try {
-            FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, mHeaderName);
+            FileObject fileObject = getMEnv().getFiler().createResource(StandardLocation.SOURCE_OUTPUT, AbsCodeGenerator.PKG_NAME, mHeaderName);
             log("write header file [" + fileObject.getName() + "]");
             w = fileObject.openWriter();
 
@@ -122,10 +122,10 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                             ? FileTemplate.Type.JNI_HEADER_SKELETON_NS
                             : FileTemplate.Type.JNI_HEADER_SKELETON)
                                 .add("namespace", getCppClassName())
-                                .add("full_slash_class_name", mSlashClassName)
-                                .add("full_java_class_name", mClassName)
+                                .add("full_slash_class_name", getMSlashClassName())
+                                .add("full_java_class_name", getMClassName())
                                 .add("consts", generateConstantsDefinition())
-                                .add("class_prefix", !mJNIClassName.isEmpty() ? mJNIClassName + "_" : "")
+                                .add("class_prefix", !getMJNIClassName().isEmpty() ? getMJNIClassName() + "_" : "")
                                 .add("methods", generateFunctions(false))
                                 //ns version only
                                 .add("registers", mNativeClassAnnotation.dynamicRegisterJniMethods()
@@ -145,7 +145,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
     public void generateSource() {
         Writer w = null;
         try {
-            FileObject fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, mSourceName);
+            FileObject fileObject = getMEnv().getFiler().createResource(StandardLocation.SOURCE_OUTPUT, AbsCodeGenerator.PKG_NAME, mSourceName);
             log("write source file [" + fileObject.getName() + "]");
             w = fileObject.openWriter();
 
@@ -158,15 +158,15 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                                 .add("android_log_marcos", mNativeClassAnnotation.androidLog()
                                         ? FileTemplate.withType(FileTemplate.Type.ANDROID_LOG_MARCOS).create()
                                         : "")
-                                .add("full_java_class_name", mClassName)
-                                .add("full_slash_class_name", mSlashClassName)
-                                .add("full_native_class_name", mJNIClassName)
-                                .add("simple_class_name", mSimpleClassName)
+                                .add("full_java_class_name", getMClassName())
+                                .add("full_slash_class_name", getMSlashClassName())
+                                .add("full_native_class_name", getMJNIClassName())
+                                .add("simple_class_name", getMSimpleClassName())
                                 .add("methods", generateFunctions(true))
                                 .add("dynamic_jni_register", mNativeClassAnnotation.dynamicRegisterJniMethods()
                                         ? FileTemplate.withType(FileTemplate.Type.CPP_DYNAMIC_JNI_REGISTER_NS)
                                                       .add("jni_method_struct", generateJniNativeMethodStruct())
-                                                      .add("slash_class_name", mSlashClassName)
+                                                      .add("slash_class_name", getMSlashClassName())
                                                       .create()
                                         : "")
                                 .add("jni_onload_impl",
@@ -189,8 +189,8 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         StringBuilder sb = new StringBuilder();
         //if this field is a compile-time constant value it's
         //value will be returned, otherwise null will be returned.
-        final String constant_prefix = (!mNativeClassAnnotation.dynamicRegisterJniMethods() && !mJNIClassName.isEmpty() ? mJNIClassName + "_" : "");
-        mClazz.getEnclosedElements()
+        final String constant_prefix = (!mNativeClassAnnotation.dynamicRegisterJniMethods() && !getMJNIClassName().isEmpty() ? getMJNIClassName() + "_" : "");
+        getMClazz().getEnclosedElements()
               .stream()
               .filter(e -> e.getKind() == ElementKind.FIELD)
               .map(e -> (VariableElement) e)
@@ -200,13 +200,13 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                   //value will be returned, otherwise null will be returned.
                   Object constValue = ve.getConstantValue();
 
-                  String nativeType = mHelper.toNativeType(ve.asType(), true);
+                  String nativeType = getMHelper().toNativeType(ve.asType(), true);
 
                   sb.append(FileTemplate.withType(FileTemplate.Type.CONSTANT_TEMPLATE)
                                         .add("type", nativeType)
                                         .add("_const", nativeType.contains("*") ? "const " : "")
                                         .add("name", constant_prefix + ve.getSimpleName().toString())
-                                        .add("full_class_name", mSlashClassName)
+                                        .add("full_class_name", getMSlashClassName())
                                         .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
                                         .create()
                   );
@@ -221,7 +221,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
             ExecutableElement m = (ExecutableElement) mMethods.get(i);
             sb.append(FileTemplate.withType(FileTemplate.Type.NATIVE_JNI_NATIVE_METHOD_STRUCT)
                                   .add("method_name", m.getSimpleName().toString())
-                                  .add("signature", mHelper.getBinaryMethodSignature(m))
+                                  .add("signature", getMHelper().getBinaryMethodSignature(m))
                                   .add("comma", i != methodLen - 1 ? "," : "")
                                   .create()
             );
@@ -235,16 +235,16 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
             ExecutableElement e = (ExecutableElement) m;
             String result =
                     FileTemplate.withType(FileTemplate.Type.NATIVE_METHOD_DECLARE_TEMPLATE)
-                                .add("full_java_class_name", mJNIClassName)
-                                .add("modifiers", mHelper.getMethodModifiers(e))
+                                .add("full_java_class_name", getMJNIClassName())
+                                .add("modifiers", getMHelper().getMethodModifiers(e))
                                 .add("export_", mNativeClassAnnotation.dynamicRegisterJniMethods() ? "" : "JNIEXPORT ")
                                 .add("java_return_type", e.getReturnType().toString())
                                 .add("note_method_name", e.getSimpleName().toString())
                                 .add("method_name", getMethodName(e))
-                                .add("java_parameters", mHelper.getJavaMethodParam(e))
-                                .add("jni_return_type", mHelper.toJNIType(e.getReturnType()))
-                                .add("method_signature", mHelper.getMethodSignature(e))
-                                .add("native_parameters", mHelper.getNativeMethodParam(e))
+                                .add("java_parameters", getMHelper().getJavaMethodParam(e))
+                                .add("jni_return_type", getMHelper().toJNIType(e.getReturnType()))
+                                .add("method_signature", getMHelper().getMethodSignature(e))
+                                .add("native_parameters", getMHelper().getNativeMethodParam(e))
                                 .add("end", isSource ? "" : ";\n\n")
                                 .create();
             if (isSource) {
@@ -264,7 +264,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
         if (mNativeClassAnnotation.dynamicRegisterJniMethods()) {
             return simpleName;
         } else {
-            return "Java_" + mJNIClassName + "_" + simpleName;
+            return "Java_" + getMJNIClassName() + "_" + simpleName;
         }
     }
 
@@ -284,7 +284,7 @@ public class CppGlueCodeGenerator extends AbsCodeGenerator {
                 returnStatement.replace(returnStatement.length() - 1, returnStatement.length(), "");
             }
         } else {
-            returnStatement.append(mHelper.getReturnStatement(m));
+            returnStatement.append(getMHelper().getReturnStatement(m));
         }
         return template.add("default_return_statement", returnStatement.toString())
                        .create();
