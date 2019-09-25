@@ -15,8 +15,6 @@
  */
 package io.github.landerlyoung.jenny;
 
-import com.google.auto.service.AutoService;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +22,6 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -38,7 +35,6 @@ import javax.lang.model.util.Types;
  * Time:   19:42
  * Life with passion. Code with creativity!
  */
-@AutoService(Processor.class)
 public class JennyAnnotationProcessor extends AbstractProcessor {
     private Messager mMessager;
     private Types mTypeUtils;
