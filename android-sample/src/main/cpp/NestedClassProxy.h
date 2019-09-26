@@ -10,110 +10,91 @@
 
 #include <jni.h>
 #include <assert.h>
+#include <atomic>
+#include <mutex>
 
 #ifdef __EXCEPTIONS
 #include <stdexcept>
 #endif
 
-#define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
-
 class NestedClassProxy {
 public:
     static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback$NestedClass";
 
-
 private:
-    static jclass sClazz;
+    static std::atomic_bool sInited;
+    static std::mutex sInitLock;
 
     static jmethodID sConstruct_0;
 
     static jmethodID sMethod_hello_0;
 
 
-    const bool mGlobal;
+private:
+    JNIEnv *mJniEnv;
     jobject mJavaObjectReference;
 
 public:
-    static bool init_clazz(JNIEnv *env) {
-        if (sClazz == nullptr) {
-            auto localClazz = env->FindClass(FULL_CLASS_NAME);
-            CHECK_NULL(localClazz);
-            sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
-            CHECK_NULL(sClazz);
+    static bool initClazz(JNIEnv *env) {
+#define JENNY_CHECK_NULL(val)                       \
+        do {                                        \
+            if ((val) == nullptr) {                 \
+                env->DeleteLocalRef(clazz);         \
+                return false;                       \
+            }                                       \
+        } while(false)
 
-            sConstruct_0 = env->GetMethodID(sClazz, "<init>", "(Lio/github/landerlyoung/jennysampleapp/Callback;)V");
-            CHECK_NULL(sConstruct_0);
+        if (!sInited) {
+            std::lock_guard<std::mutex> lg(sInitLock);
+            if (!sInited) {
+                auto clazz = env->FindClass(FULL_CLASS_NAME);
+                JENNY_CHECK_NULL(clazz);
 
-            sMethod_hello_0 = env->GetMethodID(sClazz, "hello", "()V");
-            CHECK_NULL(sMethod_hello_0);
+                sConstruct_0 = env->GetMethodID(clazz, "<init>",
+                                                "(Lio/github/landerlyoung/jennysampleapp/Callback;)V");
+                JENNY_CHECK_NULL(sConstruct_0);
 
-
-            return true;
+                sMethod_hello_0 = env->GetMethodID(clazz, "hello", "()V");
+                JENNY_CHECK_NULL(sMethod_hello_0);
+            }
         }
+#undef JENNY_CHECK_NULL
         return true;
     }
 
-    static void release_clazz(JNIEnv *env) {
-        if (sClazz != nullptr) {
-            env->DeleteGlobalRef(sClazz);
-            sClazz = nullptr;
-        }
+    static void releaseClazz(JNIEnv *env) {
+        sInited = false;
     }
 
-    //construct
+    static void assertInited(JNIEnv *env) {
+        assert(initClazz(env));
+    }
+
+    NestedClassProxy(JNIEnv *env, jobject javaObj)
+            : mJniEnv(env), mJavaObjectReference(javaObj) {
+        assertInited(env);
+    }
+
+    NestedClassProxy(const NestedClassProxy &from) = default;
+    NestedClassProxy &operator=(const NestedClassProxy &) = default;
+
+    // trivial struct, no move needed
+    NestedClassProxy(const NestedClassProxy &&from) = delete;
+
+    ~NestedClassProxy() = default;
+
+    // constructor
     static jobject newInstance(JNIEnv *env, jobject enclosingClass) noexcept {
-        if (init_clazz(env)) {
-            return env->NewObject(sClazz, sConstruct_0, enclosingClass);
-        }
-        return nullptr;
+        assertInited(env);
+        auto clazz = env->FindClass(FULL_CLASS_NAME);
+        auto ret = env->NewObject(clazz, sConstruct_0, enclosingClass);
+        env->DeleteLocalRef(clazz);
+        return ret;
     }
 
-
-
-    ///throw std::runtime_error when construct GlobalRef failed
-    NestedClassProxy(JNIEnv *env, jobject javaObj, bool global = false)
-#ifdef __EXCEPTIONS
-    throw(std::runtime_error)
-#else
-    noexcept
-#endif
-            : mGlobal(global) {
-        if (init_clazz(env)) {
-            mJavaObjectReference = global ? env->NewGlobalRef(javaObj) : javaObj;
-        }
-#ifdef __EXCEPTIONS
-        if (mGlobal && mJavaObjectReference == nullptr) {
-            throw std::runtime_error("cannot create global reference");
-        }
-#endif
+    void hello(jobject enclosingClass) const {
+        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_hello_0, enclosingClass);
     }
-
-    bool isGlobalReferencePresent() {
-        return mJavaObjectReference != nullptr;
-    }
-
-    ///no copy construct
-    NestedClassProxy(const NestedClassProxy &from) = delete;
-
-    void deleteGlobalReference(JNIEnv *env) {
-        if (mGlobal) {
-            env->DeleteGlobalRef(mJavaObjectReference);
-            mJavaObjectReference = nullptr;
-        }
-    }
-
-    ~NestedClassProxy() {
-        assert(!mGlobal || mJavaObjectReference == nullptr);
-    }
-
-    void hello(JNIEnv *env, jobject enclosingClass) const {
-        env->CallVoidMethod(mJavaObjectReference, sMethod_hello_0, enclosingClass);
-    }
-
-
-
 
 
 };
-
-#undef CHECK_NULL

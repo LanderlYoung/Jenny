@@ -46,7 +46,6 @@ abstract class AbsCodeGenerator(protected val mEnv: Environment, protected val m
     protected val mSimpleClassName: String
 
     init {
-
         if (mClazz.kind != ElementKind.CLASS
                 && mClazz.kind != ElementKind.INTERFACE
                 && mClazz.kind != ElementKind.ENUM

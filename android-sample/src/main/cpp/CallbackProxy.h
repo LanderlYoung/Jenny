@@ -15,7 +15,7 @@
 #include <stdexcept>
 #endif
 
-#define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
+#define JENNY_CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
 
 class CallbackProxy {
 public:
@@ -51,40 +51,40 @@ public:
     static bool init_clazz(JNIEnv *env) {
         if (sClazz == nullptr) {
             auto localClazz = env->FindClass(FULL_CLASS_NAME);
-            CHECK_NULL(localClazz);
+            JENNY_CHECK_NULL(localClazz);
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
-            CHECK_NULL(sClazz);
+            JENNY_CHECK_NULL(sClazz);
 
             sConstruct_0 = env->GetMethodID(sClazz, "<init>", "()V");
-            CHECK_NULL(sConstruct_0);
+            JENNY_CHECK_NULL(sConstruct_0);
             sConstruct_1 = env->GetMethodID(sClazz, "<init>", "(I)V");
-            CHECK_NULL(sConstruct_1);
+            JENNY_CHECK_NULL(sConstruct_1);
             sConstruct_2 = env->GetMethodID(sClazz, "<init>", "(Ljava/util/HashMap;)V");
-            CHECK_NULL(sConstruct_2);
+            JENNY_CHECK_NULL(sConstruct_2);
 
             sMethod_onJobStart_0 = env->GetMethodID(sClazz, "onJobStart", "()V");
-            CHECK_NULL(sMethod_onJobStart_0);
+            JENNY_CHECK_NULL(sMethod_onJobStart_0);
             sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart", "(Lio/github/landerlyoung/jennysampleapp/Callback$NestedClass;)V");
-            CHECK_NULL(sMethod_onJobStart_1);
+            JENNY_CHECK_NULL(sMethod_onJobStart_1);
             sMethod_onJobDone_2 = env->GetMethodID(sClazz, "onJobDone", "(ZLjava/lang/String;)V");
-            CHECK_NULL(sMethod_onJobDone_2);
+            JENNY_CHECK_NULL(sMethod_onJobDone_2);
             sMethod_onJobProgress_3 = env->GetMethodID(sClazz, "onJobProgress", "(J)V");
-            CHECK_NULL(sMethod_onJobProgress_3);
+            JENNY_CHECK_NULL(sMethod_onJobProgress_3);
 
             sField_ANOTHER_COMPILE_CONSTANT_INT_0 = env->GetFieldID(sClazz, "ANOTHER_COMPILE_CONSTANT_INT", "I");
-            CHECK_NULL(sField_ANOTHER_COMPILE_CONSTANT_INT_0);
+            JENNY_CHECK_NULL(sField_ANOTHER_COMPILE_CONSTANT_INT_0);
             sField_count_1 = env->GetFieldID(sClazz, "count", "I");
-            CHECK_NULL(sField_count_1);
+            JENNY_CHECK_NULL(sField_count_1);
             sField_staticName_2 = env->GetStaticFieldID(sClazz, "staticName", "Ljava/lang/String;");
-            CHECK_NULL(sField_staticName_2);
+            JENNY_CHECK_NULL(sField_staticName_2);
             sField_aStaticField_3 = env->GetStaticFieldID(sClazz, "aStaticField", "Ljava/util/List;");
-            CHECK_NULL(sField_aStaticField_3);
+            JENNY_CHECK_NULL(sField_aStaticField_3);
             sField_name_4 = env->GetFieldID(sClazz, "name", "Ljava/lang/String;");
-            CHECK_NULL(sField_name_4);
+            JENNY_CHECK_NULL(sField_name_4);
             sField_lock_5 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
-            CHECK_NULL(sField_lock_5);
+            JENNY_CHECK_NULL(sField_lock_5);
             sField_staticCount_6 = env->GetStaticFieldID(sClazz, "staticCount", "I");
-            CHECK_NULL(sField_staticCount_6);
+            JENNY_CHECK_NULL(sField_staticCount_6);
 
             return true;
         }
@@ -245,4 +245,4 @@ public:
 
 };
 
-#undef CHECK_NULL
+#undef JENNY_CHECK_NULL

@@ -42,8 +42,10 @@ class CppGlueCodeGenerator
     private lateinit var mHeaderName: String
     // source file Name
     private lateinit var mSourceName: String
-    private val mMethods: MutableList<Element>
-    private val mNativeClassAnnotation: NativeClass
+    private val mMethods: MutableList<Element> = LinkedList()
+    private val mNativeClassAnnotation: NativeClass =
+            clazz.getAnnotation(NativeClass::class.java)
+                    ?: AnnotationResolver.getDefaultImplementation(NativeClass::class.java)
 
     private val cppClassName: String
         get() {
@@ -54,15 +56,6 @@ class CppGlueCodeGenerator
                 if (mNativeClassAnnotation.simpleName) mSimpleClassName else mJNIClassName
             }
         }
-
-    init {
-        mMethods = LinkedList()
-        var annotation: NativeClass? = clazz.getAnnotation(NativeClass::class.java)
-        if (annotation == null) {
-            annotation = AnnotationResolver.getDefaultImplementation(NativeClass::class.java)
-        }
-        mNativeClassAnnotation = annotation
-    }
 
     override fun doGenerate() {
         if (init() && mMethods.isNotEmpty()) {

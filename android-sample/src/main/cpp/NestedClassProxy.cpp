@@ -9,7 +9,6 @@
 #include "NestedClassProxy.h"
 
 //static fields
-jclass NestedClassProxy::sClazz = nullptr;
 jmethodID NestedClassProxy::sConstruct_0 = nullptr;
 jmethodID NestedClassProxy::sMethod_hello_0 = nullptr;
 

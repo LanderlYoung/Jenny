@@ -15,7 +15,7 @@
 #include <stdexcept>
 #endif
 
-#define CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
+#define JENNY_CHECK_NULL(val) do {if ((val) == nullptr) return false;} while(false)
 
 class ${cpp_class_name} {
 public:
@@ -35,9 +35,9 @@ public:
     static bool init_clazz(JNIEnv *env) {
         if (sClazz == nullptr) {
             auto localClazz = env->FindClass(FULL_CLASS_NAME);
-            CHECK_NULL(localClazz);
+            JENNY_CHECK_NULL(localClazz);
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(localClazz));
-            CHECK_NULL(sClazz);
+            JENNY_CHECK_NULL(sClazz);
 
 ${constructors_id_init}
 ${methods_id_init}
@@ -98,4 +98,4 @@ ${fields_getter_setter}
 
 };
 
-#undef CHECK_NULL
+#undef JENNY_CHECK_NULL
