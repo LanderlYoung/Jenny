@@ -18,7 +18,6 @@ package io.github.landerlyoung.jenny
 import com.google.common.collect.ArrayListMultimap
 import io.github.landerlyoung.jenny.template.FileTemplate
 import java.io.IOException
-import java.io.Writer
 import java.util.*
 import java.util.function.Predicate
 import java.util.stream.Stream
@@ -100,31 +99,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
         init()
 
         generatorHeader()
-//        generateSource()
-//
-//        writeToFile(mFileName + HEADER_POST_FIX, FileTemplate
-//                .withType(FileTemplate.Type.NATIVE_PROXY_SKELETON_HEADER)
-//                .add("cpp_class_name", cppClassName)
-//                .add("consts", generateConstantsDefinition())
-//                .add("full_class_name_const", mSlashClassName)
-//                .add("constructors_id_declare", generateConstructorIdDeclare())
-//                .add("methods_id_declare", generateMethodIdDeclare())
-//                .add("fields_id_declare", generateFieldIdDeclare())
-//                .add("constructors_id_init", generateConstructorIdInit())
-//                .add("methods_id_init", generateMethodIdInit())
-//                .add("fields_id_init", generateFieldIdInit())
-//                .add("constructors", generateConstructors())
-//                .add("methods", generateMethods())
-//                .add("fields_getter_setter", generateFields())
-//                .create()
-//        )
-//
-//        writeToFile(mFileName + SOURCE_POST_FIX, FileTemplate
-//                .withType(FileTemplate.Type.NATIVE_PROXY_SKELETON_SOURCE)
-//                .add("cpp_class_name", cppClassName)
-//                .add("static_declare", generateCppStaticDeclare())
-//                .create()
-//        )
+        generateSource()
     }
 
     private fun generatorHeader() {
@@ -178,8 +153,8 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                     append("""
                         |
                         |private:
-                        |    JNIEnv *const mJniEnv;
-                        |    const jobject mJavaObjectReference;
+                        |    JNIEnv* mJniEnv;
+                        |    jobject mJavaObjectReference;
                         |
                         |public:
                         |
@@ -212,6 +187,51 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
                     append("};")
 
+                }.let { content ->
+                    out.write(content.toByteArray(Charsets.UTF_8))
+                }
+            } catch (e: IOException) {
+                warn("generate header file $mHeaderName failed!")
+            }
+        }
+    }
+
+    private fun generateSource() {
+        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, mSourceName)
+        fileObject.openOutputStream().use { out ->
+            try {
+                log("write native proxy file [" + fileObject.name + "]")
+                buildString {
+                    append(FileTemplate.AUTO_GENERATE_NOTICE)
+                    append("""
+                        |#include "$mHeaderName"
+                        |
+                        |jclass ${cppClassName}::sClazz = nullptr;
+                        |
+                        |""".trimMargin())
+
+                    if (mEnv.configurations.threadSafe) {
+                        append("""
+                            |std::mutex $cppClassName::sInitLock;
+                            |std::atomic_bool $cppClassName::sInited;
+                            |
+                            |""".trimMargin())
+                    }
+
+                    buildNativeInitClass()
+
+                    mConstructors.forEachIndexed { index, c ->
+                        append("jmethodID ${cppClassName}::${getConstructorName(c, index)};\n")
+                    }
+                    append("\n")
+                    mMethods.values().forEachIndexed { index, m ->
+                        append("jmethodID ${cppClassName}::${getMethodName(m, index)};\n")
+                    }
+                    append("\n")
+                    mFields.values().forEachIndexed { index, m ->
+                        append("jfieldID ${cppClassName}::${getFieldName(m, index)};\n")
+                    }
+                    append("\n")
                 }.let { content ->
                     out.write(content.toByteArray(Charsets.UTF_8))
                 }
@@ -263,7 +283,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                 warn("you are trying to add getter/setter to a compile-time constant "
                         + mClassName + "." + f.simpleName.toString())
             }
-            append("    static jfieldId ${getFieldName(m, index)};\n")
+            append("    static jfieldID ${getFieldName(m, index)};\n")
         }
         append('\n')
     }
@@ -274,10 +294,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                 |    // construct ${mSimpleClassName}(${mHelper.getJavaMethodParam(c)})
                 |    jobject newInstance(${getJniMethodParam(c)}) noexcept {
                 |       assertInited(mJniEnv);
-                |       auto clazz = mJniEnv->FindClass(FULL_CLASS_NAME);
-                |       auto ret = mJniEnv->NewObject(clazz, ${getConstructorName(c, index)}${getJniMethodParamVal(c)});
-                |       mJniEnv->DeleteLocalRef(clazz);
-                |       return ret;
+                |       return mJniEnv->NewObject(sClazz, ${getConstructorName(c, index)}${getJniMethodParamVal(c)});
                 |    } 
                 |    
                 |""".trimMargin())
@@ -297,18 +314,20 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
             if (m.returnType.kind !== TypeKind.VOID) {
                 append("        return ")
-                if (returnTypeNeedCast(returnType)) {
-                    append("reinterpret_cast<${returnType}>(")
-                }
-
-                val static = if (isStatic) "Static" else ""
-                val classOrObj = if (isStatic) "sClazz" else "mJavaObjectReference"
-                append("mJniEnv->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getMethodName(m, index)}${getJniMethodParamVal(m)})")
-                if (returnTypeNeedCast(returnType)) {
-                    append(")")
-                }
-                append(";\n")
+            } else {
+                append("        ")
             }
+            if (returnTypeNeedCast(returnType)) {
+                append("reinterpret_cast<${returnType}>(")
+            }
+
+            val static = if (isStatic) "Static" else ""
+            val classOrObj = if (isStatic) "sClazz" else "mJavaObjectReference"
+            append("mJniEnv->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getMethodName(m, index)}${getJniMethodParamVal(m)})")
+            if (returnTypeNeedCast(returnType)) {
+                append(")")
+            }
+            append(";\n")
             append("    }\n\n")
         }
         append('\n')
@@ -335,8 +354,21 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                 append("""
                     |    $comment
                     |    $returnType get${camelCaseName}() const {
-                    |       return mJniEnv->Get${static}${typeForJniCall}Field(${classOrObj}, ${fieldId});
-                    |    }
+                    |       return """.trimMargin())
+
+                if (returnTypeNeedCast(returnType)) {
+                    append("reinterpret_cast<${returnType}>(")
+                }
+
+                append("mJniEnv->Get${static}${typeForJniCall}Field(${classOrObj}, $fieldId)")
+
+                if (returnTypeNeedCast(returnType)) {
+                    append(")")
+                }
+
+                append(""";
+                    |
+                    |   }
                     |""".trimMargin())
             }
 
@@ -352,6 +384,124 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
         }
     }
 
+    private fun StringBuilder.buildNativeInitClass() {
+
+        append("""
+            |/*static*/ bool $cppClassName::initClazz(JNIEnv *env) {
+            |#define JENNY_CHECK_NULL(val)                      \
+            |       do {                                        \
+            |           if ((val) == nullptr) {                 \
+            |               return false;                       \
+            |           }                                       \
+            |       } while(false)
+            |
+            |""".trimMargin())
+
+        if (mEnv.configurations.threadSafe) {
+            append("""
+                |    if (!sInited) {
+                |        std::lock_guard<std::mutex> lg(sInitLock);
+                |""".trimMargin())
+        }
+        append("""
+                |        if (!sInited) {
+                |            auto clazz = env->FindClass(FULL_CLASS_NAME);
+                |            JENNY_CHECK_NULL(clazz);
+                |            sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+                |            env->DeleteLocalRef(clazz);
+                |            JENNY_CHECK_NULL(sClazz);
+                |""".trimMargin())
+
+        buildConstructorIdInit()
+        buildMethodIdInit()
+        buildFieldIdInit()
+
+        append("""
+                |            sInited = true;
+                |        }
+                |""".trimMargin())
+        if (mEnv.configurations.threadSafe) {
+            append("    }\n")
+        }
+
+        append("""
+            |#undef JENNY_CHECK_NULL
+            |   return true;
+            |}
+            |
+            |""".trimMargin())
+
+        if (mEnv.configurations.threadSafe) {
+            append("""
+                |/*static*/ void $cppClassName::releaseClazz(JNIEnv *env) {
+                |    if (sInited) {
+                |        std::lock_guard<std::mutex> lg(sInitLock);
+                |        if (sInited) {
+                |            env->DeleteLocalRef(sClazz);
+                |            sInited = false;
+                |        }
+                |    }
+                |}
+                |
+                |""".trimMargin())
+        } else {
+            append("""
+                |/*static*/ void $cppClassName::releaseClazz(JNIEnv *env) {
+                |    if (sInited) {
+                |        env->DeleteLocalRef(sClazz);
+                |        sInited = false;
+                |    }
+                |}
+                |
+                |""".trimMargin())
+        }
+    }
+
+    private fun StringBuilder.buildConstructorIdInit() {
+        mConstructors.forEachIndexed { index, c ->
+            val name = getConstructorName(c, index)
+            val signature = mHelper.getBinaryMethodSignature(c)
+
+            append("""
+            |            $name = env->GetMethodID(sClazz, "<init>", "$signature");
+            |            JENNY_CHECK_NULL(${name});
+            |
+            |""".trimMargin())
+        }
+        append('\n')
+    }
+
+    private fun StringBuilder.buildMethodIdInit() {
+        mMethods.values().forEachIndexed { index, m ->
+            val name = getMethodName(m, index)
+            val static = if (m.modifiers.contains(Modifier.STATIC)) "Static" else ""
+            val methodName = m.simpleName
+            val signature = mHelper.getBinaryMethodSignature(m)
+
+            append("""
+            |            $name = env->Get${static}MethodID(sClazz, "$methodName", "$signature");
+            |            JENNY_CHECK_NULL(${name});
+            |
+            |""".trimMargin())
+        }
+        append('\n')
+    }
+
+    private fun StringBuilder.buildFieldIdInit() {
+        mFields.values().forEachIndexed { index, f ->
+            val name = getFieldName(f, index)
+            val static = if (f.modifiers.contains(Modifier.STATIC)) "Static" else ""
+            val fieldName = f.simpleName
+            val signature = mHelper.getBinaryTypeSignature(f.asType())
+
+            append("""
+            |            $name = env->Get${static}FieldID(sClazz, "$fieldName", "$signature");
+            |            JENNY_CHECK_NULL(${name});
+            |
+            |""".trimMargin())
+        }
+        append('\n')
+    }
 
     private fun fieldsStream(): Stream<Element> {
         return mFields.values()
@@ -702,21 +852,6 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
     private fun getFieldName(e: Element, index: Int): String {
         return "sField_" + e.simpleName + "_" + index
-    }
-
-    private fun writeToFile(fileName: String, content: String) {
-        var w: Writer? = null
-        try {
-            val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, fileName)
-            log("write native proxy file [" + fileObject.name + "]")
-            w = fileObject.openWriter()
-            w!!.write(content)
-            w.close()
-        } catch (e: IOException) {
-//            warn("generate header file $mFileName failed!")
-        } finally {
-            IOUtils.closeSilently(w)
-        }
     }
 
     private fun findConstructors() {

@@ -7,27 +7,29 @@
  * or contact author landerlyoung@gmail.com.
  */
 
-/* C++ header file for class com.young.jennysampleapp.ComputeIntensiveClass */
+/* C++ header file for class io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass$NestedNativeClass */
 #pragma once
 
 #include <jni.h>
-//DO NOT modify
-static constexpr auto io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
 
-static constexpr jint io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_CONST = 0;
+namespace NestedNativeClass {
 
+// DO NOT modify
+static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
+
+static constexpr jint CONST = 0;
+
+} //endof namespace NestedNativeClass
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/*
+    /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public java.util.HashMap<java.lang.String,java.lang.String> one(java.lang.String param)
  * Signature: (Ljava/lang/String;)Ljava/util/HashMap;
  */
 JNIEXPORT jobject Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_one(JNIEnv *env, jobject thiz, jstring param);
-
 
 /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
@@ -36,7 +38,6 @@ JNIEXPORT jobject Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveCla
  */
 JNIEXPORT jlong Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeInit(JNIEnv *env, jobject thiz);
 
-
 /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public void nativeRelease(long handle)
@@ -44,9 +45,6 @@ JNIEXPORT jlong Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
  */
 JNIEXPORT void Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeRelease(JNIEnv *env, jobject thiz, jlong handle);
 
-
 #ifdef __cplusplus
 }
 #endif
-
-

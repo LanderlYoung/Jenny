@@ -238,7 +238,7 @@ class CppGlueCodeGenerator
             |* register Native functions
             |* @returns success or not
             |*/
-            |bool registerNativeFunctions(JNIEnv *env) {
+            |inline bool registerNativeFunctions(JNIEnv *env) {
             |   const JNINativeMethod gsNativeMethods[] = {
             |""".trimMargin())
         buildJniNativeMethodStructs()
