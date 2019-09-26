@@ -55,7 +55,7 @@ abstract class AbsCodeGenerator(protected val mEnv: Environment, protected val m
         mHelper = HandyHelper(mEnv)
 
         mClassName = mHelper.getClassName(mClazz)
-        mJNIClassName = mHelper.toJNIClassName(mClassName)
+        mJNIClassName = mHelper.toJNIClassName(mClassName)!!
         mSlashClassName = mHelper.getSlashClassName(mClassName)
         mSimpleClassName = mHelper.getSimpleName(mClazz)
     }

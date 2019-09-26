@@ -15,7 +15,6 @@
  */
 package io.github.landerlyoung.jenny
 
-import io.github.landerlyoung.jenny.template.FileTemplate
 import java.io.IOException
 import java.util.*
 import javax.lang.model.element.*
@@ -27,7 +26,7 @@ import javax.tools.StandardLocation
  * Time:   16:03
  * Life with passion. Code with creativity!
  */
-class CppGlueCodeGenerator
+
 //DONE HandyHelper.toJNIType throwable
 //DONE Use NativeClass to mark generate, NativeCode to add implements
 //DELETE different constant value for different arch
@@ -36,8 +35,7 @@ class CppGlueCodeGenerator
 //XXXX support for pure c code
 //DONE file output
 //GOING use file template
-
-(env: Environment, clazz: TypeElement) : AbsCodeGenerator(env, clazz) {
+class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerator(env, clazz) {
     // header file name
     private lateinit var mHeaderName: String
     // source file Name
@@ -99,7 +97,7 @@ class CppGlueCodeGenerator
         fileObject.openOutputStream().use { out ->
             try {
                 buildString {
-                    append(FileTemplate.AUTO_GENERATE_NOTICE)
+                    append(Constants.AUTO_GENERATE_NOTICE)
                     append("""
                         |
                         |/* C++ header file for class $mSlashClassName */
@@ -138,7 +136,7 @@ class CppGlueCodeGenerator
         log("write source file [" + fileObject.name + "]")
         try {
             buildString {
-                append(FileTemplate.AUTO_GENERATE_SOURE_NOTICE)
+                append(Constants.AUTO_GENERATE_SOURE_NOTICE)
                 append("""
                     |#include "$mHeaderName"
                     |
@@ -164,17 +162,17 @@ class CppGlueCodeGenerator
     private fun StringBuilder.buildConstantsDefinition() {
         mClazz.enclosedElements
                 .asSequence()
-                .filter { e -> e.kind == ElementKind.FIELD }
-                .map { e -> e as VariableElement }
-                .filter { ve -> ve.constantValue != null }
-                .forEach { ve ->
-                    //if this field is a compile-time constant value it's
-                    //value will be returned, otherwise null will be returned.
-                    val constValue = ve.constantValue
+                .filter { it.kind == ElementKind.FIELD }
+                .map { it as VariableElement }
+                .filter { it.constantValue != null }
+                .forEach {
+                    // if this field is a compile-time constant value it's
+                    // value will be returned, otherwise null will be returned.
+                    val constValue = it.constantValue!!
 
-                    val nativeType = mHelper.toNativeType(ve.asType(), true)
+                    val nativeType = mHelper.toNativeType(it.asType(), true)
 
-                    append("static constexpr $nativeType ${ve.simpleName} = ${HandyHelper.getJNIHeaderConstantValue(constValue)};\n")
+                    append("static constexpr $nativeType ${it.simpleName} = ${HandyHelper.getJNIHeaderConstantValue(constValue)};\n")
                 }
         append('\n')
     }
@@ -192,7 +190,7 @@ class CppGlueCodeGenerator
         }
         mMethods.forEach { m ->
             val e = m as ExecutableElement
-            val javaModifiers = mHelper.getMethodModifiers(e)
+            val javaModifiers = mHelper.getModifiers(e)
             val javaReturnType = e.returnType.toString()
             val javaMethodName = e.simpleName.toString()
             val javaParameters = mHelper.getJavaMethodParam(e)

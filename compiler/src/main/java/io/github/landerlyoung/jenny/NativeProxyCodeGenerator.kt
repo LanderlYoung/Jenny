@@ -15,14 +15,13 @@
  */
 package io.github.landerlyoung.jenny
 
-import com.google.common.collect.ArrayListMultimap
-import io.github.landerlyoung.jenny.template.FileTemplate
 import java.io.IOException
 import java.util.*
 import javax.lang.model.element.*
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.tools.StandardLocation
+import kotlin.collections.HashSet
 
 /**
  * Author: landerlyoung@gmail.com
@@ -47,10 +46,11 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     //------ get/setXxxField ----
     //field
 
-    private val mConstructors: LinkedList<ExecutableElement>
-    private val mMethods: ArrayListMultimap<String, ExecutableElement>
-    private val mFields: ArrayListMultimap<String, Element>
-    private val mConsts: MutableSet<String>
+    private val mConstructors = mutableListOf<MethodOverloadResolver.MethodRecord>()
+    private val mMethodSimpleName = mutableSetOf<String>()
+    private val mMethods = mutableListOf<MethodOverloadResolver.MethodRecord>()
+    private val mFields = mutableListOf<Element>()
+    private val mConsts: MutableSet<String> = HashSet()
     private val mNativeProxyAnnotation: NativeProxy
     private val mHeaderName: String
     private val mSourceName: String
@@ -70,11 +70,6 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
 
     init {
-        mConstructors = LinkedList()
-        mMethods = ArrayListMultimap.create(16, 16)
-        mFields = ArrayListMultimap.create(16, 16)
-        mConsts = HashSet()
-
         var annotation: NativeProxy? = clazz.getAnnotation(NativeProxy::class.java)
         if (annotation == null) {
             annotation = AnnotationResolver.getDefaultImplementation(NativeProxy::class.java)
@@ -104,7 +99,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
             try {
                 log("write native proxy file [" + fileObject.name + "]")
                 buildString {
-                    append(FileTemplate.AUTO_GENERATE_NOTICE)
+                    append(Constants.AUTO_GENERATE_NOTICE)
                     append("""
                         |#pragma once
                         |
@@ -198,7 +193,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
             try {
                 log("write native proxy file [" + fileObject.name + "]")
                 buildString {
-                    append(FileTemplate.AUTO_GENERATE_NOTICE)
+                    append(Constants.AUTO_GENERATE_NOTICE)
                     append("""
                         |#include "$mHeaderName"
                         |
@@ -216,16 +211,16 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
                     buildNativeInitClass()
 
-                    mConstructors.forEachIndexed { index, c ->
-                        append("jmethodID ${cppClassName}::${getConstructorName(c, index)};\n")
+                    mConstructors.forEach { r ->
+                        append("jmethodID ${cppClassName}::${getConstructorName(r.method, r.index)};\n")
                     }
                     append("\n")
-                    mMethods.values().forEachIndexed { index, m ->
-                        append("jmethodID ${cppClassName}::${getMethodName(m, index)};\n")
+                    mMethods.forEach { r ->
+                        append("jmethodID ${cppClassName}::${getMethodName(r.method, r.index)};\n")
                     }
                     append("\n")
-                    mFields.values().forEachIndexed { index, m ->
-                        append("jfieldID ${cppClassName}::${getFieldName(m, index)};\n")
+                    mFields.forEachIndexed { index, f ->
+                        append("jfieldID ${cppClassName}::${getFieldName(f, index)};\n")
                     }
                     append("\n")
                 }.let { content ->
@@ -258,43 +253,43 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     }
 
     private fun StringBuilder.buildConstructorIdDeclare() {
-        mConstructors.forEachIndexed { index, c ->
-            append("    static jmethodID ${getConstructorName(c, index)};\n")
+        mConstructors.forEach { r ->
+            append("    static jmethodID ${getConstructorName(r.method, r.index)};\n")
         }
         append('\n')
     }
 
     private fun StringBuilder.buildMethodIdDeclare() {
-        mMethods.values().forEachIndexed { index, m ->
-            append("    static jmethodID ${getMethodName(m, index)};\n")
+        mMethods.forEach { r ->
+            append("    static jmethodID ${getMethodName(r.method, r.index)};\n")
         }
         append('\n')
 
     }
 
     private fun StringBuilder.buildFieldIdDeclare() {
-        mFields.values().forEachIndexed { index, m ->
-            val f = m as VariableElement
+        mFields.forEachIndexed { index, f ->
+            val f = f as VariableElement
             if (f.constantValue != null) {
                 warn("you are trying to add getter/setter to a compile-time constant "
                         + mClassName + "." + f.simpleName.toString())
             }
-            append("    static jfieldID ${getFieldName(m, index)};\n")
+            append("    static jfieldID ${getFieldName(f, index)};\n")
         }
         append('\n')
     }
 
     private fun StringBuilder.buildConstructorDefines() {
-        mConstructors.forEachIndexed { index, c ->
-            var param = getJniMethodParam(c)
+        mConstructors.forEach { r ->
+            var param = getJniMethodParam(r.method)
             if (param.isNotEmpty()) {
                 param = ", $param"
             }
             append("""
-                |    // construct ${mSimpleClassName}(${mHelper.getJavaMethodParam(c)})
-                |    static jobject newInstance(JNIEnv* env${param}) noexcept {
+                |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
+                |    static jobject newInstance${r.resolvedPostFix}(JNIEnv* env${param}) noexcept {
                 |       assertInited(env);
-                |       return env->NewObject(sClazz, ${getConstructorName(c, index)}${getJniMethodParamVal(c)});
+                |       return env->NewObject(sClazz, ${getConstructorName(r.method, r.index)}${getJniMethodParamVal(r.method)});
                 |    } 
                 |    
                 |""".trimMargin())
@@ -303,13 +298,14 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     }
 
     private fun StringBuilder.buildMethodDefines() {
-        mMethods.values().forEachIndexed { index, m ->
+        mMethods.forEach { r ->
+            val m = r.method
             val isStatic = m.modifiers.contains(Modifier.STATIC)
             val returnType = mHelper.toJNIType(m.returnType)
 
             append("""
-                |    // method: ${m.returnType} ${m.simpleName}(${mHelper.getJavaMethodParam(m)})
-                |    $returnType ${m.simpleName}(${getJniMethodParam(m)}) const {
+                |    // method: ${mHelper.getModifiers(m)} ${m.returnType} ${m.simpleName}(${mHelper.getJavaMethodParam(m)})
+                |    $returnType ${m.simpleName}${r.resolvedPostFix}(${getJniMethodParam(m)}) const {
                 |""".trimMargin())
 
             if (m.returnType.kind !== TypeKind.VOID) {
@@ -323,7 +319,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
             val static = if (isStatic) "Static" else ""
             val classOrObj = if (isStatic) "sClazz" else "mJavaObjectReference"
-            append("mJniEnv->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getMethodName(m, index)}${getJniMethodParamVal(m)})")
+            append("mJniEnv->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getMethodName(m, r.index)}${getJniMethodParamVal(m)})")
             if (returnTypeNeedCast(returnType)) {
                 append(")")
             }
@@ -334,9 +330,8 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     }
 
     private fun StringBuilder.buildFieldDefines() {
-        mFields.values().forEachIndexed { index, f ->
+        mFields.forEachIndexed { index, f ->
             val isStatic = f.modifiers.contains(Modifier.STATIC)
-            val isFinal = f.modifiers.contains(Modifier.FINAL)
             val camelCaseName = f.simpleName.toString().capitalize()
             val returnType = mHelper.toJNIType(f.asType())
             val getterSetters = hasGetterSetter(f)
@@ -348,7 +343,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
             val static = if (isStatic) "Static" else ""
             val classOrObj = if (isStatic) "sClazz" else "mJavaObjectReference"
 
-            val comment = "// field: ${if (isStatic) "static" else ""} ${if (isFinal) "final" else ""} ${f.asType()} ${f.simpleName}"
+            val comment = "// field: ${mHelper.getModifiers(f)} ${f.asType()} ${f.simpleName}"
 
             if (getterSetters.contains(GetterSetter.GETTER)) {
                 append("""
@@ -458,8 +453,9 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     }
 
     private fun StringBuilder.buildConstructorIdInit() {
-        mConstructors.forEachIndexed { index, c ->
-            val name = getConstructorName(c, index)
+        mConstructors.forEach { r ->
+            val c = r.method
+            val name = getConstructorName(c, r.index)
             val signature = mHelper.getBinaryMethodSignature(c)
 
             append("""
@@ -472,8 +468,9 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     }
 
     private fun StringBuilder.buildMethodIdInit() {
-        mMethods.values().forEachIndexed { index, m ->
-            val name = getMethodName(m, index)
+        mMethods.forEach { r ->
+            val m = r.method
+            val name = getMethodName(m, r.index)
             val static = if (m.modifiers.contains(Modifier.STATIC)) "Static" else ""
             val methodName = m.simpleName
             val signature = mHelper.getBinaryMethodSignature(m)
@@ -488,7 +485,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     }
 
     private fun StringBuilder.buildFieldIdInit() {
-        mFields.values().forEachIndexed { index, f ->
+        mFields.forEachIndexed { index, f ->
             val name = getFieldName(f, index)
             val static = if (f.modifiers.contains(Modifier.STATIC)) "Static" else ""
             val fieldName = f.simpleName
@@ -537,12 +534,12 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
         if (auto) {
             val camelCaseName = field.simpleName.toString().capitalize()
-            setter = !mMethods.containsKey("set$camelCaseName")
+            setter = !mMethodSimpleName.contains("set$camelCaseName")
 
             val type = mHelper.toJNIType(field.asType())
-            getter = !mMethods.containsKey("get$camelCaseName")
+            getter = !mMethodSimpleName.contains("get$camelCaseName")
             if ("jboolean" == type) {
-                getter = getter and !mMethods.containsKey("is$camelCaseName")
+                getter = getter and !mMethodSimpleName.contains("is$camelCaseName")
             }
         }
 
@@ -581,37 +578,38 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
     private fun findConstructors() {
         mClazz.enclosedElements
-                .stream()
-                .filter { e -> e.kind == ElementKind.CONSTRUCTOR }
-                .map { e -> e as ExecutableElement }
-                .filter { e -> shouldGenerateMethod(e) }
-                .forEach { mConstructors.add(it) }
+                .asSequence()
+                .filter { it.kind == ElementKind.CONSTRUCTOR }
+                .map { it as ExecutableElement }
+                .filter { shouldGenerateMethod(it) }
+                .toList()
+                .let {
+                    MethodOverloadResolver(mHelper, this::getJniMethodParam).resolve(it)
+                            .let { mConstructors.addAll(it) }
+                }
     }
 
     private fun findMethods() {
         mClazz.enclosedElements
-                .stream()
-                .filter { e -> e.kind == ElementKind.METHOD }
-                .map { e -> e as ExecutableElement }
-                .filter { e -> shouldGenerateMethod(e) }
-                .forEach { e ->
-                    mMethods.put(
-                            e.simpleName.toString(),
-                            e
-                    )
+                .asSequence()
+                .filter { it.kind == ElementKind.METHOD }
+                .map { it as ExecutableElement }
+                .filter { shouldGenerateMethod(it) }
+                .groupBy { it.simpleName.toString() }
+                .forEach { (simpleName, methodList) ->
+                    mMethodSimpleName.add(simpleName)
+                    MethodOverloadResolver(mHelper, this::getJniMethodParam).resolve(methodList).let {
+                        mMethods.addAll(it)
+                    }
                 }
     }
 
     private fun findFields() {
         mClazz.enclosedElements
-                .stream()
-                .filter { e -> e.kind == ElementKind.FIELD }
-                .filter { e -> shouldGenerateField(e) }
-                .forEach { e ->
-                    mFields.put(
-                            e.simpleName.toString(),
-                            e)
-                }
+                .asSequence()
+                .filter { it.kind == ElementKind.FIELD }
+                .filter { shouldGenerateField(it) }
+                .forEach { mFields.add(it) }
     }
 
     private fun getJniMethodParam(m: ExecutableElement) = buildString {

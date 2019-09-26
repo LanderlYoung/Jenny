@@ -15,13 +15,13 @@
  */
 package io.github.landerlyoung.jennysampleapp;
 
-import io.github.landerlyoung.jenny.NativeFieldProxy;
-import io.github.landerlyoung.jenny.NativeMethodProxy;
-import io.github.landerlyoung.jenny.NativeProxy;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import io.github.landerlyoung.jenny.NativeFieldProxy;
+import io.github.landerlyoung.jenny.NativeMethodProxy;
+import io.github.landerlyoung.jenny.NativeProxy;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -88,7 +88,7 @@ public class Callback {
     }
 
     @NativeMethodProxy
-    void onJobStart() {
+    public void onJobStart() {
 
     }
 
