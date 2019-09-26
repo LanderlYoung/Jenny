@@ -17,7 +17,6 @@ package io.github.landerlyoung.jenny
 
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 
@@ -32,5 +31,5 @@ class Environment(
         val typeUtils: Types,
         val elementUtils: Elements,
         val filer: Filer,
-        val roundEnvironment: RoundEnvironment
+        val configurations: Configurations
 )

@@ -34,6 +34,7 @@ class JennyAnnotationProcessor : AbstractProcessor() {
     private lateinit var mTypeUtils: Types
     private lateinit var mElementsUtils: Elements
     private lateinit var mFiler: Filer
+    private lateinit var mConfigurations: Configurations
 
     @Synchronized
     override fun init(processingEnv: ProcessingEnvironment) {
@@ -42,6 +43,7 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         mTypeUtils = processingEnv.typeUtils
         mElementsUtils = processingEnv.elementUtils
         mFiler = processingEnv.filer
+        mConfigurations = Configurations.fromOptions(processingEnv.options)
     }
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
@@ -58,7 +60,7 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         val classes = roundEnv.getElementsAnnotatedWith(NativeClass::class.java)
         if (classes.isEmpty()) return false
 
-        val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, roundEnv)
+        val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
         classes.stream()
                 .filter { ec -> ec is TypeElement }
                 .forEach { ec -> CppGlueCodeGenerator(env, ec as TypeElement).doGenerate() }
@@ -71,7 +73,7 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         classes.addAll(getProxyForExternalClasses(roundEnv))
         if (classes.isEmpty()) return false
 
-        val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, roundEnv)
+        val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
         classes.stream()
                 .filter { ec -> ec is TypeElement }
                 .forEach { ec -> NativeProxyCodeGenerator(env, ec as TypeElement).doGenerate() }

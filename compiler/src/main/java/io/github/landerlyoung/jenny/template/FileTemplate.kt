@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.landerlyoung.jenny.template;
+package io.github.landerlyoung.jenny.template
 
-import io.github.landerlyoung.jenny.IOUtils;
-
-import org.apache.commons.lang3.text.StrSubstitutor;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.CharBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import io.github.landerlyoung.jenny.IOUtils
+import org.apache.commons.lang3.text.StrSubstitutor
+import java.io.*
+import java.nio.CharBuffer
+import java.util.*
 
 /**
  * Author: landerlyoung@gmail.com
@@ -34,40 +27,28 @@ import java.util.Map;
  * Time:   00:42
  * Life with Passion, Code with Creativity.
  */
-public class FileTemplate {
-    private final String mTemplate;
-    private final Map<String, String> mTemplateParams;
+class FileTemplate private constructor(val template: String) {
+    private val mTemplateParams: MutableMap<String, String>
 
-    private static final FileTemplateLoader sFileTemplateLoader = new FileTemplateLoader("file-template");
-
-    private FileTemplate(String template) {
-        mTemplate = template;
-        mTemplateParams = new HashMap<>();
+    init {
+        mTemplateParams = HashMap()
     }
 
-    public FileTemplate add(String key, String value) {
-        mTemplateParams.put(key, value);
-        return this;
+    fun add(key: String, value: String): FileTemplate {
+        mTemplateParams[key] = value
+        return this
     }
 
-    public String getTemplate() {
-        return mTemplate;
+    fun create(): String {
+        return StrSubstitutor.replace(template, mTemplateParams)
     }
 
-    public String create() {
-        return StrSubstitutor.replace(mTemplate, mTemplateParams);
+    fun create(replacements: Map<String, String>): String {
+        mTemplateParams.putAll(replacements)
+        return create()
     }
 
-    public String create(Map<String, String> replacements) {
-        mTemplateParams.putAll(replacements);
-        return create();
-    }
-
-    public static FileTemplate withType(Type t) {
-        return new FileTemplate(sFileTemplateLoader.loadTemplate(t.getName()));
-    }
-
-    public enum Type {
+    enum class Type private constructor(val fileName: String) {
         CONSTANT_TEMPLATE("cpp_constant.h"),
         REINTERPRET_CAST("reinterpret_cast.h"),
         NATIVE_CPP_SKELETON("native_cpp_skeleton.cpp"),
@@ -97,63 +78,67 @@ public class FileTemplate {
         NATIVE_PROXY_METHODS("native_proxy_methods.h"),
         NATIVE_PROXY_METHOD_RETURN("native_proxy_method_return.h"),
         NATIVE_PROXY_CONSTANT("native_proxy_constant.h"),
-        NATIVE_PROXY_CPP_STATIC_INIT("native_proxy_cpp_static_init.h");
-
-        private String mName;
-
-        Type(String name) {
-            mName = name;
-        }
-
-        public String getName() {
-            return mName;
-        }
+        NATIVE_PROXY_CPP_STATIC_INIT("native_proxy_cpp_static_init.h")
     }
 
-    private static class FileTemplateLoader {
-        public String mDirectory;
+    private class FileTemplateLoader(var mDirectory: String?) {
 
         //we are not running in Android! we are running at desktop environment!
         //YEAH! don't care too much about little memory pressure.
-        private final Map<String, String> mInfiniteCache = new HashMap<>();
+        private val mInfiniteCache = HashMap<String, String>()
 
-        public FileTemplateLoader(String directory) {
-            mDirectory = directory;
-        }
-
-        public String loadTemplate(String fileName) {
+        fun loadTemplate(fileName: String): String {
+            var fileName = fileName
             if (mDirectory != null) {
-                fileName = mDirectory + File.separatorChar + fileName;
+                fileName = mDirectory + File.separatorChar + fileName
             }
-            String result = mInfiniteCache.get(fileName);
+            var result: String? = mInfiniteCache[fileName]
             if (result == null) {
-                result = readStream(getClass().getClassLoader().getResourceAsStream(fileName));
-                mInfiniteCache.put(fileName, result);
+                result = readStream(javaClass.classLoader.getResourceAsStream(fileName))
+                mInfiniteCache[fileName] = result
             }
-            return result;
+            return result
         }
 
-        private static String readStream(InputStream in) throws IllegalArgumentException {
-            String ret = null;
-            if (in != null) {
+        @Throws(IllegalArgumentException::class)
+        private fun readStream(`in`: InputStream?): String {
+            var ret: String? = null
+            if (`in` != null) {
                 try {
-                    InputStreamReader reader = new InputStreamReader(new BufferedInputStream(in));
-                    StringBuilder sb = new StringBuilder(in.available());
-                    CharBuffer buffer = CharBuffer.allocate(in.available());
+                    val reader = InputStreamReader(BufferedInputStream(`in`))
+                    val sb = StringBuilder(`in`.available())
+                    val buffer = CharBuffer.allocate(`in`.available())
                     while (reader.read(buffer) != -1) {
-                        buffer.flip();
-                        sb.append(buffer);
-                        buffer.clear();
+                        buffer.flip()
+                        sb.append(buffer)
+                        buffer.clear()
                     }
-                    ret =  sb.toString();
-                } catch (IOException e) {
-                    IOUtils.closeSilently(in);
+                    ret = sb.toString()
+                } catch (e: IOException) {
+                    IOUtils.closeSilently(`in`)
                 }
+
             }
-            if (ret == null) {
-                throw new IllegalArgumentException("cannot open stream for read, stream=" + in);
-            }
-            return ret;
+            requireNotNull(ret) { "cannot open stream for read, stream=" + `in`!! }
+            return ret
+        }
+    }
+
+    companion object {
+        const val AUTO_GENERATE_NOTICE = """/**
+ * File generated by Jenny -- https://github.com/LanderlYoung/Jenny
+ *
+ * DO NOT EDIT THIS FILE WITHOUT COPYING TO YOUR SRC DIRECTORY.
+ *
+ * For bug report, please refer to github issue tracker https://github.com/LanderlYoung/Jenny/issues,
+ * or contact author landerlyoung@gmail.com.
+ */
+"""
+
+        private val sFileTemplateLoader = FileTemplateLoader("file-template")
+
+        fun withType(t: Type): FileTemplate {
+            return FileTemplate(sFileTemplateLoader.loadTemplate(t.fileName))
         }
     }
 }

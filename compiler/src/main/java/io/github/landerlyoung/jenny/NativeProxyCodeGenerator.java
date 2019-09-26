@@ -95,7 +95,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
     @Override
     public void doGenerate() {
         init();
-        writeToFile(mFileName + HEADER_POST_FIX, FileTemplate
+        writeToFile(mFileName + HEADER_POST_FIX, FileTemplate.Companion
                 .withType(FileTemplate.Type.NATIVE_PROXY_SKELETON_HEADER)
                 .add("cpp_class_name", getCppClassName())
                 .add("consts", generateConstantsDefinition())
@@ -112,7 +112,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                 .create()
         );
 
-        writeToFile(mFileName + SOURCE_POST_FIX, FileTemplate
+        writeToFile(mFileName + SOURCE_POST_FIX, FileTemplate.Companion
                 .withType(FileTemplate.Type.NATIVE_PROXY_SKELETON_SOURCE)
                 .add("cpp_class_name", getCppClassName())
                 .add("static_declare", generateCppStaticDeclare())
@@ -229,7 +229,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                   Object constValue = ve.getConstantValue();
 
                   mConsts.add(ve.getSimpleName().toString());
-                  sb.append(FileTemplate.withType(FileTemplate.Type.NATIVE_PROXY_CONSTANT)
+                  sb.append(FileTemplate.Companion.withType(FileTemplate.Type.NATIVE_PROXY_CONSTANT)
                                         .add("type", getMHelper().toNativeType(ve.asType(), true))
                                         .add("name", ve.getSimpleName().toString())
                                         .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
@@ -243,7 +243,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
         constructorsStream().forEach(c -> {
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_ID_DECLARE)
                               .add("name", getConstructorName(c, mDummyIndex++))
                               .create()
@@ -256,7 +256,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
         methodsStream().forEach(m -> {
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_ID_DECLARE)
                               .add("name", getMethodName(m, mDummyIndex++))
                               .create()
@@ -275,7 +275,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                         warn("you are trying to add getter/setter to a compile-time constant "
                                 + getMClassName() + "." + f.getSimpleName().toString());
                     }
-                    sb.append(FileTemplate
+                    sb.append(FileTemplate.Companion
                                       .withType(FileTemplate.Type.NATIVE_PROXY_FIELD_ID_DECLARE)
                                       .add("name", getFieldName(f, mDummyIndex++))
                                       .create()
@@ -289,7 +289,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
         constructorsStream().forEach(c -> {
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_ID_INIT)
                               .add("name", getConstructorName(c, mDummyIndex++))
                               .add("static", "")
@@ -305,7 +305,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
         methodsStream().forEach(m -> {
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_ID_INIT)
                               .add("name", getMethodName(m, mDummyIndex++))
                               .add("static", m.getModifiers().contains(Modifier.STATIC) ? "Static" : "")
@@ -321,7 +321,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
         fieldsStream().forEach(f -> {
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_FIELD_ID_INIT)
                               .add("name", getFieldName(f, mDummyIndex++))
                               .add("static", f.getModifiers().contains(Modifier.STATIC) ? "Static" : "")
@@ -338,7 +338,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         mDummyIndex = 0;
         StringBuilder sb = new StringBuilder();
         constructorsStream().forEach(c -> {
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_CONSTRUCTORS)
                               .add("constructor_method_id", getConstructorName(c, mDummyIndex++))
                               .add("param_declare", getJniMethodParam(c))
@@ -355,7 +355,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
         methodsStream().forEach(m -> {
             final boolean isStatic = m.getModifiers().contains(Modifier.STATIC);
             final String returnType = getMHelper().toJNIType(m.getReturnType());
-            final String returnStatement = FileTemplate
+            final String returnStatement = FileTemplate.Companion
                     .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_RETURN)
                     .add("static", isStatic ? "Static" : "")
                     .add("param_value", getJniMethodParamVal(m))
@@ -363,7 +363,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                     .add("type", getTypeForJniCall(m.getReturnType()))
                     .create();
 
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_METHODS)
                               .add("name", m.getSimpleName().toString())
                               .add("method_id", getMethodName(m, mDummyIndex++))
@@ -374,7 +374,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
                               .add("return", m.getReturnType().getKind() != TypeKind.VOID ? "return " : "")
                               .add("return_statement", !returnTypeNeedCast(returnType)
                             ? returnStatement
-                            : FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
+                            : FileTemplate.Companion.withType(FileTemplate.Type.REINTERPRET_CAST)
                                           .add("type", returnType)
                                           .add("expression", returnStatement)
                                           .create())
@@ -405,25 +405,25 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
             r.put("name", f.getSimpleName().toString());
             r.put("type", getMHelper().toJNIType(f.asType()));
 
-            final String returnStatement = FileTemplate.withType(
+            final String returnStatement = FileTemplate.Companion.withType(
                     FileTemplate.Type.NATIVE_PROXY_FIELDS_GETTER_RETURN)
                                                        .create(r);
 
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_FIELDS_GETTER_SETTER)
                               .add("getter", !getterSetters.contains(GetterSetter.GETTER)
                             ? ""
-                                      : FileTemplate.withType(FileTemplate.Type.NATIVE_PROXY_FIELDS_GETTER)
+                                      : FileTemplate.Companion.withType(FileTemplate.Type.NATIVE_PROXY_FIELDS_GETTER)
                                                     .add("return_statement", !returnTypeNeedCast(returnType)
                                                   ? returnStatement
-                                                  : FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
+                                                  : FileTemplate.Companion.withType(FileTemplate.Type.REINTERPRET_CAST)
                                                                 .add("type", returnType)
                                                                 .add("expression", returnStatement)
                                                                 .create())
                                                     .create(r))
                               .add("setter", !getterSetters.contains(GetterSetter.SETTER)
                             ? ""
-                                      : FileTemplate.withType(FileTemplate.Type.NATIVE_PROXY_FIELDS_SETTER)
+                                      : FileTemplate.Companion.withType(FileTemplate.Type.NATIVE_PROXY_FIELDS_SETTER)
                                                     .create(r))
                               .create()
             );
@@ -460,7 +460,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
 
         mDummyIndex = 0;
         constructorsStream().forEach(c -> {
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_CPP_STATIC_INIT)
                               .add("type", "jmethodID")
                               .add("cpp_class_name", getCppClassName())
@@ -471,7 +471,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
 
         mDummyIndex = 0;
         methodsStream().forEach(m -> {
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_CPP_STATIC_INIT)
                               .add("type", "jmethodID")
                               .add("cpp_class_name", getCppClassName())
@@ -481,7 +481,7 @@ public class NativeProxyCodeGenerator extends AbsCodeGenerator {
 
         mDummyIndex = 0;
         fieldsStream().forEach(f -> {
-            sb.append(FileTemplate
+            sb.append(FileTemplate.Companion
                               .withType(FileTemplate.Type.NATIVE_PROXY_CPP_STATIC_INIT)
                               .add("type", "jfieldID")
                               .add("cpp_class_name", getCppClassName())
