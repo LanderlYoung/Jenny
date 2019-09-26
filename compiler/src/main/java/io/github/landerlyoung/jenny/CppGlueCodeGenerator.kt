@@ -142,11 +142,17 @@ class CppGlueCodeGenerator
                 append("""
                     |#include "$mHeaderName"
                     |
-                    |namespace $cppClassName {
-                    |
                     |""".trimMargin())
+
+                if (mNativeClassAnnotation.dynamicRegisterJniMethods) {
+                    append("namespace $cppClassName {\n\n")
+                }
+
                 buildMethodsDefinition(true)
-                append("\n} //endof namespace $cppClassName\n")
+
+                if (mNativeClassAnnotation.dynamicRegisterJniMethods) {
+                    append("\n} //endof namespace $cppClassName\n")
+                }
             }.let { content ->
                 fileObject.openOutputStream().write(content.toByteArray(Charsets.UTF_8))
             }
@@ -176,9 +182,13 @@ class CppGlueCodeGenerator
     private fun StringBuilder.buildMethodsDefinition(isSource: Boolean) {
         val externC = !isSource && !mNativeClassAnnotation.dynamicRegisterJniMethods
         if (externC) {
-            append("""|#ifdef __cplusplus
-                      |extern "C" {
-                      |#endif""".trimMargin())
+            append("""
+                |
+                |#ifdef __cplusplus
+                |extern "C" {
+                |#endif
+                |
+                |""".trimMargin())
         }
         mMethods.forEach { m ->
             val e = m as ExecutableElement
@@ -187,7 +197,8 @@ class CppGlueCodeGenerator
             val javaMethodName = e.simpleName.toString()
             val javaParameters = mHelper.getJavaMethodParam(e)
             val javaMethodSignature = mHelper.getMethodSignature(e)
-            val export = if (mNativeClassAnnotation.dynamicRegisterJniMethods) "" else "JNIEXPORT "
+            val export = if (isSource || mNativeClassAnnotation.dynamicRegisterJniMethods) "" else "JNIEXPORT "
+            val jniCall = if (isSource) "" else "JNICALL "
             val jniReturnType = mHelper.toJNIType(e.returnType)
             val nativeMethodName = getMethodName(e)
             val nativeParameters = mHelper.getNativeMethodParam(e)
@@ -198,7 +209,7 @@ class CppGlueCodeGenerator
             | * Method:    $javaModifiers $javaReturnType ${javaMethodName}(${javaParameters})
             | * Signature: $javaMethodSignature
             | */
-            |${export}${jniReturnType} ${nativeMethodName}(${nativeParameters})""".trimMargin())
+            |${export}${jniReturnType} ${jniCall}${nativeMethodName}(${nativeParameters})""".trimMargin())
 
             if (isSource) {
                 buildMethodBodyWithReturnStatement(m)

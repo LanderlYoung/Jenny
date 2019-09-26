@@ -73,21 +73,21 @@ public:
     ~CallbackProxy() = default;
     
     // construct Callback()
-    jobject newInstance() noexcept {
-       assertInited(mJniEnv);
-       return mJniEnv->NewObject(sClazz, sConstruct_0);
+    static jobject newInstance(JNIEnv* env) noexcept {
+       assertInited(env);
+       return env->NewObject(sClazz, sConstruct_0);
     } 
     
     // construct Callback(int a)
-    jobject newInstance(jint a) noexcept {
-       assertInited(mJniEnv);
-       return mJniEnv->NewObject(sClazz, sConstruct_1, a);
+    static jobject newInstance(JNIEnv* env, jint a) noexcept {
+       assertInited(env);
+       return env->NewObject(sClazz, sConstruct_1, a);
     } 
     
     // construct Callback(java.util.HashMap<?,?> sth)
-    jobject newInstance(jobject sth) noexcept {
-       assertInited(mJniEnv);
-       return mJniEnv->NewObject(sClazz, sConstruct_2, sth);
+    static jobject newInstance(JNIEnv* env, jobject sth) noexcept {
+       assertInited(env);
+       return env->NewObject(sClazz, sConstruct_2, sth);
     } 
     
 
@@ -102,7 +102,7 @@ public:
     }
 
     // method: void onJobDone(boolean success, java.lang.String result)
-    void onJobDone(jboolean success,jstring result) const {
+    void onJobDone(jboolean success, jstring result) const {
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_onJobDone_2, success, result);
     }
 

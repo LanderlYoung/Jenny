@@ -8,14 +8,12 @@
  */
 #include "NestedNativeClass.h"
 
-namespace NestedNativeClass {
-
 /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public java.util.HashMap<java.lang.String,java.lang.String> one(java.lang.String param)
  * Signature: (Ljava/lang/String;)Ljava/util/HashMap;
  */
-JNIEXPORT jobject Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_one(JNIEnv *env, jobject thiz, jstring param) {
+jobject Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_one(JNIEnv *env, jobject thiz, jstring param) {
     return nullptr;
 }
 
@@ -24,8 +22,7 @@ JNIEXPORT jobject Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveCla
  * Method:    public long nativeInit()
  * Signature: ()J
  */
-extern "C"
-JNIEXPORT jlong Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeInit(JNIEnv *env, jobject thiz) {
+jlong Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeInit(JNIEnv *env, jobject thiz) {
     return 0;
 }
 
@@ -34,9 +31,7 @@ JNIEXPORT jlong Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
  * Method:    public void nativeRelease(long handle)
  * Signature: (J)V
  */
-JNIEXPORT void Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeRelease(JNIEnv *env, jobject thiz, jlong handle) {
+void Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeRelease(JNIEnv *env, jobject thiz, jlong handle) {
     return;
 }
 
-
-} //endof namespace NestedNativeClass

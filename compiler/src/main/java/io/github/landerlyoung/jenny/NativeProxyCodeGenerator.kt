@@ -290,11 +290,15 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
     private fun StringBuilder.buildConstructorDefines() {
         mConstructors.forEachIndexed { index, c ->
+            var param = getJniMethodParam(c)
+            if (param.isNotEmpty()) {
+                param = ", $param"
+            }
             append("""
                 |    // construct ${mSimpleClassName}(${mHelper.getJavaMethodParam(c)})
-                |    jobject newInstance(${getJniMethodParam(c)}) noexcept {
-                |       assertInited(mJniEnv);
-                |       return mJniEnv->NewObject(sClazz, ${getConstructorName(c, index)}${getJniMethodParamVal(c)});
+                |    static jobject newInstance(JNIEnv* env${param}) noexcept {
+                |       assertInited(env);
+                |       return env->NewObject(sClazz, ${getConstructorName(c, index)}${getJniMethodParamVal(c)});
                 |    } 
                 |    
                 |""".trimMargin())
@@ -900,7 +904,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
             needComma = true
         }
         m.parameters.forEach { p ->
-            if (needComma) append(",")
+            if (needComma) append(", ")
             append(mHelper.toJNIType(p.asType()))
                     .append(" ")
                     .append(p.simpleName)

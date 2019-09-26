@@ -66,9 +66,9 @@ public:
     ~InputStreamProxy() = default;
     
     // construct InputStream()
-    jobject newInstance() noexcept {
-       assertInited(mJniEnv);
-       return mJniEnv->NewObject(sClazz, sConstruct_0);
+    static jobject newInstance(JNIEnv* env) noexcept {
+       assertInited(env);
+       return env->NewObject(sClazz, sConstruct_0);
     } 
     
 
@@ -83,7 +83,7 @@ public:
     }
 
     // method: int read(byte[] b, int off, int len)
-    jint read(jbyteArray b,jint off,jint len) const {
+    jint read(jbyteArray b, jint off, jint len) const {
         return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_read_2, b, off, len);
     }
 

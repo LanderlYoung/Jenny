@@ -58,9 +58,9 @@ public:
     ~NestedClassProxy() = default;
     
     // construct NestedClass()
-    jobject newInstance(jobject enclosingClass) noexcept {
-       assertInited(mJniEnv);
-       return mJniEnv->NewObject(sClazz, sConstruct_0, enclosingClass);
+    static jobject newInstance(JNIEnv* env, jobject enclosingClass) noexcept {
+       assertInited(env);
+       return env->NewObject(sClazz, sConstruct_0, enclosingClass);
     } 
     
 
