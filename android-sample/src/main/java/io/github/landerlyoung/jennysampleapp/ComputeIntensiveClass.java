@@ -17,6 +17,8 @@ package io.github.landerlyoung.jennysampleapp;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 
 import io.github.landerlyoung.jenny.NativeClass;
@@ -30,7 +32,7 @@ import io.github.landerlyoung.jenny.NativeProxyForClass;
  * Life with Passion, Code with Creativity.
  */
 @NativeClass
-@NativeProxyForClass(classes = {Runnable.class, File.class, InputStream.class})
+@NativeProxyForClass(classes = {Runnable.class, File.class, InputStream.class, String.class, URL.class, URLConnection.class})
 public class ComputeIntensiveClass {
     static {
         System.loadLibrary("hello-jenny");
@@ -66,6 +68,8 @@ public class ComputeIntensiveClass {
     public static native boolean returnsBool();
 
     public static native Object returnsObject();
+
+    public static native String httpGet(String url);
 
     public native int computeThenCallback(Callback listener);
 

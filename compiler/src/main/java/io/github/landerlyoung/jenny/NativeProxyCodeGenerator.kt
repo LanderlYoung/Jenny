@@ -165,10 +165,23 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                         |    ${cppClassName}(const $cppClassName &from) = default;
                         |    $cppClassName &operator=(const $cppClassName &) = default;
                         |
-                        |    // trivial struct, no move needed
-                        |    ${cppClassName}(const $cppClassName &&from) = delete;
+                        |    ${cppClassName}($cppClassName &&from)
+                        |           : mJniEnv(from.mJniEnv), mJavaObjectReference(from.mJavaObjectReference) {
+                        |        from.mJavaObjectReference = nullptr;
+                        |    }
                         |
                         |    ~${cppClassName}() = default;
+                        |    
+                        |    // helper method to get underlay jobject reference
+                        |    jobject operator*() {
+                        |       return mJavaObjectReference;
+                        |    }
+                        |    
+                        |    // helper method to delete JNI local ref, use with caution!
+                        |    void releaseLocalRef() {
+                        |       mJniEnv->DeleteLocalRef(mJavaObjectReference);
+                        |       mJavaObjectReference = nullptr;
+                        |    }
                         |    
                         |""".trimMargin())
 
@@ -287,9 +300,9 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
             }
             append("""
                 |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
-                |    static jobject newInstance${r.resolvedPostFix}(JNIEnv* env${param}) noexcept {
+                |    static $cppClassName newInstance${r.resolvedPostFix}(JNIEnv* env${param}) noexcept {
                 |       assertInited(env);
-                |       return env->NewObject(sClazz, ${getConstructorName(r.method, r.index)}${getJniMethodParamVal(r.method)});
+                |       return ${cppClassName}(env, env->NewObject(sClazz, ${getConstructorName(r.method, r.index)}${getJniMethodParamVal(r.method)}));
                 |    } 
                 |    
                 |""".trimMargin())
@@ -584,7 +597,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                 .filter { shouldGenerateMethod(it) }
                 .toList()
                 .let {
-                    MethodOverloadResolver(mHelper, this::getJniMethodParam).resolve(it)
+                    MethodOverloadResolver(mHelper, this::getJniMethodParamTypes).resolve(it)
                             .let { mConstructors.addAll(it) }
                 }
     }
@@ -598,7 +611,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                 .groupBy { it.simpleName.toString() }
                 .forEach { (simpleName, methodList) ->
                     mMethodSimpleName.add(simpleName)
-                    MethodOverloadResolver(mHelper, this::getJniMethodParam).resolve(methodList).let {
+                    MethodOverloadResolver(mHelper, this::getJniMethodParamTypes).resolve(methodList).let {
                         mMethods.addAll(it)
                     }
                 }
@@ -610,6 +623,21 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                 .filter { it.kind == ElementKind.FIELD }
                 .filter { shouldGenerateField(it) }
                 .forEach { mFields.add(it) }
+    }
+
+    private fun getJniMethodParamTypes(m: ExecutableElement) = buildString {
+        var needComma = false
+        if (mHelper.isNestedClass(mClazz)) {
+            val enclosingElement = mClazz.enclosingElement
+            //nested class has an this$0 in its constructor
+            append(mHelper.toJNIType(enclosingElement.asType()))
+            needComma = true
+        }
+        m.parameters.forEach { p ->
+            if (needComma) append(", ")
+            append(mHelper.toJNIType(p.asType()))
+            needComma = true
+        }
     }
 
     private fun getJniMethodParam(m: ExecutableElement) = buildString {

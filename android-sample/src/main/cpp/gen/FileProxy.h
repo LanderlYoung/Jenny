@@ -108,33 +108,46 @@ public:
     FileProxy(const FileProxy &from) = default;
     FileProxy &operator=(const FileProxy &) = default;
 
-    // trivial struct, no move needed
-    FileProxy(const FileProxy &&from) = delete;
+    FileProxy(FileProxy &&from)
+           : mJniEnv(from.mJniEnv), mJavaObjectReference(from.mJavaObjectReference) {
+        from.mJavaObjectReference = nullptr;
+    }
 
     ~FileProxy() = default;
     
+    // helper method to get underlay jobject reference
+    jobject operator*() {
+       return mJavaObjectReference;
+    }
+    
+    // helper method to delete JNI local ref, use with caution!
+    void releaseLocalRef() {
+       mJniEnv->DeleteLocalRef(mJavaObjectReference);
+       mJavaObjectReference = nullptr;
+    }
+    
     // construct: public File(java.lang.String pathname)
-    static jobject newInstance(JNIEnv* env, jstring pathname) noexcept {
+    static FileProxy newInstance(JNIEnv* env, jstring pathname) noexcept {
        assertInited(env);
-       return env->NewObject(sClazz, sConstruct_0, pathname);
+       return FileProxy(env, env->NewObject(sClazz, sConstruct_0, pathname));
     } 
     
     // construct: public File(java.lang.String parent, java.lang.String child)
-    static jobject newInstance(JNIEnv* env, jstring parent, jstring child) noexcept {
+    static FileProxy newInstance(JNIEnv* env, jstring parent, jstring child) noexcept {
        assertInited(env);
-       return env->NewObject(sClazz, sConstruct_1, parent, child);
+       return FileProxy(env, env->NewObject(sClazz, sConstruct_1, parent, child));
     } 
     
     // construct: public File(java.io.File parent, java.lang.String child)
-    static jobject newInstance(JNIEnv* env, jobject parent, jstring child) noexcept {
+    static FileProxy newInstance(JNIEnv* env, jobject parent, jstring child) noexcept {
        assertInited(env);
-       return env->NewObject(sClazz, sConstruct_2, parent, child);
+       return FileProxy(env, env->NewObject(sClazz, sConstruct_2, parent, child));
     } 
     
     // construct: public File(java.net.URI uri)
-    static jobject newInstance(JNIEnv* env, jobject uri) noexcept {
+    static FileProxy newInstance(JNIEnv* env, jobject uri) noexcept {
        assertInited(env);
-       return env->NewObject(sClazz, sConstruct_3, uri);
+       return FileProxy(env, env->NewObject(sClazz, sConstruct_3, uri));
     } 
     
 

@@ -52,15 +52,28 @@ public:
     NestedClassProxy(const NestedClassProxy &from) = default;
     NestedClassProxy &operator=(const NestedClassProxy &) = default;
 
-    // trivial struct, no move needed
-    NestedClassProxy(const NestedClassProxy &&from) = delete;
+    NestedClassProxy(NestedClassProxy &&from)
+           : mJniEnv(from.mJniEnv), mJavaObjectReference(from.mJavaObjectReference) {
+        from.mJavaObjectReference = nullptr;
+    }
 
     ~NestedClassProxy() = default;
     
+    // helper method to get underlay jobject reference
+    jobject operator*() {
+       return mJavaObjectReference;
+    }
+    
+    // helper method to delete JNI local ref, use with caution!
+    void releaseLocalRef() {
+       mJniEnv->DeleteLocalRef(mJavaObjectReference);
+       mJavaObjectReference = nullptr;
+    }
+    
     // construct: public NestedClass()
-    static jobject newInstance(JNIEnv* env, jobject enclosingClass) noexcept {
+    static NestedClassProxy newInstance(JNIEnv* env, jobject enclosingClass) noexcept {
        assertInited(env);
-       return env->NewObject(sClazz, sConstruct_0, enclosingClass);
+       return NestedClassProxy(env, env->NewObject(sClazz, sConstruct_0, enclosingClass));
     } 
     
 

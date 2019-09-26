@@ -60,15 +60,28 @@ public:
     InputStreamProxy(const InputStreamProxy &from) = default;
     InputStreamProxy &operator=(const InputStreamProxy &) = default;
 
-    // trivial struct, no move needed
-    InputStreamProxy(const InputStreamProxy &&from) = delete;
+    InputStreamProxy(InputStreamProxy &&from)
+           : mJniEnv(from.mJniEnv), mJavaObjectReference(from.mJavaObjectReference) {
+        from.mJavaObjectReference = nullptr;
+    }
 
     ~InputStreamProxy() = default;
     
+    // helper method to get underlay jobject reference
+    jobject operator*() {
+       return mJavaObjectReference;
+    }
+    
+    // helper method to delete JNI local ref, use with caution!
+    void releaseLocalRef() {
+       mJniEnv->DeleteLocalRef(mJavaObjectReference);
+       mJavaObjectReference = nullptr;
+    }
+    
     // construct: public InputStream()
-    static jobject newInstance(JNIEnv* env) noexcept {
+    static InputStreamProxy newInstance(JNIEnv* env) noexcept {
        assertInited(env);
-       return env->NewObject(sClazz, sConstruct_0);
+       return InputStreamProxy(env, env->NewObject(sClazz, sConstruct_0));
     } 
     
 

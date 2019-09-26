@@ -19,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
@@ -81,6 +82,19 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public int prepareRun() {
                         return 0;
+                    }
+                });
+            }
+        });
+
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                final String json = ComputeIntensiveClass.httpGet("https://jsonplaceholder.typicode.com/todos/1");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        toast(json);
                     }
                 });
             }

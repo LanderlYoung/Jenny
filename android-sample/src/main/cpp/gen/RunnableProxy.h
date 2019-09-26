@@ -51,10 +51,23 @@ public:
     RunnableProxy(const RunnableProxy &from) = default;
     RunnableProxy &operator=(const RunnableProxy &) = default;
 
-    // trivial struct, no move needed
-    RunnableProxy(const RunnableProxy &&from) = delete;
+    RunnableProxy(RunnableProxy &&from)
+           : mJniEnv(from.mJniEnv), mJavaObjectReference(from.mJavaObjectReference) {
+        from.mJavaObjectReference = nullptr;
+    }
 
     ~RunnableProxy() = default;
+    
+    // helper method to get underlay jobject reference
+    jobject operator*() {
+       return mJavaObjectReference;
+    }
+    
+    // helper method to delete JNI local ref, use with caution!
+    void releaseLocalRef() {
+       mJniEnv->DeleteLocalRef(mJavaObjectReference);
+       mJavaObjectReference = nullptr;
+    }
     
 
     // method: public abstract void run()

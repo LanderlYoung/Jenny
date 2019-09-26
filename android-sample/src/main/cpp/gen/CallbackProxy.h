@@ -67,27 +67,40 @@ public:
     CallbackProxy(const CallbackProxy &from) = default;
     CallbackProxy &operator=(const CallbackProxy &) = default;
 
-    // trivial struct, no move needed
-    CallbackProxy(const CallbackProxy &&from) = delete;
+    CallbackProxy(CallbackProxy &&from)
+           : mJniEnv(from.mJniEnv), mJavaObjectReference(from.mJavaObjectReference) {
+        from.mJavaObjectReference = nullptr;
+    }
 
     ~CallbackProxy() = default;
     
+    // helper method to get underlay jobject reference
+    jobject operator*() {
+       return mJavaObjectReference;
+    }
+    
+    // helper method to delete JNI local ref, use with caution!
+    void releaseLocalRef() {
+       mJniEnv->DeleteLocalRef(mJavaObjectReference);
+       mJavaObjectReference = nullptr;
+    }
+    
     // construct: public Callback()
-    static jobject newInstance(JNIEnv* env) noexcept {
+    static CallbackProxy newInstance(JNIEnv* env) noexcept {
        assertInited(env);
-       return env->NewObject(sClazz, sConstruct_0);
+       return CallbackProxy(env, env->NewObject(sClazz, sConstruct_0));
     } 
     
     // construct: public Callback(int a)
-    static jobject newInstance(JNIEnv* env, jint a) noexcept {
+    static CallbackProxy newInstance(JNIEnv* env, jint a) noexcept {
        assertInited(env);
-       return env->NewObject(sClazz, sConstruct_1, a);
+       return CallbackProxy(env, env->NewObject(sClazz, sConstruct_1, a));
     } 
     
     // construct: public Callback(java.util.HashMap<?,?> sth)
-    static jobject newInstance(JNIEnv* env, jobject sth) noexcept {
+    static CallbackProxy newInstance(JNIEnv* env, jobject sth) noexcept {
        assertInited(env);
-       return env->NewObject(sClazz, sConstruct_2, sth);
+       return CallbackProxy(env, env->NewObject(sClazz, sConstruct_2, sth));
     } 
     
 
@@ -101,7 +114,7 @@ public:
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_onJobProgress_0, progress);
     }
 
-    // method:  void onJobStart()
+    // method: public void onJobStart()
     void onJobStart() const {
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_0);
     }

@@ -73,6 +73,13 @@ jobject JNICALL returnsObject(JNIEnv *env, jclass clazz);
 
 /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Method:    public static java.lang.String httpGet(java.lang.String url)
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+jstring JNICALL httpGet(JNIEnv *env, jclass clazz, jstring url);
+
+/*
+ * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
  * Method:    public int computeThenCallback(io.github.landerlyoung.jennysampleapp.Callback listener)
  * Signature: (Lio/github/landerlyoung/jennysampleapp/Callback;)I
  */
@@ -118,6 +125,11 @@ inline bool registerNativeFunctions(JNIEnv *env) {
            /* method name      */ const_cast<char *>("returnsObject"),
            /* method signature */ const_cast<char *>("()Ljava/lang/Object;"),
            /* function pointer */ reinterpret_cast<void *>(returnsObject)
+       },
+       {
+           /* method name      */ const_cast<char *>("httpGet"),
+           /* method signature */ const_cast<char *>("(Ljava/lang/String;)Ljava/lang/String;"),
+           /* function pointer */ reinterpret_cast<void *>(httpGet)
        },
        {
            /* method name      */ const_cast<char *>("computeThenCallback"),

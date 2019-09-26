@@ -74,14 +74,43 @@ jobject returnsObject(JNIEnv *env, jclass clazz) {
     return nullptr;
 }
 
+///*
+// * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+// * Method:    public int computeThenCallback(io.github.landerlyoung.jennysampleapp.Callback listener)
+// * Signature: (Lio/github/landerlyoung/jennysampleapp/Callback;)I
+// */
+//jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
+//    return 0;
+//}
+
+
+
 /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
- * Method:    public int computeThenCallback(io.github.landerlyoung.jennysampleapp.Callback listener)
- * Signature: (Lio/github/landerlyoung/jennysampleapp/Callback;)I
+ * Method:    public static java.lang.String httpGet(java.lang.String url)
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
-jint computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
-    return 0;
+jstring JNICALL httpGet(JNIEnv *env, jclass clazz, jstring _url) {
+    auto url = URLProxy::newInstance(env, _url);
+    URLConnectionProxy urlConn(env, url.openConnection());
+    InputStreamProxy input(env, urlConn.getInputStream());
+
+    jbyteArray buffer = env->NewByteArray(1024);
+    jint len = input.read(buffer);
+    input.close();
+
+    jstring ret =  (jstring) (*StringProxy::newInstance(env, buffer, 0, len));
+
+    url.releaseLocalRef();
+    urlConn.releaseLocalRef();
+    input.releaseLocalRef();
+    env->DeleteLocalRef(buffer);
+    return ret;
 }
 
 
 } //endof namespace ComputeIntensiveClass
+
+jint ComputeIntensiveClass::computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
+
+}
