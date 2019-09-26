@@ -13,10 +13,6 @@
 #include <atomic>
 #include <mutex>
 
-#ifdef __EXCEPTIONS
-#include <stdexcept>
-#endif
-
 class NestedClassProxy {
 public:
     static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback$NestedClass";
