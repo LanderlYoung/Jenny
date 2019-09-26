@@ -1,4 +1,0 @@
-#ifdef __cplusplus
-}
-#endif
-

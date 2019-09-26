@@ -1,1 +1,0 @@
-env->Get${static}${_type}Field(${clazz_or_obj}, ${field_id})

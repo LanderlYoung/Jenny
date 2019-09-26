@@ -21,9 +21,8 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    compile 'com.google.guava:guava:18.0'
-    compile 'org.apache.commons:commons-lang3:3.4'
-    compile project(':annotation')
+    implementation 'com.google.guava:guava:18.0'
+    implementation project(':annotation')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 

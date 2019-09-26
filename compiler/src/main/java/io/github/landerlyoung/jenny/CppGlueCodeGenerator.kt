@@ -138,7 +138,7 @@ class CppGlueCodeGenerator
         log("write source file [" + fileObject.name + "]")
         try {
             buildString {
-                append(FileTemplate.AUTO_GENERATE_NOTICE)
+                append(FileTemplate.AUTO_GENERATE_SOURE_NOTICE)
                 append("""
                     |#include "$mHeaderName"
                     |

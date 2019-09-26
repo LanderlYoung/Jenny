@@ -19,8 +19,6 @@ import com.google.common.collect.ArrayListMultimap
 import io.github.landerlyoung.jenny.template.FileTemplate
 import java.io.IOException
 import java.util.*
-import java.util.function.Predicate
-import java.util.stream.Stream
 import javax.lang.model.element.*
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
@@ -56,8 +54,6 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     private val mNativeProxyAnnotation: NativeProxy
     private val mHeaderName: String
     private val mSourceName: String
-
-    private var mDummyIndex: Int = 0
 
     private val cppClassName: String
         get() {
@@ -341,7 +337,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
         mFields.values().forEachIndexed { index, f ->
             val isStatic = f.modifiers.contains(Modifier.STATIC)
             val isFinal = f.modifiers.contains(Modifier.FINAL)
-            val camelCaseName = camelCase(f.simpleName.toString())
+            val camelCaseName = f.simpleName.toString().capitalize()
             val returnType = mHelper.toJNIType(f.asType())
             val getterSetters = hasGetterSetter(f)
             val fieldId = getFieldName(f, index)
@@ -507,23 +503,6 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
         append('\n')
     }
 
-    private fun fieldsStream(): Stream<Element> {
-        return mFields.values()
-                .stream()
-                .filter { this.shouldGenerateField(it) }
-    }
-
-    private fun constructorsStream(): Stream<ExecutableElement> {
-        return mConstructors.stream()
-                .filter(Predicate<ExecutableElement> { this.shouldGenerateMethod(it) })
-    }
-
-    private fun methodsStream(): Stream<ExecutableElement> {
-        return mMethods.values()
-                .stream()
-                .filter(Predicate<ExecutableElement> { this.shouldGenerateMethod(it) })
-    }
-
     private fun shouldGenerateMethod(m: ExecutableElement): Boolean {
         val annotation = m.getAnnotation(NativeMethodProxy::class.java)
         return annotation?.enabled ?: mNativeProxyAnnotation.allMethods
@@ -557,7 +536,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
         }
 
         if (auto) {
-            val camelCaseName = camelCase(field.simpleName.toString())
+            val camelCaseName = field.simpleName.toString().capitalize()
             setter = !mMethods.containsKey("set$camelCaseName")
 
             val type = mHelper.toJNIType(field.asType())
@@ -579,271 +558,13 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     }
 
 
-    private fun generateConstantsDefinition(): String {
-        val sb = StringBuilder()
-        //if this field is a compile-time constant value it's
-        //value will be returned, otherwise null will be returned.
-        mClazz.enclosedElements
-                .stream()
-                .filter { e -> e.kind == ElementKind.FIELD }
-                .map { e -> e as VariableElement }
-                .filter { ve -> ve.constantValue != null }
-                .forEach { ve ->
-                    //if this field is a compile-time constant value it's
-                    //value will be returned, otherwise null will be returned.
-                    val constValue = ve.constantValue
-
-                    mConsts.add(ve.simpleName.toString())
-                    sb.append(FileTemplate.withType(FileTemplate.Type.NATIVE_PROXY_CONSTANT)
-                            .add("type", mHelper.toNativeType(ve.asType(), true))
-                            .add("name", ve.simpleName.toString())
-                            .add("value", HandyHelper.getJNIHeaderConstantValue(constValue))
-                            .create()
-                    )
-                }
-        return sb.toString()
-    }
-
-    private fun generateConstructorIdDeclare(): String {
-        mDummyIndex = 0
-        val sb = StringBuilder()
-        constructorsStream().forEach { c ->
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_ID_DECLARE)
-                    .add("name", getConstructorName(c, mDummyIndex++))
-                    .create()
-            )
-        }
-        return sb.toString()
-    }
-
-    private fun generateMethodIdDeclare(): String {
-        mDummyIndex = 0
-        val sb = StringBuilder()
-        methodsStream().forEach { m ->
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_ID_DECLARE)
-                    .add("name", getMethodName(m, mDummyIndex++))
-                    .create()
-            )
-        }
-        return sb.toString()
-    }
-
-    private fun generateFieldIdDeclare(): String {
-        mDummyIndex = 0
-        val sb = StringBuilder()
-        fieldsStream()
-                .map { e -> e as VariableElement }
-                .forEach { f ->
-                    if (f.constantValue != null) {
-                        warn("you are trying to add getter/setter to a compile-time constant "
-                                + mClassName + "." + f.simpleName.toString())
-                    }
-                    sb.append(FileTemplate
-                            .withType(FileTemplate.Type.NATIVE_PROXY_FIELD_ID_DECLARE)
-                            .add("name", getFieldName(f, mDummyIndex++))
-                            .create()
-                    )
-                }
-
-        return sb.toString()
-    }
-
-    private fun generateConstructorIdInit(): String {
-        mDummyIndex = 0
-        val sb = StringBuilder()
-        constructorsStream().forEach { c ->
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_ID_INIT)
-                    .add("name", getConstructorName(c, mDummyIndex++))
-                    .add("static", "")
-                    .add("method_name", "<init>")
-                    .add("method_signature", mHelper.getBinaryMethodSignature(c))
-                    .create()
-            )
-        }
-        return sb.toString()
-    }
-
-    private fun generateMethodIdInit(): String {
-        mDummyIndex = 0
-        val sb = StringBuilder()
-        methodsStream().forEach { m ->
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_ID_INIT)
-                    .add("name", getMethodName(m, mDummyIndex++))
-                    .add("static", if (m.modifiers.contains(Modifier.STATIC)) "Static" else "")
-                    .add("method_name", m.simpleName.toString())
-                    .add("method_signature", mHelper.getBinaryMethodSignature(m))
-                    .create()
-            )
-        }
-        return sb.toString()
-    }
-
-    private fun generateFieldIdInit(): String {
-        mDummyIndex = 0
-        val sb = StringBuilder()
-        fieldsStream().forEach { f ->
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_FIELD_ID_INIT)
-                    .add("name", getFieldName(f, mDummyIndex++))
-                    .add("static", if (f.modifiers.contains(Modifier.STATIC)) "Static" else "")
-                    .add("field_name", f.simpleName.toString())
-                    .add("field_signature", mHelper.getBinaryTypeSignature(f.asType()))
-                    .create()
-            )
-        }
-
-        return sb.toString()
-    }
-
-    private fun generateConstructors(): String {
-        mDummyIndex = 0
-        val sb = StringBuilder()
-        constructorsStream().forEach { c ->
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_CONSTRUCTORS)
-                    .add("constructor_method_id", getConstructorName(c, mDummyIndex++))
-                    .add("param_declare", getJniMethodParam(c))
-                    .add("param_val", getJniMethodParamVal(c))
-                    .create()
-            )
-        }
-        return sb.toString()
-    }
-
-    private fun generateMethods(): String {
-        mDummyIndex = 0
-        val sb = StringBuilder()
-        methodsStream().forEach { m ->
-            val isStatic = m.modifiers.contains(Modifier.STATIC)
-            val returnType = mHelper.toJNIType(m.returnType)
-            val returnStatement = FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_METHOD_RETURN)
-                    .add("static", if (isStatic) "Static" else "")
-                    .add("param_value", getJniMethodParamVal(m))
-                    .add("clazz_or_obj", if (isStatic) "sClazz" else "mJavaObjectReference")
-                    .add("type", getTypeForJniCall(m.returnType))
-                    .create()
-
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_METHODS)
-                    .add("name", m.simpleName.toString())
-                    .add("method_id", getMethodName(m, mDummyIndex++))
-                    .add("_static", if (isStatic) "static " else "")
-                    .add("_const", if (isStatic) "" else "const ")
-                    .add("return_type", returnType)
-                    .add("param_declare", getJniMethodParam(m))
-                    .add("return", if (m.returnType.kind != TypeKind.VOID) "return " else "")
-                    .add("return_statement", if (!returnTypeNeedCast(returnType))
-                        returnStatement
-                    else
-                        FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
-                                .add("type", returnType)
-                                .add("expression", returnStatement)
-                                .create())
-                    .create()
-            )
-        }
-        return sb.toString()
-    }
-
-    private fun generateFields(): String {
-        mDummyIndex = 0
-        val sb = StringBuilder()
-        fieldsStream().forEach { f ->
-            val isStatic = f.modifiers.contains(Modifier.STATIC)
-            val camelCaseName = camelCase(f.simpleName.toString())
-            val returnType = mHelper.toJNIType(f.asType())
-            val getterSetters = hasGetterSetter(f)
-
-            val r = HashMap<String, String>()
-            r["_static"] = if (isStatic) "static " else ""
-            r["return_type"] = returnType
-            r["camel_case_name"] = camelCaseName
-            r["_const"] = if (isStatic) "" else "const "
-            r["static"] = if (isStatic) "Static" else ""
-            r["_type"] = getTypeForJniCall(f.asType())
-            r["clazz_or_obj"] = if (isStatic) "sClazz" else "mJavaObjectReference"
-            r["field_id"] = getFieldName(f, mDummyIndex++)
-            r["name"] = f.simpleName.toString()
-            r["type"] = mHelper.toJNIType(f.asType())
-
-            val returnStatement = FileTemplate.withType(
-                    FileTemplate.Type.NATIVE_PROXY_FIELDS_GETTER_RETURN)
-                    .create(r)
-
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_FIELDS_GETTER_SETTER)
-                    .add("getter", if (!getterSetters.contains(GetterSetter.GETTER))
-                        ""
-                    else
-                        FileTemplate.withType(FileTemplate.Type.NATIVE_PROXY_FIELDS_GETTER)
-                                .add("return_statement", if (!returnTypeNeedCast(returnType))
-                                    returnStatement
-                                else
-                                    FileTemplate.withType(FileTemplate.Type.REINTERPRET_CAST)
-                                            .add("type", returnType)
-                                            .add("expression", returnStatement)
-                                            .create())
-                                .create(r))
-                    .add("setter", if (!getterSetters.contains(GetterSetter.SETTER))
-                        ""
-                    else
-                        FileTemplate.withType(FileTemplate.Type.NATIVE_PROXY_FIELDS_SETTER)
-                                .create(r))
-                    .create()
-            )
-        }
-
-        return sb.toString()
-    }
-
     private fun returnTypeNeedCast(returnType: String): Boolean {
-        when (returnType) {
-            "jclass", "jstring", "jarray", "jobjectArray", "jbooleanArray", "jbyteArray", "jcharArray", "jshortArray", "jintArray", "jlongArray", "jfloatArray", "jdoubleArray", "jthrowable", "jweak" -> return true
+        return when (returnType) {
+            "jclass", "jstring", "jarray", "jobjectArray", "jbooleanArray", "jbyteArray", "jcharArray", "jshortArray", "jintArray", "jlongArray", "jfloatArray", "jdoubleArray", "jthrowable", "jweak" -> true
             else ->
                 //primitive type or jobject or void
-                return false
+                false
         }
-    }
-
-    private fun generateCppStaticDeclare(): String {
-        val sb = StringBuilder(2048)
-
-        mDummyIndex = 0
-        constructorsStream().forEach { c ->
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_CPP_STATIC_INIT)
-                    .add("type", "jmethodID")
-                    .add("cpp_class_name", cppClassName)
-                    .add("name", getConstructorName(c, mDummyIndex++))
-                    .create()
-            )
-        }
-
-        mDummyIndex = 0
-        methodsStream().forEach { m ->
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_CPP_STATIC_INIT)
-                    .add("type", "jmethodID")
-                    .add("cpp_class_name", cppClassName)
-                    .add("name", getMethodName(m, mDummyIndex++))
-                    .create())
-        }
-
-        mDummyIndex = 0
-        fieldsStream().forEach { f ->
-            sb.append(FileTemplate
-                    .withType(FileTemplate.Type.NATIVE_PROXY_CPP_STATIC_INIT)
-                    .add("type", "jfieldID")
-                    .add("cpp_class_name", cppClassName)
-                    .add("name", getFieldName(f, mDummyIndex++))
-                    .create())
-        }
-        return sb.toString()
     }
 
     private fun getConstructorName(e: ExecutableElement, index: Int): String {
@@ -934,10 +655,6 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
         } else {
             "object"
         }
-        return camelCase(result)
-    }
-
-    private fun camelCase(s: String): String {
-        return s.capitalize()
+        return result.capitalize()
     }
 }
