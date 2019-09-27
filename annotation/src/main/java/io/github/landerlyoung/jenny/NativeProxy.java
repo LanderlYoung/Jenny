@@ -47,14 +47,7 @@ public @interface NativeProxy {
     boolean allFields() default true;
 
     /**
-     * use simple class name instead of full java class name for
-     * generated file name or cpp class name
+     * C++ namespace for generated class
      */
-    boolean simpleName() default true;
-
-    /**
-     * this will override {@link #simpleName()}, and force
-     * the output file be the given name
-     */
-    String fileName() default "";
+    String namespace() default "";
 }

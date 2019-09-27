@@ -44,16 +44,9 @@ public @interface NativeClass {
     boolean androidLog() default true;
 
     /**
-     * use simple class name instead of full java class name for
-     * generated file name or cpp class name
+     * C++ namespace for generated class
      */
-    boolean simpleName() default true;
-
-    /**
-     * this will override {@link #simpleName()}, and force
-     * the output file be the given name
-     */
-    String fileName() default "";
+    String namespace() default "";
 
     /**
      * register JNI function dynamically on the JNI_OnLoad callback by <code>JNIEnv::RegisterNatives</code>,

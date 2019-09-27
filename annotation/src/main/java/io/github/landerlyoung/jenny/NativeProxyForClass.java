@@ -26,4 +26,9 @@ public @interface NativeProxyForClass {
      * @return class generate proxy code for.
      */
     Class<?>[] classes() default {};
+
+    /**
+     * C++ namespace for generated class
+     */
+    String namespace() default "";
 }

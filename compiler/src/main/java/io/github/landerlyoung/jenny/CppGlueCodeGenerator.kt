@@ -36,6 +36,7 @@ import javax.tools.StandardLocation
 //DONE file output
 //GOING use file template
 class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerator(env, clazz) {
+    private lateinit var mNamespaceHelper: NamespaceHelper
     // header file name
     private lateinit var mHeaderName: String
     // source file Name
@@ -45,15 +46,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
             clazz.getAnnotation(NativeClass::class.java)
                     ?: AnnotationResolver.getDefaultImplementation(NativeClass::class.java)
 
-    private val cppClassName: String
-        get() {
-            val fileName = mNativeClassAnnotation.fileName
-            return if (fileName.isNotEmpty()) {
-                fileName
-            } else {
-                if (mNativeClassAnnotation.simpleName) mSimpleClassName else mJNIClassName
-            }
-        }
+    private val cppClassName: String = mSimpleClassName
 
     override fun doGenerate() {
         if (init() && mMethods.isNotEmpty()) {
@@ -65,8 +58,10 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
     private fun init(): Boolean {
         if (mClazz.kind != ElementKind.CLASS) return false
 
-        mHeaderName = "$cppClassName.h"
-        mSourceName = "$cppClassName.cpp"
+        mNamespaceHelper = NamespaceHelper(mNativeClassAnnotation.namespace)
+
+        mHeaderName = mNamespaceHelper.fileNamePrefix + "$cppClassName.h"
+        mSourceName = mNamespaceHelper.fileNamePrefix + "$cppClassName.cpp"
         log("jenny begin generate glue code for class [$mClassName]")
         log("header : [$mHeaderName]")
         log("source : [$mSourceName]")
@@ -105,6 +100,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
                         |
                         |#include <jni.h>
                         |
+                        |${mNamespaceHelper.beginNamespace()}
                         |namespace $cppClassName {
                         |
                         |// DO NOT modify
@@ -116,10 +112,10 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
                         buildConstantsDefinition()
                         buildMethodsDefinition(false)
                         buildJniRegister()
-                        append("\n} //endof namespace $cppClassName\n")
+                        endNamespace()
                     } else {
                         buildConstantsDefinition()
-                        append("\n} //endof namespace $cppClassName\n")
+                        endNamespace()
                         buildMethodsDefinition(false)
                     }
                 }.let { content ->
@@ -143,13 +139,18 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
                     |""".trimMargin())
 
                 if (mNativeClassAnnotation.dynamicRegisterJniMethods) {
-                    append("namespace $cppClassName {\n\n")
+                    append("""
+                        |
+                        |${mNamespaceHelper.beginNamespace()}
+                        |namespace $cppClassName {
+                        |
+                        |""".trimMargin())
                 }
 
                 buildMethodsDefinition(true)
 
                 if (mNativeClassAnnotation.dynamicRegisterJniMethods) {
-                    append("\n} //endof namespace $cppClassName\n")
+                    endNamespace()
                 }
             }.let { content ->
                 fileObject.openOutputStream().write(content.toByteArray(Charsets.UTF_8))
@@ -157,6 +158,14 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
         } catch (e: IOException) {
             warn("generate source file $mSourceName failed")
         }
+    }
+
+    private fun StringBuilder.endNamespace() {
+        append("""
+            |
+            |} // endof namespace $cppClassName
+            |${mNamespaceHelper.endNamespace()}
+            |""".trimMargin())
     }
 
     private fun StringBuilder.buildConstantsDefinition() {

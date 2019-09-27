@@ -29,7 +29,16 @@ import kotlin.collections.HashSet
  * Time:   00:30
  * Life with Passion, Code with Creativity.
  */
-class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerator(env, clazz) {
+class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy: NativeProxyConfig) : AbsCodeGenerator(env, clazz) {
+
+    data class NativeProxyConfig(
+            val allMethods: Boolean,
+            val allFields: Boolean,
+            val namespace: String) {
+        constructor(proxy: NativeProxy)
+                : this(proxy.allMethods, proxy.allFields, proxy.namespace)
+    }
+
     //what we need to generate includes
     //---------- id ----------
     //constructor
@@ -51,33 +60,16 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     private val mMethods = mutableListOf<MethodOverloadResolver.MethodRecord>()
     private val mFields = mutableListOf<Element>()
     private val mConsts: MutableSet<String> = HashSet()
-    private val mNativeProxyAnnotation: NativeProxy
+    private val mNativeProxyConfig = nativeProxy
+    private val mNamespaceHelper = NamespaceHelper(mNativeProxyConfig.namespace)
     private val mHeaderName: String
     private val mSourceName: String
 
-    private val cppClassName: String
-        get() {
-            val fileName = mNativeProxyAnnotation.fileName
-            return if (fileName.length > 0) {
-                fileName
-            } else {
-                (if (mNativeProxyAnnotation.simpleName)
-                    mSimpleClassName
-                else
-                    mJNIClassName) + "Proxy"
-            }
-        }
-
+    private val cppClassName: String = mSimpleClassName + "Proxy"
 
     init {
-        var annotation: NativeProxy? = clazz.getAnnotation(NativeProxy::class.java)
-        if (annotation == null) {
-            annotation = AnnotationResolver.getDefaultImplementation(NativeProxy::class.java)
-        }
-        mNativeProxyAnnotation = annotation
-
-        mHeaderName = "${cppClassName}.h"
-        mSourceName = "${cppClassName}.cpp"
+        mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
+        mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
     }
 
     private fun init() {
@@ -115,6 +107,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                     }
 
                     append("""
+                        |${mNamespaceHelper.beginNamespace()}
                         |class $cppClassName {
                         |
                         |public:
@@ -196,7 +189,9 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                     buildMethodIdDeclare()
                     buildFieldIdDeclare()
 
-                    append("};")
+                    append("};\n")
+                    append(mNamespaceHelper.endNamespace())
+                    append("\n")
 
                 }.let { content ->
                     out.write(content.toByteArray(Charsets.UTF_8))
@@ -217,6 +212,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                     append("""
                         |#include "$mHeaderName"
                         |
+                        |${mNamespaceHelper.beginNamespace()}
                         |jclass ${cppClassName}::sClazz = nullptr;
                         |
                         |""".trimMargin())
@@ -243,6 +239,8 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                     mFields.forEachIndexed { index, f ->
                         append("jfieldID ${cppClassName}::${getFieldName(f, index)};\n")
                     }
+                    append("\n")
+                    append(mNamespaceHelper.endNamespace())
                     append("\n")
                 }.let { content ->
                     out.write(content.toByteArray(Charsets.UTF_8))
@@ -289,8 +287,8 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
     }
 
     private fun StringBuilder.buildFieldIdDeclare() {
-        mFields.forEachIndexed { index, f ->
-            val f = f as VariableElement
+        mFields.forEachIndexed { index, field ->
+            val f = field as VariableElement
             if (f.constantValue != null) {
                 warn("you are trying to add getter/setter to a compile-time constant "
                         + mClassName + "." + f.simpleName.toString())
@@ -539,7 +537,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
     private fun shouldGenerateMethod(m: ExecutableElement): Boolean {
         val annotation = m.getAnnotation(NativeMethodProxy::class.java)
-        return annotation?.enabled ?: mNativeProxyAnnotation.allMethods
+        return annotation?.enabled ?: mNativeProxyConfig.allMethods
     }
 
     private fun shouldGenerateField(f: Element): Boolean {
@@ -554,7 +552,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
         var getter = false
         var setter = false
 
-        var auto = mNativeProxyAnnotation.allFields
+        var auto = mNativeProxyConfig.allFields
         val annotation = field.getAnnotation(NativeFieldProxy::class.java)
         if (annotation != null) {
             auto = false

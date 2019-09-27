@@ -21,6 +21,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import io.github.landerlyoung.jenny.NativeClass;
 import io.github.landerlyoung.jenny.NativeCode;
@@ -32,11 +34,13 @@ import io.github.landerlyoung.jenny.NativeProxyForClass;
  * Time:   20-50
  * Life with Passion, Code with Creativity.
  */
-@NativeClass
-@NativeProxyForClass(classes = {
+@NativeClass(namespace = "io::github::landerlyoung")
+@NativeProxyForClass(
+        namespace = "java", classes = {
         Runnable.class, File.class, InputStream.class,
         String.class, URL.class, URLConnection.class,
-        Collections.class
+        Collections.class,
+        ReentrantLock.class, AtomicInteger.class, Thread.class
 })
 public class ComputeIntensiveClass {
     static {
