@@ -86,7 +86,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
     }
 
     private fun generateHeader() {
-        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, mHeaderName)
+        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, Constants.JENNY_GEN_DIR_GLUE_HEADER, mHeaderName)
         log("write header file [" + fileObject.name + "]")
 
         fileObject.openOutputStream().use { out ->
@@ -128,7 +128,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
     }
 
     private fun generateSource() {
-        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, mSourceName)
+        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, Constants.JENNY_GEN_DIR_GLUE_SOURCE, mSourceName)
         log("write source file [" + fileObject.name + "]")
         try {
             buildString {

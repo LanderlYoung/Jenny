@@ -76,7 +76,5 @@ abstract class AbsCodeGenerator(protected val mEnv: Environment, protected val m
 
     companion object {
         private const val LOG_PREFIX = "Jenny | "
-
-        const val PKG_NAME = "jenny"
     }
 }

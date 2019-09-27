@@ -86,7 +86,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     }
 
     private fun generatorHeader() {
-        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, mHeaderName)
+        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, Constants.JENNY_GEN_DIR_PROXY, mHeaderName)
         fileObject.openOutputStream().use { out ->
             try {
                 log("write native proxy file [" + fileObject.name + "]")
@@ -203,7 +203,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     }
 
     private fun generateSource() {
-        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, PKG_NAME, mSourceName)
+        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, Constants.JENNY_GEN_DIR_PROXY, mSourceName)
         fileObject.openOutputStream().use { out ->
             try {
                 log("write native proxy file [" + fileObject.name + "]")
