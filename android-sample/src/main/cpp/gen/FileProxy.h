@@ -19,74 +19,10 @@ public:
     static constexpr auto FULL_CLASS_NAME = "java/io/File";
     
 private:
-    static jclass sClazz;
-
-    static jmethodID sConstruct_0;
-    static jmethodID sConstruct_1;
-    static jmethodID sConstruct_2;
-    static jmethodID sConstruct_3;
-
-    static jmethodID sMethod_getName_0;
-    static jmethodID sMethod_getParent_0;
-    static jmethodID sMethod_getParentFile_0;
-    static jmethodID sMethod_getPath_0;
-    static jmethodID sMethod_isAbsolute_0;
-    static jmethodID sMethod_getAbsolutePath_0;
-    static jmethodID sMethod_getAbsoluteFile_0;
-    static jmethodID sMethod_getCanonicalPath_0;
-    static jmethodID sMethod_getCanonicalFile_0;
-    static jmethodID sMethod_toURL_0;
-    static jmethodID sMethod_toURI_0;
-    static jmethodID sMethod_canRead_0;
-    static jmethodID sMethod_canWrite_0;
-    static jmethodID sMethod_exists_0;
-    static jmethodID sMethod_isDirectory_0;
-    static jmethodID sMethod_isFile_0;
-    static jmethodID sMethod_isHidden_0;
-    static jmethodID sMethod_lastModified_0;
-    static jmethodID sMethod_length_0;
-    static jmethodID sMethod_createNewFile_0;
-    static jmethodID sMethod_delete_0;
-    static jmethodID sMethod_deleteOnExit_0;
-    static jmethodID sMethod_list_0;
-    static jmethodID sMethod_list_1;
-    static jmethodID sMethod_listFiles_0;
-    static jmethodID sMethod_listFiles_1;
-    static jmethodID sMethod_listFiles_2;
-    static jmethodID sMethod_mkdir_0;
-    static jmethodID sMethod_mkdirs_0;
-    static jmethodID sMethod_renameTo_0;
-    static jmethodID sMethod_setLastModified_0;
-    static jmethodID sMethod_setReadOnly_0;
-    static jmethodID sMethod_setWritable_0;
-    static jmethodID sMethod_setWritable_1;
-    static jmethodID sMethod_setReadable_0;
-    static jmethodID sMethod_setReadable_1;
-    static jmethodID sMethod_setExecutable_0;
-    static jmethodID sMethod_setExecutable_1;
-    static jmethodID sMethod_canExecute_0;
-    static jmethodID sMethod_listRoots_0;
-    static jmethodID sMethod_getTotalSpace_0;
-    static jmethodID sMethod_getFreeSpace_0;
-    static jmethodID sMethod_getUsableSpace_0;
-    static jmethodID sMethod_createTempFile_0;
-    static jmethodID sMethod_createTempFile_1;
-    static jmethodID sMethod_compareTo_0;
-    static jmethodID sMethod_equals_0;
-    static jmethodID sMethod_hashCode_0;
-    static jmethodID sMethod_toString_0;
-    static jmethodID sMethod_toPath_0;
-
-    static jfieldID sField_pathSeparator_0;
-    static jfieldID sField_pathSeparatorChar_1;
-    static jfieldID sField_separator_2;
-    static jfieldID sField_separatorChar_3;
-
-private:
+    // thread safe init
     static std::atomic_bool sInited;
     static std::mutex sInitLock;
 
-private:
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
 
@@ -120,11 +56,14 @@ public:
        return mJavaObjectReference;
     }
     
-    // helper method to delete JNI local ref, use with caution!
+    // helper method to delete JNI local ref.
+    // use only when you really understand JNIEnv::DeleteLocalRef.
     void releaseLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
+    
+    // === java methods below ===
     
     // construct: public File(java.lang.String pathname)
     static FileProxy newInstance(JNIEnv* env, jstring pathname) noexcept {
@@ -347,8 +286,9 @@ public:
     }
 
     // method: public static java.io.File[] listRoots()
-    jobjectArray listRoots() const {
-        return reinterpret_cast<jobjectArray>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_listRoots_0));
+    static jobjectArray listRoots(JNIEnv* env) {
+        assertInited(env);
+        return reinterpret_cast<jobjectArray>(env->CallStaticObjectMethod(sClazz, sMethod_listRoots_0));
     }
 
     // method: public long getTotalSpace()
@@ -367,13 +307,15 @@ public:
     }
 
     // method: public static java.io.File createTempFile(java.lang.String prefix, java.lang.String suffix, java.io.File directory)
-    jobject createTempFile(jstring prefix, jstring suffix, jobject directory) const {
-        return mJniEnv->CallStaticObjectMethod(sClazz, sMethod_createTempFile_0, prefix, suffix, directory);
+    static jobject createTempFile(JNIEnv* env, jstring prefix, jstring suffix, jobject directory) {
+        assertInited(env);
+        return env->CallStaticObjectMethod(sClazz, sMethod_createTempFile_0, prefix, suffix, directory);
     }
 
     // method: public static java.io.File createTempFile(java.lang.String prefix, java.lang.String suffix)
-    jobject createTempFile(jstring prefix, jstring suffix) const {
-        return mJniEnv->CallStaticObjectMethod(sClazz, sMethod_createTempFile_1, prefix, suffix);
+    static jobject createTempFile(JNIEnv* env, jstring prefix, jstring suffix) {
+        assertInited(env);
+        return env->CallStaticObjectMethod(sClazz, sMethod_createTempFile_1, prefix, suffix);
     }
 
     // method: public int compareTo(java.io.File pathname)
@@ -441,5 +383,70 @@ public:
     void setSeparatorChar(jchar separatorChar) const {
         mJniEnv->SetStaticCharField(sClazz, sField_separatorChar_3, separatorChar);
     }
+
+
+private:
+    static jclass sClazz;
+
+    static jmethodID sConstruct_0;
+    static jmethodID sConstruct_1;
+    static jmethodID sConstruct_2;
+    static jmethodID sConstruct_3;
+
+    static jmethodID sMethod_getName_0;
+    static jmethodID sMethod_getParent_0;
+    static jmethodID sMethod_getParentFile_0;
+    static jmethodID sMethod_getPath_0;
+    static jmethodID sMethod_isAbsolute_0;
+    static jmethodID sMethod_getAbsolutePath_0;
+    static jmethodID sMethod_getAbsoluteFile_0;
+    static jmethodID sMethod_getCanonicalPath_0;
+    static jmethodID sMethod_getCanonicalFile_0;
+    static jmethodID sMethod_toURL_0;
+    static jmethodID sMethod_toURI_0;
+    static jmethodID sMethod_canRead_0;
+    static jmethodID sMethod_canWrite_0;
+    static jmethodID sMethod_exists_0;
+    static jmethodID sMethod_isDirectory_0;
+    static jmethodID sMethod_isFile_0;
+    static jmethodID sMethod_isHidden_0;
+    static jmethodID sMethod_lastModified_0;
+    static jmethodID sMethod_length_0;
+    static jmethodID sMethod_createNewFile_0;
+    static jmethodID sMethod_delete_0;
+    static jmethodID sMethod_deleteOnExit_0;
+    static jmethodID sMethod_list_0;
+    static jmethodID sMethod_list_1;
+    static jmethodID sMethod_listFiles_0;
+    static jmethodID sMethod_listFiles_1;
+    static jmethodID sMethod_listFiles_2;
+    static jmethodID sMethod_mkdir_0;
+    static jmethodID sMethod_mkdirs_0;
+    static jmethodID sMethod_renameTo_0;
+    static jmethodID sMethod_setLastModified_0;
+    static jmethodID sMethod_setReadOnly_0;
+    static jmethodID sMethod_setWritable_0;
+    static jmethodID sMethod_setWritable_1;
+    static jmethodID sMethod_setReadable_0;
+    static jmethodID sMethod_setReadable_1;
+    static jmethodID sMethod_setExecutable_0;
+    static jmethodID sMethod_setExecutable_1;
+    static jmethodID sMethod_canExecute_0;
+    static jmethodID sMethod_listRoots_0;
+    static jmethodID sMethod_getTotalSpace_0;
+    static jmethodID sMethod_getFreeSpace_0;
+    static jmethodID sMethod_getUsableSpace_0;
+    static jmethodID sMethod_createTempFile_0;
+    static jmethodID sMethod_createTempFile_1;
+    static jmethodID sMethod_compareTo_0;
+    static jmethodID sMethod_equals_0;
+    static jmethodID sMethod_hashCode_0;
+    static jmethodID sMethod_toString_0;
+    static jmethodID sMethod_toPath_0;
+
+    static jfieldID sField_pathSeparator_0;
+    static jfieldID sField_pathSeparatorChar_1;
+    static jfieldID sField_separator_2;
+    static jfieldID sField_separatorChar_3;
 
 };

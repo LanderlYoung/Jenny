@@ -97,6 +97,10 @@ public class Callback {
 
     }
 
+    @NativeMethodProxy
+    public static void newInstnace() {
+
+    }
 
 
     public static Class<Callback> getMyClass() {

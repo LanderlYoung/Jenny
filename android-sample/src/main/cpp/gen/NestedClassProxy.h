@@ -19,18 +19,10 @@ public:
     static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback$NestedClass";
     
 private:
-    static jclass sClazz;
-
-    static jmethodID sConstruct_0;
-
-    static jmethodID sMethod_hello_0;
-
-
-private:
+    // thread safe init
     static std::atomic_bool sInited;
     static std::mutex sInitLock;
 
-private:
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
 
@@ -64,11 +56,14 @@ public:
        return mJavaObjectReference;
     }
     
-    // helper method to delete JNI local ref, use with caution!
+    // helper method to delete JNI local ref.
+    // use only when you really understand JNIEnv::DeleteLocalRef.
     void releaseLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
+    
+    // === java methods below ===
     
     // construct: public NestedClass()
     static NestedClassProxy newInstance(JNIEnv* env, jobject enclosingClass) noexcept {
@@ -81,6 +76,15 @@ public:
     void hello(jobject enclosingClass) const {
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_hello_0, enclosingClass);
     }
+
+
+
+private:
+    static jclass sClazz;
+
+    static jmethodID sConstruct_0;
+
+    static jmethodID sMethod_hello_0;
 
 
 };

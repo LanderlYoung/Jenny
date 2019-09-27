@@ -28,6 +28,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -99,7 +104,18 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+    }
 
+    String httpGet(String url) throws IOException {
+        URL u = new URL(url);
+        URLConnection conn = u.openConnection();
+        InputStream input = conn.getInputStream();
+
+        byte[] buffer = new byte[1024];
+        int len = input.read(buffer);
+        input.close();
+
+        return new String(buffer, 0, len);
     }
 
     private void toast(String msg) {

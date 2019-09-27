@@ -10,6 +10,7 @@
 
 jclass InputStreamProxy::sClazz = nullptr;
 
+// thread safe init
 std::mutex InputStreamProxy::sInitLock;
 std::atomic_bool InputStreamProxy::sInited;
 

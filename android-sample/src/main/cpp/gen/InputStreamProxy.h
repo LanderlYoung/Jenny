@@ -19,26 +19,10 @@ public:
     static constexpr auto FULL_CLASS_NAME = "java/io/InputStream";
     
 private:
-    static jclass sClazz;
-
-    static jmethodID sConstruct_0;
-
-    static jmethodID sMethod_read_0;
-    static jmethodID sMethod_read_1;
-    static jmethodID sMethod_read_2;
-    static jmethodID sMethod_skip_0;
-    static jmethodID sMethod_available_0;
-    static jmethodID sMethod_close_0;
-    static jmethodID sMethod_mark_0;
-    static jmethodID sMethod_reset_0;
-    static jmethodID sMethod_markSupported_0;
-
-
-private:
+    // thread safe init
     static std::atomic_bool sInited;
     static std::mutex sInitLock;
 
-private:
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
 
@@ -72,11 +56,14 @@ public:
        return mJavaObjectReference;
     }
     
-    // helper method to delete JNI local ref, use with caution!
+    // helper method to delete JNI local ref.
+    // use only when you really understand JNIEnv::DeleteLocalRef.
     void releaseLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
+    
+    // === java methods below ===
     
     // construct: public InputStream()
     static InputStreamProxy newInstance(JNIEnv* env) noexcept {
@@ -129,6 +116,23 @@ public:
     jboolean markSupported() const {
         return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_markSupported_0);
     }
+
+
+
+private:
+    static jclass sClazz;
+
+    static jmethodID sConstruct_0;
+
+    static jmethodID sMethod_read_0;
+    static jmethodID sMethod_read_1;
+    static jmethodID sMethod_read_2;
+    static jmethodID sMethod_skip_0;
+    static jmethodID sMethod_available_0;
+    static jmethodID sMethod_close_0;
+    static jmethodID sMethod_mark_0;
+    static jmethodID sMethod_reset_0;
+    static jmethodID sMethod_markSupported_0;
 
 
 };

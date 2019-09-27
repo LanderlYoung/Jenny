@@ -19,99 +19,10 @@ public:
     static constexpr auto FULL_CLASS_NAME = "java/lang/String";
     
 private:
-    static jclass sClazz;
-
-    static jmethodID sConstruct_0;
-    static jmethodID sConstruct_1;
-    static jmethodID sConstruct_2;
-    static jmethodID sConstruct_3;
-    static jmethodID sConstruct_4;
-    static jmethodID sConstruct_5;
-    static jmethodID sConstruct_6;
-    static jmethodID sConstruct_7;
-    static jmethodID sConstruct_8;
-    static jmethodID sConstruct_9;
-    static jmethodID sConstruct_10;
-    static jmethodID sConstruct_11;
-    static jmethodID sConstruct_12;
-    static jmethodID sConstruct_13;
-    static jmethodID sConstruct_14;
-
-    static jmethodID sMethod_length_0;
-    static jmethodID sMethod_isEmpty_0;
-    static jmethodID sMethod_charAt_0;
-    static jmethodID sMethod_codePointAt_0;
-    static jmethodID sMethod_codePointBefore_0;
-    static jmethodID sMethod_codePointCount_0;
-    static jmethodID sMethod_offsetByCodePoints_0;
-    static jmethodID sMethod_getChars_0;
-    static jmethodID sMethod_getBytes_0;
-    static jmethodID sMethod_getBytes_1;
-    static jmethodID sMethod_getBytes_2;
-    static jmethodID sMethod_getBytes_3;
-    static jmethodID sMethod_equals_0;
-    static jmethodID sMethod_contentEquals_0;
-    static jmethodID sMethod_contentEquals_1;
-    static jmethodID sMethod_equalsIgnoreCase_0;
-    static jmethodID sMethod_compareTo_0;
-    static jmethodID sMethod_compareToIgnoreCase_0;
-    static jmethodID sMethod_regionMatches_0;
-    static jmethodID sMethod_regionMatches_1;
-    static jmethodID sMethod_startsWith_0;
-    static jmethodID sMethod_startsWith_1;
-    static jmethodID sMethod_endsWith_0;
-    static jmethodID sMethod_hashCode_0;
-    static jmethodID sMethod_indexOf_0;
-    static jmethodID sMethod_indexOf_1;
-    static jmethodID sMethod_indexOf_2;
-    static jmethodID sMethod_indexOf_3;
-    static jmethodID sMethod_lastIndexOf_0;
-    static jmethodID sMethod_lastIndexOf_1;
-    static jmethodID sMethod_lastIndexOf_2;
-    static jmethodID sMethod_lastIndexOf_3;
-    static jmethodID sMethod_substring_0;
-    static jmethodID sMethod_substring_1;
-    static jmethodID sMethod_subSequence_0;
-    static jmethodID sMethod_concat_0;
-    static jmethodID sMethod_replace_0;
-    static jmethodID sMethod_replace_1;
-    static jmethodID sMethod_matches_0;
-    static jmethodID sMethod_contains_0;
-    static jmethodID sMethod_replaceFirst_0;
-    static jmethodID sMethod_replaceAll_0;
-    static jmethodID sMethod_split_0;
-    static jmethodID sMethod_split_1;
-    static jmethodID sMethod_join_0;
-    static jmethodID sMethod_join_1;
-    static jmethodID sMethod_toLowerCase_0;
-    static jmethodID sMethod_toLowerCase_1;
-    static jmethodID sMethod_toUpperCase_0;
-    static jmethodID sMethod_toUpperCase_1;
-    static jmethodID sMethod_trim_0;
-    static jmethodID sMethod_toString_0;
-    static jmethodID sMethod_toCharArray_0;
-    static jmethodID sMethod_format_0;
-    static jmethodID sMethod_format_1;
-    static jmethodID sMethod_valueOf_0;
-    static jmethodID sMethod_valueOf_1;
-    static jmethodID sMethod_valueOf_2;
-    static jmethodID sMethod_valueOf_3;
-    static jmethodID sMethod_valueOf_4;
-    static jmethodID sMethod_valueOf_5;
-    static jmethodID sMethod_valueOf_6;
-    static jmethodID sMethod_valueOf_7;
-    static jmethodID sMethod_valueOf_8;
-    static jmethodID sMethod_copyValueOf_0;
-    static jmethodID sMethod_copyValueOf_1;
-    static jmethodID sMethod_intern_0;
-
-    static jfieldID sField_CASE_INSENSITIVE_ORDER_0;
-
-private:
+    // thread safe init
     static std::atomic_bool sInited;
     static std::mutex sInitLock;
 
-private:
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
 
@@ -145,11 +56,14 @@ public:
        return mJavaObjectReference;
     }
     
-    // helper method to delete JNI local ref, use with caution!
+    // helper method to delete JNI local ref.
+    // use only when you really understand JNIEnv::DeleteLocalRef.
     void releaseLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
+    
+    // === java methods below ===
     
     // construct: public String()
     static StringProxy newInstance(JNIEnv* env) noexcept {
@@ -463,13 +377,15 @@ public:
     }
 
     // method: public static java.lang.String join(java.lang.CharSequence delimiter, java.lang.CharSequence[] elements)
-    jstring join(jobject delimiter, jobjectArray elements) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_join_0, delimiter, elements));
+    static jstring join(JNIEnv* env, jobject delimiter, jobjectArray elements) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_join_0, delimiter, elements));
     }
 
     // method: public static java.lang.String join(java.lang.CharSequence delimiter, java.lang.Iterable<? extends java.lang.CharSequence> elements)
-    jstring join(jobject delimiter, jobject elements) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_join_1, delimiter, elements));
+    static jstring join(JNIEnv* env, jobject delimiter, jobject elements) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_join_1, delimiter, elements));
     }
 
     // method: public java.lang.String toLowerCase(java.util.Locale locale)
@@ -508,68 +424,81 @@ public:
     }
 
     // method: public static java.lang.String format(java.lang.String format, java.lang.Object[] args)
-    jstring format(jstring format, jobjectArray args) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_format_0, format, args));
+    static jstring format(JNIEnv* env, jstring format, jobjectArray args) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_format_0, format, args));
     }
 
     // method: public static java.lang.String format(java.util.Locale l, java.lang.String format, java.lang.Object[] args)
-    jstring format(jobject l, jstring format, jobjectArray args) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_format_1, l, format, args));
+    static jstring format(JNIEnv* env, jobject l, jstring format, jobjectArray args) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_format_1, l, format, args));
     }
 
     // method: public static java.lang.String valueOf(java.lang.Object obj)
-    jstring valueOf(jobject obj) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_valueOf_0, obj));
+    static jstring valueOf(JNIEnv* env, jobject obj) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_0, obj));
     }
 
     // method: public static java.lang.String valueOf(char[] data)
-    jstring valueOf(jcharArray data) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_valueOf_1, data));
+    static jstring valueOf(JNIEnv* env, jcharArray data) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_1, data));
     }
 
     // method: public static java.lang.String valueOf(char[] data, int offset, int count)
-    jstring valueOf(jcharArray data, jint offset, jint count) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_valueOf_2, data, offset, count));
+    static jstring valueOf(JNIEnv* env, jcharArray data, jint offset, jint count) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_2, data, offset, count));
     }
 
     // method: public static java.lang.String valueOf(boolean b)
-    jstring valueOf(jboolean b) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_valueOf_3, b));
+    static jstring valueOf(JNIEnv* env, jboolean b) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_3, b));
     }
 
     // method: public static java.lang.String valueOf(char c)
-    jstring valueOf(jchar c) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_valueOf_4, c));
+    static jstring valueOf(JNIEnv* env, jchar c) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_4, c));
     }
 
     // method: public static java.lang.String valueOf(int i)
-    jstring valueOf(jint i) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_valueOf_5, i));
+    static jstring valueOf(JNIEnv* env, jint i) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_5, i));
     }
 
     // method: public static java.lang.String valueOf(long l)
-    jstring valueOf(jlong l) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_valueOf_6, l));
+    static jstring valueOf(JNIEnv* env, jlong l) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_6, l));
     }
 
     // method: public static java.lang.String valueOf(float f)
-    jstring valueOf(jfloat f) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_valueOf_7, f));
+    static jstring valueOf(JNIEnv* env, jfloat f) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_7, f));
     }
 
     // method: public static java.lang.String valueOf(double d)
-    jstring valueOf(jdouble d) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_valueOf_8, d));
+    static jstring valueOf(JNIEnv* env, jdouble d) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_8, d));
     }
 
     // method: public static java.lang.String copyValueOf(char[] data, int offset, int count)
-    jstring copyValueOf(jcharArray data, jint offset, jint count) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_copyValueOf_0, data, offset, count));
+    static jstring copyValueOf(JNIEnv* env, jcharArray data, jint offset, jint count) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_copyValueOf_0, data, offset, count));
     }
 
     // method: public static java.lang.String copyValueOf(char[] data)
-    jstring copyValueOf(jcharArray data) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_copyValueOf_1, data));
+    static jstring copyValueOf(JNIEnv* env, jcharArray data) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_copyValueOf_1, data));
     }
 
     // method: public java.lang.String intern()
@@ -587,5 +516,95 @@ public:
     void setCASE_INSENSITIVE_ORDER(jobject CASE_INSENSITIVE_ORDER) const {
         mJniEnv->SetStaticObjectField(sClazz, sField_CASE_INSENSITIVE_ORDER_0, CASE_INSENSITIVE_ORDER);
     }
+
+
+private:
+    static jclass sClazz;
+
+    static jmethodID sConstruct_0;
+    static jmethodID sConstruct_1;
+    static jmethodID sConstruct_2;
+    static jmethodID sConstruct_3;
+    static jmethodID sConstruct_4;
+    static jmethodID sConstruct_5;
+    static jmethodID sConstruct_6;
+    static jmethodID sConstruct_7;
+    static jmethodID sConstruct_8;
+    static jmethodID sConstruct_9;
+    static jmethodID sConstruct_10;
+    static jmethodID sConstruct_11;
+    static jmethodID sConstruct_12;
+    static jmethodID sConstruct_13;
+    static jmethodID sConstruct_14;
+
+    static jmethodID sMethod_length_0;
+    static jmethodID sMethod_isEmpty_0;
+    static jmethodID sMethod_charAt_0;
+    static jmethodID sMethod_codePointAt_0;
+    static jmethodID sMethod_codePointBefore_0;
+    static jmethodID sMethod_codePointCount_0;
+    static jmethodID sMethod_offsetByCodePoints_0;
+    static jmethodID sMethod_getChars_0;
+    static jmethodID sMethod_getBytes_0;
+    static jmethodID sMethod_getBytes_1;
+    static jmethodID sMethod_getBytes_2;
+    static jmethodID sMethod_getBytes_3;
+    static jmethodID sMethod_equals_0;
+    static jmethodID sMethod_contentEquals_0;
+    static jmethodID sMethod_contentEquals_1;
+    static jmethodID sMethod_equalsIgnoreCase_0;
+    static jmethodID sMethod_compareTo_0;
+    static jmethodID sMethod_compareToIgnoreCase_0;
+    static jmethodID sMethod_regionMatches_0;
+    static jmethodID sMethod_regionMatches_1;
+    static jmethodID sMethod_startsWith_0;
+    static jmethodID sMethod_startsWith_1;
+    static jmethodID sMethod_endsWith_0;
+    static jmethodID sMethod_hashCode_0;
+    static jmethodID sMethod_indexOf_0;
+    static jmethodID sMethod_indexOf_1;
+    static jmethodID sMethod_indexOf_2;
+    static jmethodID sMethod_indexOf_3;
+    static jmethodID sMethod_lastIndexOf_0;
+    static jmethodID sMethod_lastIndexOf_1;
+    static jmethodID sMethod_lastIndexOf_2;
+    static jmethodID sMethod_lastIndexOf_3;
+    static jmethodID sMethod_substring_0;
+    static jmethodID sMethod_substring_1;
+    static jmethodID sMethod_subSequence_0;
+    static jmethodID sMethod_concat_0;
+    static jmethodID sMethod_replace_0;
+    static jmethodID sMethod_replace_1;
+    static jmethodID sMethod_matches_0;
+    static jmethodID sMethod_contains_0;
+    static jmethodID sMethod_replaceFirst_0;
+    static jmethodID sMethod_replaceAll_0;
+    static jmethodID sMethod_split_0;
+    static jmethodID sMethod_split_1;
+    static jmethodID sMethod_join_0;
+    static jmethodID sMethod_join_1;
+    static jmethodID sMethod_toLowerCase_0;
+    static jmethodID sMethod_toLowerCase_1;
+    static jmethodID sMethod_toUpperCase_0;
+    static jmethodID sMethod_toUpperCase_1;
+    static jmethodID sMethod_trim_0;
+    static jmethodID sMethod_toString_0;
+    static jmethodID sMethod_toCharArray_0;
+    static jmethodID sMethod_format_0;
+    static jmethodID sMethod_format_1;
+    static jmethodID sMethod_valueOf_0;
+    static jmethodID sMethod_valueOf_1;
+    static jmethodID sMethod_valueOf_2;
+    static jmethodID sMethod_valueOf_3;
+    static jmethodID sMethod_valueOf_4;
+    static jmethodID sMethod_valueOf_5;
+    static jmethodID sMethod_valueOf_6;
+    static jmethodID sMethod_valueOf_7;
+    static jmethodID sMethod_valueOf_8;
+    static jmethodID sMethod_copyValueOf_0;
+    static jmethodID sMethod_copyValueOf_1;
+    static jmethodID sMethod_intern_0;
+
+    static jfieldID sField_CASE_INSENSITIVE_ORDER_0;
 
 };

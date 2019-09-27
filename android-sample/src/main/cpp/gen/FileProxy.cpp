@@ -10,6 +10,7 @@
 
 jclass FileProxy::sClazz = nullptr;
 
+// thread safe init
 std::mutex FileProxy::sInitLock;
 std::atomic_bool FileProxy::sInited;
 

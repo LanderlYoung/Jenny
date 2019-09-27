@@ -6,6 +6,10 @@
  * For bug report, please refer to github issue tracker https://github.com/LanderlYoung/Jenny/issues,
  * or contact author landerlyoung@gmail.com.
  */
+#include <URLProxy.h>
+#include <URLConnectionProxy.h>
+#include <InputStreamProxy.h>
+#include <StringProxy.h>
 #include "gen/ComputeIntensiveClass.h"
 
 namespace ComputeIntensiveClass {
@@ -112,5 +116,5 @@ jstring JNICALL httpGet(JNIEnv *env, jclass clazz, jstring _url) {
 } //endof namespace ComputeIntensiveClass
 
 jint ComputeIntensiveClass::computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
-
+    return 0;
 }

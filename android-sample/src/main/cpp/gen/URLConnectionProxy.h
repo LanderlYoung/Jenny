@@ -19,70 +19,10 @@ public:
     static constexpr auto FULL_CLASS_NAME = "java/net/URLConnection";
     
 private:
-    static jclass sClazz;
-
-    static jmethodID sConstruct_0;
-
-    static jmethodID sMethod_getFileNameMap_0;
-    static jmethodID sMethod_setFileNameMap_0;
-    static jmethodID sMethod_connect_0;
-    static jmethodID sMethod_setConnectTimeout_0;
-    static jmethodID sMethod_getConnectTimeout_0;
-    static jmethodID sMethod_setReadTimeout_0;
-    static jmethodID sMethod_getReadTimeout_0;
-    static jmethodID sMethod_getURL_0;
-    static jmethodID sMethod_getContentLength_0;
-    static jmethodID sMethod_getContentLengthLong_0;
-    static jmethodID sMethod_getContentType_0;
-    static jmethodID sMethod_getContentEncoding_0;
-    static jmethodID sMethod_getExpiration_0;
-    static jmethodID sMethod_getDate_0;
-    static jmethodID sMethod_getLastModified_0;
-    static jmethodID sMethod_getHeaderField_0;
-    static jmethodID sMethod_getHeaderField_1;
-    static jmethodID sMethod_getHeaderFields_0;
-    static jmethodID sMethod_getHeaderFieldInt_0;
-    static jmethodID sMethod_getHeaderFieldLong_0;
-    static jmethodID sMethod_getHeaderFieldDate_0;
-    static jmethodID sMethod_getHeaderFieldKey_0;
-    static jmethodID sMethod_getContent_0;
-    static jmethodID sMethod_getContent_1;
-    static jmethodID sMethod_getPermission_0;
-    static jmethodID sMethod_getInputStream_0;
-    static jmethodID sMethod_getOutputStream_0;
-    static jmethodID sMethod_toString_0;
-    static jmethodID sMethod_setDoInput_0;
-    static jmethodID sMethod_getDoInput_0;
-    static jmethodID sMethod_setDoOutput_0;
-    static jmethodID sMethod_getDoOutput_0;
-    static jmethodID sMethod_setAllowUserInteraction_0;
-    static jmethodID sMethod_getAllowUserInteraction_0;
-    static jmethodID sMethod_setDefaultAllowUserInteraction_0;
-    static jmethodID sMethod_getDefaultAllowUserInteraction_0;
-    static jmethodID sMethod_setUseCaches_0;
-    static jmethodID sMethod_getUseCaches_0;
-    static jmethodID sMethod_setIfModifiedSince_0;
-    static jmethodID sMethod_getIfModifiedSince_0;
-    static jmethodID sMethod_getDefaultUseCaches_0;
-    static jmethodID sMethod_setDefaultUseCaches_0;
-    static jmethodID sMethod_setRequestProperty_0;
-    static jmethodID sMethod_addRequestProperty_0;
-    static jmethodID sMethod_getRequestProperty_0;
-    static jmethodID sMethod_getRequestProperties_0;
-    static jmethodID sMethod_setDefaultRequestProperty_0;
-    static jmethodID sMethod_getDefaultRequestProperty_0;
-    static jmethodID sMethod_setContentHandlerFactory_0;
-    static jmethodID sMethod_guessContentTypeFromName_0;
-    static jmethodID sMethod_guessContentTypeFromStream_0;
-
-    static jfieldID sField_connected_0;
-    static jfieldID sField_url_1;
-
-private:
+    // thread safe init
     static std::atomic_bool sInited;
     static std::mutex sInitLock;
 
-private:
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
 
@@ -116,11 +56,14 @@ public:
        return mJavaObjectReference;
     }
     
-    // helper method to delete JNI local ref, use with caution!
+    // helper method to delete JNI local ref.
+    // use only when you really understand JNIEnv::DeleteLocalRef.
     void releaseLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
+    
+    // === java methods below ===
     
     // construct: protected URLConnection(java.net.URL url)
     static URLConnectionProxy newInstance(JNIEnv* env, jobject url) noexcept {
@@ -130,13 +73,15 @@ public:
     
 
     // method: public static synchronized java.net.FileNameMap getFileNameMap()
-    jobject getFileNameMap() const {
-        return mJniEnv->CallStaticObjectMethod(sClazz, sMethod_getFileNameMap_0);
+    static jobject getFileNameMap(JNIEnv* env) {
+        assertInited(env);
+        return env->CallStaticObjectMethod(sClazz, sMethod_getFileNameMap_0);
     }
 
     // method: public static void setFileNameMap(java.net.FileNameMap map)
-    void setFileNameMap(jobject map) const {
-        mJniEnv->CallStaticVoidMethod(sClazz, sMethod_setFileNameMap_0, map);
+    static void setFileNameMap(JNIEnv* env, jobject map) {
+        assertInited(env);
+        env->CallStaticVoidMethod(sClazz, sMethod_setFileNameMap_0, map);
     }
 
     // method: public abstract void connect()
@@ -300,13 +245,15 @@ public:
     }
 
     // method: public static void setDefaultAllowUserInteraction(boolean defaultallowuserinteraction)
-    void setDefaultAllowUserInteraction(jboolean defaultallowuserinteraction) const {
-        mJniEnv->CallStaticVoidMethod(sClazz, sMethod_setDefaultAllowUserInteraction_0, defaultallowuserinteraction);
+    static void setDefaultAllowUserInteraction(JNIEnv* env, jboolean defaultallowuserinteraction) {
+        assertInited(env);
+        env->CallStaticVoidMethod(sClazz, sMethod_setDefaultAllowUserInteraction_0, defaultallowuserinteraction);
     }
 
     // method: public static boolean getDefaultAllowUserInteraction()
-    jboolean getDefaultAllowUserInteraction() const {
-        return mJniEnv->CallStaticBooleanMethod(sClazz, sMethod_getDefaultAllowUserInteraction_0);
+    static jboolean getDefaultAllowUserInteraction(JNIEnv* env) {
+        assertInited(env);
+        return env->CallStaticBooleanMethod(sClazz, sMethod_getDefaultAllowUserInteraction_0);
     }
 
     // method: public void setUseCaches(boolean usecaches)
@@ -360,28 +307,33 @@ public:
     }
 
     // method: public static void setDefaultRequestProperty(java.lang.String key, java.lang.String value)
-    void setDefaultRequestProperty(jstring key, jstring value) const {
-        mJniEnv->CallStaticVoidMethod(sClazz, sMethod_setDefaultRequestProperty_0, key, value);
+    static void setDefaultRequestProperty(JNIEnv* env, jstring key, jstring value) {
+        assertInited(env);
+        env->CallStaticVoidMethod(sClazz, sMethod_setDefaultRequestProperty_0, key, value);
     }
 
     // method: public static java.lang.String getDefaultRequestProperty(java.lang.String key)
-    jstring getDefaultRequestProperty(jstring key) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_getDefaultRequestProperty_0, key));
+    static jstring getDefaultRequestProperty(JNIEnv* env, jstring key) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_getDefaultRequestProperty_0, key));
     }
 
     // method: public static synchronized void setContentHandlerFactory(java.net.ContentHandlerFactory fac)
-    void setContentHandlerFactory(jobject fac) const {
-        mJniEnv->CallStaticVoidMethod(sClazz, sMethod_setContentHandlerFactory_0, fac);
+    static void setContentHandlerFactory(JNIEnv* env, jobject fac) {
+        assertInited(env);
+        env->CallStaticVoidMethod(sClazz, sMethod_setContentHandlerFactory_0, fac);
     }
 
     // method: public static java.lang.String guessContentTypeFromName(java.lang.String fname)
-    jstring guessContentTypeFromName(jstring fname) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_guessContentTypeFromName_0, fname));
+    static jstring guessContentTypeFromName(JNIEnv* env, jstring fname) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_guessContentTypeFromName_0, fname));
     }
 
     // method: public static java.lang.String guessContentTypeFromStream(java.io.InputStream is)
-    jstring guessContentTypeFromStream(jobject is) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallStaticObjectMethod(sClazz, sMethod_guessContentTypeFromStream_0, is));
+    static jstring guessContentTypeFromStream(JNIEnv* env, jobject is) {
+        assertInited(env);
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_guessContentTypeFromStream_0, is));
     }
 
 
@@ -404,5 +356,66 @@ public:
     void setUrl(jobject url) const {
         mJniEnv->SetObjectField(mJavaObjectReference, sField_url_1, url);
     }
+
+
+private:
+    static jclass sClazz;
+
+    static jmethodID sConstruct_0;
+
+    static jmethodID sMethod_getFileNameMap_0;
+    static jmethodID sMethod_setFileNameMap_0;
+    static jmethodID sMethod_connect_0;
+    static jmethodID sMethod_setConnectTimeout_0;
+    static jmethodID sMethod_getConnectTimeout_0;
+    static jmethodID sMethod_setReadTimeout_0;
+    static jmethodID sMethod_getReadTimeout_0;
+    static jmethodID sMethod_getURL_0;
+    static jmethodID sMethod_getContentLength_0;
+    static jmethodID sMethod_getContentLengthLong_0;
+    static jmethodID sMethod_getContentType_0;
+    static jmethodID sMethod_getContentEncoding_0;
+    static jmethodID sMethod_getExpiration_0;
+    static jmethodID sMethod_getDate_0;
+    static jmethodID sMethod_getLastModified_0;
+    static jmethodID sMethod_getHeaderField_0;
+    static jmethodID sMethod_getHeaderField_1;
+    static jmethodID sMethod_getHeaderFields_0;
+    static jmethodID sMethod_getHeaderFieldInt_0;
+    static jmethodID sMethod_getHeaderFieldLong_0;
+    static jmethodID sMethod_getHeaderFieldDate_0;
+    static jmethodID sMethod_getHeaderFieldKey_0;
+    static jmethodID sMethod_getContent_0;
+    static jmethodID sMethod_getContent_1;
+    static jmethodID sMethod_getPermission_0;
+    static jmethodID sMethod_getInputStream_0;
+    static jmethodID sMethod_getOutputStream_0;
+    static jmethodID sMethod_toString_0;
+    static jmethodID sMethod_setDoInput_0;
+    static jmethodID sMethod_getDoInput_0;
+    static jmethodID sMethod_setDoOutput_0;
+    static jmethodID sMethod_getDoOutput_0;
+    static jmethodID sMethod_setAllowUserInteraction_0;
+    static jmethodID sMethod_getAllowUserInteraction_0;
+    static jmethodID sMethod_setDefaultAllowUserInteraction_0;
+    static jmethodID sMethod_getDefaultAllowUserInteraction_0;
+    static jmethodID sMethod_setUseCaches_0;
+    static jmethodID sMethod_getUseCaches_0;
+    static jmethodID sMethod_setIfModifiedSince_0;
+    static jmethodID sMethod_getIfModifiedSince_0;
+    static jmethodID sMethod_getDefaultUseCaches_0;
+    static jmethodID sMethod_setDefaultUseCaches_0;
+    static jmethodID sMethod_setRequestProperty_0;
+    static jmethodID sMethod_addRequestProperty_0;
+    static jmethodID sMethod_getRequestProperty_0;
+    static jmethodID sMethod_getRequestProperties_0;
+    static jmethodID sMethod_setDefaultRequestProperty_0;
+    static jmethodID sMethod_getDefaultRequestProperty_0;
+    static jmethodID sMethod_setContentHandlerFactory_0;
+    static jmethodID sMethod_guessContentTypeFromName_0;
+    static jmethodID sMethod_guessContentTypeFromStream_0;
+
+    static jfieldID sField_connected_0;
+    static jfieldID sField_url_1;
 
 };

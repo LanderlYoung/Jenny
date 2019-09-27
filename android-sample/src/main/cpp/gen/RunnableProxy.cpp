@@ -10,6 +10,7 @@
 
 jclass RunnableProxy::sClazz = nullptr;
 
+// thread safe init
 std::mutex RunnableProxy::sInitLock;
 std::atomic_bool RunnableProxy::sInited;
 

@@ -10,6 +10,7 @@
 
 jclass StringProxy::sClazz = nullptr;
 
+// thread safe init
 std::mutex StringProxy::sInitLock;
 std::atomic_bool StringProxy::sInited;
 

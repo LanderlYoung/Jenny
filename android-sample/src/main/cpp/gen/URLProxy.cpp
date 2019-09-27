@@ -10,6 +10,7 @@
 
 jclass URLProxy::sClazz = nullptr;
 
+// thread safe init
 std::mutex URLProxy::sInitLock;
 std::atomic_bool URLProxy::sInited;
 

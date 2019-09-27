@@ -10,6 +10,7 @@
 
 jclass CallbackProxy::sClazz = nullptr;
 
+// thread safe init
 std::mutex CallbackProxy::sInitLock;
 std::atomic_bool CallbackProxy::sInited;
 
@@ -50,6 +51,9 @@ std::atomic_bool CallbackProxy::sInited;
 
             sMethod_onJobStart_1 = env->GetMethodID(sClazz, "onJobStart", "(Lio/github/landerlyoung/jennysampleapp/Callback$NestedClass;)V");
             JENNY_CHECK_NULL(sMethod_onJobStart_1);
+
+            sMethod_newInstnace_0 = env->GetStaticMethodID(sClazz, "newInstnace", "()V");
+            JENNY_CHECK_NULL(sMethod_newInstnace_0);
 
 
             sField_lock_0 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
@@ -102,6 +106,7 @@ jmethodID CallbackProxy::sMethod_onJobDone_0;
 jmethodID CallbackProxy::sMethod_onJobProgress_0;
 jmethodID CallbackProxy::sMethod_onJobStart_0;
 jmethodID CallbackProxy::sMethod_onJobStart_1;
+jmethodID CallbackProxy::sMethod_newInstnace_0;
 
 jfieldID CallbackProxy::sField_lock_0;
 jfieldID CallbackProxy::sField_COMPILE_CONSTANT_INT_1;

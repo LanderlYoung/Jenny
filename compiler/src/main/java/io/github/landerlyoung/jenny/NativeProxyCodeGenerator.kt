@@ -121,19 +121,12 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                         |    static constexpr auto FULL_CLASS_NAME = "$mSlashClassName";
                         |    
                         |private:
-                        |    static jclass sClazz;
                         |
                     """.trimMargin())
 
-                    buildConstantsIdDeclare()
-                    buildConstructorIdDeclare()
-                    buildMethodIdDeclare()
-                    buildFieldIdDeclare()
-
-                    append("private:\n")
-
                     if (mEnv.configurations.threadSafe) {
                         append("""
+                        |    // thread safe init
                         |    static std::atomic_bool sInited;
                         |    static std::mutex sInitLock;
                         |""".trimMargin())
@@ -143,7 +136,6 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
                     append("""
                         |
-                        |private:
                         |    JNIEnv* mJniEnv;
                         |    jobject mJavaObjectReference;
                         |
@@ -177,17 +169,32 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
                         |       return mJavaObjectReference;
                         |    }
                         |    
-                        |    // helper method to delete JNI local ref, use with caution!
+                        |    // helper method to delete JNI local ref.
+                        |    // use only when you really understand JNIEnv::DeleteLocalRef.
                         |    void releaseLocalRef() {
                         |       mJniEnv->DeleteLocalRef(mJavaObjectReference);
                         |       mJavaObjectReference = nullptr;
                         |    }
+                        |    
+                        |    // === java methods below ===
                         |    
                         |""".trimMargin())
 
                     buildConstructorDefines()
                     buildMethodDefines()
                     buildFieldDefines()
+
+                    append("""
+                        |
+                        |private:
+                        |    static jclass sClazz;
+                        |
+                    """.trimMargin())
+
+                    buildConstantsIdDeclare()
+                    buildConstructorIdDeclare()
+                    buildMethodIdDeclare()
+                    buildFieldIdDeclare()
 
                     append("};")
 
@@ -216,6 +223,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
                     if (mEnv.configurations.threadSafe) {
                         append("""
+                            |// thread safe init
                             |std::mutex $cppClassName::sInitLock;
                             |std::atomic_bool $cppClassName::sInited;
                             |
@@ -316,10 +324,26 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
             val isStatic = m.modifiers.contains(Modifier.STATIC)
             val returnType = mHelper.toJNIType(m.returnType)
 
+            var jniParam = getJniMethodParam(m)
+            if (isStatic) {
+                jniParam = if (jniParam.isNotEmpty()) {
+                    "JNIEnv* env, $jniParam"
+                } else {
+                    "JNIEnv* env"
+                }
+            }
+
+            val staticMethod = if (isStatic) "static " else ""
+            val env = if (isStatic) "env" else "mJniEnv"
+            val constMod = if (isStatic) "" else "const "
+
             append("""
                 |    // method: ${mHelper.getModifiers(m)} ${m.returnType} ${m.simpleName}(${mHelper.getJavaMethodParam(m)})
-                |    $returnType ${m.simpleName}${r.resolvedPostFix}(${getJniMethodParam(m)}) const {
+                |    ${staticMethod}$returnType ${m.simpleName}${r.resolvedPostFix}(${jniParam}) ${constMod}{
                 |""".trimMargin())
+            if (isStatic) {
+                append("        assertInited(env);\n")
+            }
 
             if (m.returnType.kind !== TypeKind.VOID) {
                 append("        return ")
@@ -332,7 +356,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGe
 
             val static = if (isStatic) "Static" else ""
             val classOrObj = if (isStatic) "sClazz" else "mJavaObjectReference"
-            append("mJniEnv->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getMethodName(m, r.index)}${getJniMethodParamVal(m)})")
+            append("${env}->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getMethodName(m, r.index)}${getJniMethodParamVal(m)})")
             if (returnTypeNeedCast(returnType)) {
                 append(")")
             }

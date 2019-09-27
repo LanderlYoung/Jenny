@@ -19,33 +19,10 @@ public:
     static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback";
     
 private:
-    static jclass sClazz;
-    static constexpr const jint COMPILE_CONSTANT_INT = 15;
-    static constexpr const jint ANOTHER_COMPILE_CONSTANT_INT = 16;
-
-    static jmethodID sConstruct_0;
-    static jmethodID sConstruct_1;
-    static jmethodID sConstruct_2;
-
-    static jmethodID sMethod_onJobDone_0;
-    static jmethodID sMethod_onJobProgress_0;
-    static jmethodID sMethod_onJobStart_0;
-    static jmethodID sMethod_onJobStart_1;
-
-    static jfieldID sField_lock_0;
-    static jfieldID sField_COMPILE_CONSTANT_INT_1;
-    static jfieldID sField_ANOTHER_COMPILE_CONSTANT_INT_2;
-    static jfieldID sField_count_3;
-    static jfieldID sField_staticCount_4;
-    static jfieldID sField_name_5;
-    static jfieldID sField_staticName_6;
-    static jfieldID sField_aStaticField_7;
-
-private:
+    // thread safe init
     static std::atomic_bool sInited;
     static std::mutex sInitLock;
 
-private:
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
 
@@ -79,11 +56,14 @@ public:
        return mJavaObjectReference;
     }
     
-    // helper method to delete JNI local ref, use with caution!
+    // helper method to delete JNI local ref.
+    // use only when you really understand JNIEnv::DeleteLocalRef.
     void releaseLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
+    
+    // === java methods below ===
     
     // construct: public Callback()
     static CallbackProxy newInstance(JNIEnv* env) noexcept {
@@ -124,6 +104,12 @@ public:
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_1, overrloadedMethod);
     }
 
+    // method: public static void newInstnace()
+    static void newInstnace(JNIEnv* env) {
+        assertInited(env);
+        env->CallStaticVoidMethod(sClazz, sMethod_newInstnace_0);
+    }
+
 
     // field: protected java.lang.Object lock
     jobject getLock() const {
@@ -135,6 +121,15 @@ public:
         mJniEnv->SetObjectField(mJavaObjectReference, sField_lock_0, lock);
     }
 
+    // field: public static final int COMPILE_CONSTANT_INT
+    jint getCOMPILE_CONSTANT_INT() const {
+       return mJniEnv->GetStaticIntField(sClazz, sField_COMPILE_CONSTANT_INT_1);
+
+   }
+    // field: public static final int COMPILE_CONSTANT_INT
+    void setCOMPILE_CONSTANT_INT(jint COMPILE_CONSTANT_INT) const {
+        mJniEnv->SetStaticIntField(sClazz, sField_COMPILE_CONSTANT_INT_1, COMPILE_CONSTANT_INT);
+    }
 
     // field: public final int ANOTHER_COMPILE_CONSTANT_INT
     void setANOTHER_COMPILE_CONSTANT_INT(jint ANOTHER_COMPILE_CONSTANT_INT) const {
@@ -190,5 +185,30 @@ public:
     void setAStaticField(jobject aStaticField) const {
         mJniEnv->SetStaticObjectField(sClazz, sField_aStaticField_7, aStaticField);
     }
+
+
+private:
+    static jclass sClazz;
+    static constexpr const jint COMPILE_CONSTANT_INT = 15;
+    static constexpr const jint ANOTHER_COMPILE_CONSTANT_INT = 16;
+
+    static jmethodID sConstruct_0;
+    static jmethodID sConstruct_1;
+    static jmethodID sConstruct_2;
+
+    static jmethodID sMethod_onJobDone_0;
+    static jmethodID sMethod_onJobProgress_0;
+    static jmethodID sMethod_onJobStart_0;
+    static jmethodID sMethod_onJobStart_1;
+    static jmethodID sMethod_newInstnace_0;
+
+    static jfieldID sField_lock_0;
+    static jfieldID sField_COMPILE_CONSTANT_INT_1;
+    static jfieldID sField_ANOTHER_COMPILE_CONSTANT_INT_2;
+    static jfieldID sField_count_3;
+    static jfieldID sField_staticCount_4;
+    static jfieldID sField_name_5;
+    static jfieldID sField_staticName_6;
+    static jfieldID sField_aStaticField_7;
 
 };

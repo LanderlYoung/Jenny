@@ -10,6 +10,7 @@
 
 jclass NestedClassProxy::sClazz = nullptr;
 
+// thread safe init
 std::mutex NestedClassProxy::sInitLock;
 std::atomic_bool NestedClassProxy::sInited;
 

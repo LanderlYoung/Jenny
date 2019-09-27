@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collections;
 import java.util.HashMap;
 
 import io.github.landerlyoung.jenny.NativeClass;
@@ -32,7 +33,11 @@ import io.github.landerlyoung.jenny.NativeProxyForClass;
  * Life with Passion, Code with Creativity.
  */
 @NativeClass
-@NativeProxyForClass(classes = {Runnable.class, File.class, InputStream.class, String.class, URL.class, URLConnection.class})
+@NativeProxyForClass(classes = {
+        Runnable.class, File.class, InputStream.class,
+        String.class, URL.class, URLConnection.class,
+        Collections.class
+})
 public class ComputeIntensiveClass {
     static {
         System.loadLibrary("hello-jenny");

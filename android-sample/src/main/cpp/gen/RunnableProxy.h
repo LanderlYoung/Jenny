@@ -19,17 +19,10 @@ public:
     static constexpr auto FULL_CLASS_NAME = "java/lang/Runnable";
     
 private:
-    static jclass sClazz;
-
-
-    static jmethodID sMethod_run_0;
-
-
-private:
+    // thread safe init
     static std::atomic_bool sInited;
     static std::mutex sInitLock;
 
-private:
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
 
@@ -63,17 +56,28 @@ public:
        return mJavaObjectReference;
     }
     
-    // helper method to delete JNI local ref, use with caution!
+    // helper method to delete JNI local ref.
+    // use only when you really understand JNIEnv::DeleteLocalRef.
     void releaseLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
+    
+    // === java methods below ===
     
 
     // method: public abstract void run()
     void run() const {
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_run_0);
     }
+
+
+
+private:
+    static jclass sClazz;
+
+
+    static jmethodID sMethod_run_0;
 
 
 };

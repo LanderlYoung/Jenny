@@ -19,44 +19,10 @@ public:
     static constexpr auto FULL_CLASS_NAME = "java/net/URL";
     
 private:
-    static jclass sClazz;
-
-    static jmethodID sConstruct_0;
-    static jmethodID sConstruct_1;
-    static jmethodID sConstruct_2;
-    static jmethodID sConstruct_3;
-    static jmethodID sConstruct_4;
-    static jmethodID sConstruct_5;
-
-    static jmethodID sMethod_getQuery_0;
-    static jmethodID sMethod_getPath_0;
-    static jmethodID sMethod_getUserInfo_0;
-    static jmethodID sMethod_getAuthority_0;
-    static jmethodID sMethod_getPort_0;
-    static jmethodID sMethod_getDefaultPort_0;
-    static jmethodID sMethod_getProtocol_0;
-    static jmethodID sMethod_getHost_0;
-    static jmethodID sMethod_getFile_0;
-    static jmethodID sMethod_getRef_0;
-    static jmethodID sMethod_equals_0;
-    static jmethodID sMethod_hashCode_0;
-    static jmethodID sMethod_sameFile_0;
-    static jmethodID sMethod_toString_0;
-    static jmethodID sMethod_toExternalForm_0;
-    static jmethodID sMethod_toURI_0;
-    static jmethodID sMethod_openConnection_0;
-    static jmethodID sMethod_openConnection_1;
-    static jmethodID sMethod_openStream_0;
-    static jmethodID sMethod_getContent_0;
-    static jmethodID sMethod_getContent_1;
-    static jmethodID sMethod_setURLStreamHandlerFactory_0;
-
-
-private:
+    // thread safe init
     static std::atomic_bool sInited;
     static std::mutex sInitLock;
 
-private:
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
 
@@ -90,11 +56,14 @@ public:
        return mJavaObjectReference;
     }
     
-    // helper method to delete JNI local ref, use with caution!
+    // helper method to delete JNI local ref.
+    // use only when you really understand JNIEnv::DeleteLocalRef.
     void releaseLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
+    
+    // === java methods below ===
     
     // construct: public URL(java.lang.String protocol, java.lang.String host, int port, java.lang.String file)
     static URLProxy newInstance(JNIEnv* env, jstring protocol, jstring host, jint port, jstring file) noexcept {
@@ -239,9 +208,45 @@ public:
     }
 
     // method: public static void setURLStreamHandlerFactory(java.net.URLStreamHandlerFactory fac)
-    void setURLStreamHandlerFactory(jobject fac) const {
-        mJniEnv->CallStaticVoidMethod(sClazz, sMethod_setURLStreamHandlerFactory_0, fac);
+    static void setURLStreamHandlerFactory(JNIEnv* env, jobject fac) {
+        assertInited(env);
+        env->CallStaticVoidMethod(sClazz, sMethod_setURLStreamHandlerFactory_0, fac);
     }
+
+
+
+private:
+    static jclass sClazz;
+
+    static jmethodID sConstruct_0;
+    static jmethodID sConstruct_1;
+    static jmethodID sConstruct_2;
+    static jmethodID sConstruct_3;
+    static jmethodID sConstruct_4;
+    static jmethodID sConstruct_5;
+
+    static jmethodID sMethod_getQuery_0;
+    static jmethodID sMethod_getPath_0;
+    static jmethodID sMethod_getUserInfo_0;
+    static jmethodID sMethod_getAuthority_0;
+    static jmethodID sMethod_getPort_0;
+    static jmethodID sMethod_getDefaultPort_0;
+    static jmethodID sMethod_getProtocol_0;
+    static jmethodID sMethod_getHost_0;
+    static jmethodID sMethod_getFile_0;
+    static jmethodID sMethod_getRef_0;
+    static jmethodID sMethod_equals_0;
+    static jmethodID sMethod_hashCode_0;
+    static jmethodID sMethod_sameFile_0;
+    static jmethodID sMethod_toString_0;
+    static jmethodID sMethod_toExternalForm_0;
+    static jmethodID sMethod_toURI_0;
+    static jmethodID sMethod_openConnection_0;
+    static jmethodID sMethod_openConnection_1;
+    static jmethodID sMethod_openStream_0;
+    static jmethodID sMethod_getContent_0;
+    static jmethodID sMethod_getContent_1;
+    static jmethodID sMethod_setURLStreamHandlerFactory_0;
 
 
 };
