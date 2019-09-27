@@ -15,6 +15,12 @@
  */
 package io.github.landerlyoung.jennysampleapp;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -42,7 +48,19 @@ import io.github.landerlyoung.jenny.NativeProxyForClass;
         Collections.class,
         ReentrantLock.class, AtomicInteger.class, Thread.class
 })
+@NativeProxyForClass(
+        namespace = "android", classes = {
+        Context.class, Surface.class, SurfaceHolder.class
+})
 public class ComputeIntensiveClass {
+
+    @NativeProxyForClass(
+            namespace = "android::graphics", classes = {
+            Canvas.class, Bitmap.class
+    })
+    private class X {
+    }
+
     static {
         System.loadLibrary("hello-jenny");
     }

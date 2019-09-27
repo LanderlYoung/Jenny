@@ -1,6 +1,7 @@
 package io.github.landerlyoung.jenny;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -19,6 +20,7 @@ import java.lang.annotation.Target;
  * Life with Passion, Code with Creativity.
  * </pre>
  */
+@Repeatable(NativeProxyForClass.RepeatContainer.class)
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface NativeProxyForClass {
@@ -31,4 +33,13 @@ public @interface NativeProxyForClass {
      * C++ namespace for generated class
      */
     String namespace() default "";
+
+    /**
+     * Java 8 repeatable annotation container.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(ElementType.TYPE)
+    @interface RepeatContainer {
+        NativeProxyForClass[] value() default {};
+    }
 }

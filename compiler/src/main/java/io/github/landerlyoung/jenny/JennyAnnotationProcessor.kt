@@ -77,9 +77,15 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                     NativeProxyCodeGenerator(env, it as TypeElement, config).doGenerate()
                 }
 
-        roundEnv.getElementsAnnotatedWith(NativeProxyForClass::class.java)
-                .forEach {
-                    val annotation = it.getAnnotation(NativeProxyForClass::class.java)
+        (roundEnv.getElementsAnnotatedWith(NativeProxyForClass::class.java)
+                .asSequence()
+                .map { it.getAnnotation(NativeProxyForClass::class.java) }
+                +
+                roundEnv.getElementsAnnotatedWith(NativeProxyForClass.RepeatContainer::class.java)
+                        .asSequence()
+                        .flatMap { it.getAnnotationsByType(NativeProxyForClass::class.java).asSequence() }
+                )
+                .forEach { annotation ->
                     try {
                         annotation.classes
                         throw AssertionError("unreachable")
