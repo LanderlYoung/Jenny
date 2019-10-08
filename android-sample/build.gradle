@@ -52,6 +52,13 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        // pass arguments to jenny
+        // arg("jenny.threadSafe", "false")
+    }
+}
+
 dependencies {
     compileOnly project(':annotation')
     kapt project(':compiler')

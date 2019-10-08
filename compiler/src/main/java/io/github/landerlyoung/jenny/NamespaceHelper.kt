@@ -2,7 +2,7 @@ package io.github.landerlyoung.jenny
 
 /*
  * ```
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2019-09-27
  * Time:   11:17
  * Life with Passion, Code with Creativity.

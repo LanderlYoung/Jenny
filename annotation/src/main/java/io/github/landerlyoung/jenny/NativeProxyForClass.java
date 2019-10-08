@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * This Annotation can be added to any class.
  *
  * <pre>
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2019-09-25
  * Time:   20:36
  * Life with Passion, Code with Creativity.
