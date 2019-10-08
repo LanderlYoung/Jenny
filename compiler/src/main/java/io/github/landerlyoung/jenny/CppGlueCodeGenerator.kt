@@ -73,8 +73,8 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
 
     private fun findNativeMethods() {
         mClazz.enclosedElements
-                .stream()
-                .filter { e -> e.kind == ElementKind.METHOD }
+                .asSequence()
+                .filter { it.kind == ElementKind.METHOD }
                 .forEach { e ->
                     if (e.modifiers.contains(Modifier.NATIVE)) {
                         mMethods.add(e)

@@ -112,7 +112,13 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                         |
                         |public:
                         |    static constexpr auto FULL_CLASS_NAME = "$mSlashClassName";
-                        |    
+                        |
+                        |""".trimMargin())
+
+                    buildConstantsIdDeclare()
+
+                    append("""
+                        |
                         |private:
                         |
                     """.trimMargin())
@@ -184,7 +190,6 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                         |
                     """.trimMargin())
 
-                    buildConstantsIdDeclare()
                     buildConstructorIdDeclare()
                     buildMethodIdDeclare()
                     buildFieldIdDeclare()
@@ -253,10 +258,10 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
 
     private fun StringBuilder.buildConstantsIdDeclare() {
         mClazz.enclosedElements
-                .stream()
-                .filter { e -> e.kind == ElementKind.FIELD }
-                .map { e -> e as VariableElement }
-                .filter { ve -> ve.constantValue != null }
+                .asSequence()
+                .filter { it.kind == ElementKind.FIELD }
+                .map { it as VariableElement }
+                .filter { it.constantValue != null }
                 .forEach { ve ->
                     // if this field is a compile-time constant value it's
                     // value will be returned, otherwise null will be returned.
@@ -266,7 +271,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                     val type = mHelper.toNativeType(ve.asType(), true)
                     val name = ve.simpleName
                     val value = HandyHelper.getJNIHeaderConstantValue(constValue)
-                    append("    static constexpr const $type $name = ${value};\n")
+                    append("    static constexpr $type $name = ${value};\n")
                 }
         append('\n')
     }
@@ -283,7 +288,6 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
             append("    static jmethodID ${getMethodName(r.method, r.index)};\n")
         }
         append('\n')
-
     }
 
     private fun StringBuilder.buildFieldIdDeclare() {
