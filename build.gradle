@@ -27,9 +27,6 @@ allprojects {
 }
 
 
-// Bintray
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
 ext {
     userOrg = 'landerlyoung'
     groupId = 'io.github.landerlyoung'
@@ -38,6 +35,24 @@ ext {
     website = 'https://github.com/LanderlYoung/Jenny'
     licences = ['Apache-2.0']
 
-    user = properties.getProperty("publish.bintrayUser")
-    key = properties.getProperty("publish.bintrayKey")
+    // Bintray
+    if (rootProject.hasProperty('publish_bintrayUser')) {
+        // from properties
+        user = rootProject.property('publish_bintrayUser')
+        key = rootProject.property('publish_bintrayKey')
+    } else if (System.getenv('publish_bintrayUser') != null) {
+        // from env
+        user = System.getenv('publish_bintrayUser')
+        key = System.getenv('publish_bintrayKey')
+    } else if (rootProject.file('local.properties').exists()) {
+        // from local.properties config
+        def properties = new Properties()
+        properties.load(rootProject.file('local.properties').newInputStream())
+        user = properties.getProperty("publish.bintrayUser")
+        key = properties.getProperty("publish.bintrayKey")
+    } else {
+        // default
+        user = ""
+        key = ""
+    }
 }
