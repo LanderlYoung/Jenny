@@ -171,9 +171,11 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                         |    
                         |    // helper method to delete JNI local ref.
                         |    // use only when you really understand JNIEnv::DeleteLocalRef.
-                        |    void releaseLocalRef() {
-                        |       mJniEnv->DeleteLocalRef(mJavaObjectReference);
-                        |       mJavaObjectReference = nullptr;
+                        |    void deleteLocalRef() {
+                        |       if (mJavaObjectReference) {
+                        |           mJniEnv->DeleteLocalRef(mJavaObjectReference);
+                        |           mJavaObjectReference = nullptr;
+                        |       }
                         |    }
                         |    
                         |    // === java methods below ===

@@ -207,7 +207,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
             val jniCall = if (isSource) "" else "JNICALL "
             val jniReturnType = mHelper.toJNIType(e.returnType)
             val nativeMethodName =
-                    if (mNativeClassAnnotation.dynamicRegisterJniMethods)
+                    if (isSource && mNativeClassAnnotation.dynamicRegisterJniMethods)
                         cppClassName + "::" + getMethodName(e)
                     else
                         getMethodName(e)
