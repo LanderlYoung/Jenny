@@ -115,8 +115,10 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         private val SUPPORTED_ANNOTATIONS: Set<String> = setOf(
                 NativeClass::class.java.name,
                 NativeCode::class.java.name,
+                NativeFieldProxy::class.java.name,
+                NativeMethodProxy::class.java.name,
                 NativeProxy::class.java.name,
-                NativeMethodProxy::class.java.name)
-
+                NativeProxyForClass::class.java.name
+        )
     }
 }

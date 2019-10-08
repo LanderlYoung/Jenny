@@ -142,7 +142,6 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
                     append("""
                         |
                         |${mNamespaceHelper.beginNamespace()}
-                        |namespace $cppClassName {
                         |
                         |""".trimMargin())
                 }
@@ -150,7 +149,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
                 buildMethodsDefinition(true)
 
                 if (mNativeClassAnnotation.dynamicRegisterJniMethods) {
-                    endNamespace()
+                    endNamespace(true)
                 }
             }.let { content ->
                 fileObject.openOutputStream().write(content.toByteArray(Charsets.UTF_8))
@@ -160,12 +159,12 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
         }
     }
 
-    private fun StringBuilder.endNamespace() {
-        append("""
-            |
-            |} // endof namespace $cppClassName
-            |${mNamespaceHelper.endNamespace()}
-            |""".trimMargin())
+    private fun StringBuilder.endNamespace(isSource: Boolean = false) {
+        append('\n')
+        if (!isSource) {
+            append("} // endof namespace $cppClassName\n")
+        }
+        append("${mNamespaceHelper.endNamespace()}\n\n")
     }
 
     private fun StringBuilder.buildConstantsDefinition() {
@@ -207,7 +206,11 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
             val export = if (isSource || mNativeClassAnnotation.dynamicRegisterJniMethods) "" else "JNIEXPORT "
             val jniCall = if (isSource) "" else "JNICALL "
             val jniReturnType = mHelper.toJNIType(e.returnType)
-            val nativeMethodName = getMethodName(e)
+            val nativeMethodName =
+                    if (mNativeClassAnnotation.dynamicRegisterJniMethods)
+                        cppClassName + "::" + getMethodName(e)
+                    else
+                        getMethodName(e)
             val nativeParameters = mHelper.getNativeMethodParam(e)
 
             append("""
