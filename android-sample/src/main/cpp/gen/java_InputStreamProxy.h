@@ -13,11 +13,14 @@
 #include <atomic>
 #include <mutex>
 
+namespace java {
 class InputStreamProxy {
 
 public:
     static constexpr auto FULL_CLASS_NAME = "java/io/InputStream";
-    
+
+
+
 private:
     // thread safe init
     static std::atomic_bool sInited;
@@ -58,7 +61,7 @@ public:
     
     // helper method to delete JNI local ref.
     // use only when you really understand JNIEnv::DeleteLocalRef.
-    void releaseLocalRef() {
+    void deleteLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
@@ -121,7 +124,6 @@ public:
 
 private:
     static jclass sClazz;
-
     static jmethodID sConstruct_0;
 
     static jmethodID sMethod_read_0;
@@ -136,3 +138,4 @@ private:
 
 
 };
+} // endof namespace java

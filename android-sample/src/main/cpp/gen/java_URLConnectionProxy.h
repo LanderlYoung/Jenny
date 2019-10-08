@@ -13,11 +13,14 @@
 #include <atomic>
 #include <mutex>
 
+namespace java {
 class URLConnectionProxy {
 
 public:
     static constexpr auto FULL_CLASS_NAME = "java/net/URLConnection";
-    
+
+
+
 private:
     // thread safe init
     static std::atomic_bool sInited;
@@ -58,7 +61,7 @@ public:
     
     // helper method to delete JNI local ref.
     // use only when you really understand JNIEnv::DeleteLocalRef.
-    void releaseLocalRef() {
+    void deleteLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
@@ -341,26 +344,29 @@ public:
     jboolean getConnected() const {
        return mJniEnv->GetBooleanField(mJavaObjectReference, sField_connected_0);
 
-   }
+    }
+
     // field: protected boolean connected
     void setConnected(jboolean connected) const {
         mJniEnv->SetBooleanField(mJavaObjectReference, sField_connected_0, connected);
     }
 
+
     // field: protected java.net.URL url
     jobject getUrl() const {
        return mJniEnv->GetObjectField(mJavaObjectReference, sField_url_1);
 
-   }
+    }
+
     // field: protected java.net.URL url
     void setUrl(jobject url) const {
         mJniEnv->SetObjectField(mJavaObjectReference, sField_url_1, url);
     }
 
 
+
 private:
     static jclass sClazz;
-
     static jmethodID sConstruct_0;
 
     static jmethodID sMethod_getFileNameMap_0;
@@ -419,3 +425,4 @@ private:
     static jfieldID sField_url_1;
 
 };
+} // endof namespace java

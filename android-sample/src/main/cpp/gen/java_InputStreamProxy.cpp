@@ -6,8 +6,9 @@
  * For bug report, please refer to github issue tracker https://github.com/LanderlYoung/Jenny/issues,
  * or contact author landerlyoung@gmail.com.
  */
-#include "InputStreamProxy.h"
+#include "java_InputStreamProxy.h"
 
+namespace java {
 jclass InputStreamProxy::sClazz = nullptr;
 
 // thread safe init
@@ -93,3 +94,4 @@ jmethodID InputStreamProxy::sMethod_reset_0;
 jmethodID InputStreamProxy::sMethod_markSupported_0;
 
 
+} // endof namespace java

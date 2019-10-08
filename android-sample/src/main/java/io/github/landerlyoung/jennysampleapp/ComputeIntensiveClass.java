@@ -40,25 +40,29 @@ import io.github.landerlyoung.jenny.NativeProxyForClasses;
  * Time:   20-50
  * Life with Passion, Code with Creativity.
  */
-@NativeClass(namespace = "io::github::landerlyoung")
+@NativeClass(/*namespace = "io::github::landerlyoung"*/)
 @NativeProxyForClasses(
         namespace = "java", classes = {
-        Runnable.class, File.class, InputStream.class,
-        String.class, URL.class, URLConnection.class,
-        Collections.class,
-        ReentrantLock.class, AtomicInteger.class, Thread.class
-})
-@NativeProxyForClasses(
-        namespace = "android", classes = {
-        Context.class, Surface.class, SurfaceHolder.class
+        InputStream.class, String.class, URL.class, URLConnection.class,
 })
 public class ComputeIntensiveClass {
 
     @NativeProxyForClasses(
-            namespace = "android::graphics", classes = {
+            namespace = "test::android::graphics", classes = {
             Canvas.class, Bitmap.class
     })
-    private class X {
+    @NativeProxyForClasses(
+            namespace = "test::java::lang", classes = {
+            Runnable.class, File.class, InputStream.class,
+            String.class, URL.class, URLConnection.class,
+            Collections.class,
+            ReentrantLock.class, AtomicInteger.class, Thread.class
+    })
+    @NativeProxyForClasses(
+            namespace = "test::android", classes = {
+            Context.class, Surface.class, SurfaceHolder.class
+    })
+    private class Test {
     }
 
     static {

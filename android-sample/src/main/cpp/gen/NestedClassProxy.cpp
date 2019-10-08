@@ -8,6 +8,7 @@
  */
 #include "NestedClassProxy.h"
 
+
 jclass NestedClassProxy::sClazz = nullptr;
 
 // thread safe init
@@ -59,5 +60,6 @@ std::atomic_bool NestedClassProxy::sInited;
 jmethodID NestedClassProxy::sConstruct_0;
 
 jmethodID NestedClassProxy::sMethod_hello_0;
+
 
 

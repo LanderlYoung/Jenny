@@ -6,8 +6,9 @@
  * For bug report, please refer to github issue tracker https://github.com/LanderlYoung/Jenny/issues,
  * or contact author landerlyoung@gmail.com.
  */
-#include "URLProxy.h"
+#include "java_URLProxy.h"
 
+namespace java {
 jclass URLProxy::sClazz = nullptr;
 
 // thread safe init
@@ -165,3 +166,4 @@ jmethodID URLProxy::sMethod_getContent_1;
 jmethodID URLProxy::sMethod_setURLStreamHandlerFactory_0;
 
 
+} // endof namespace java

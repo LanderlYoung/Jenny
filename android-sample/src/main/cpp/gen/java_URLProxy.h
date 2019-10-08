@@ -13,11 +13,14 @@
 #include <atomic>
 #include <mutex>
 
+namespace java {
 class URLProxy {
 
 public:
     static constexpr auto FULL_CLASS_NAME = "java/net/URL";
-    
+
+
+
 private:
     // thread safe init
     static std::atomic_bool sInited;
@@ -58,7 +61,7 @@ public:
     
     // helper method to delete JNI local ref.
     // use only when you really understand JNIEnv::DeleteLocalRef.
-    void releaseLocalRef() {
+    void deleteLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
@@ -217,7 +220,6 @@ public:
 
 private:
     static jclass sClazz;
-
     static jmethodID sConstruct_0;
     static jmethodID sConstruct_1;
     static jmethodID sConstruct_2;
@@ -250,3 +252,4 @@ private:
 
 
 };
+} // endof namespace java

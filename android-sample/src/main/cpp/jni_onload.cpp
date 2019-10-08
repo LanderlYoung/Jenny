@@ -8,8 +8,9 @@
 */
 
 #include <jni.h>
-#include <ComputeIntensiveClass.h>
-#include <NestedNativeClass.h>
+#include <cassert>
+#include "ComputeIntensiveClass.h"
+#include "NestedNativeClass.h"
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
@@ -17,7 +18,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
                    JNI_VERSION_1_6) != JNI_OK) {
         return -1;
     }
-    ComputeIntensiveClass::registerNativeFunctions(env);
+    assert(ComputeIntensiveClass::registerNativeFunctions(env));
     return JNI_VERSION_1_6;
 }
 

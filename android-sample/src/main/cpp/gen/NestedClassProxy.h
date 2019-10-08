@@ -13,11 +13,14 @@
 #include <atomic>
 #include <mutex>
 
+
 class NestedClassProxy {
 
 public:
     static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback$NestedClass";
-    
+
+
+
 private:
     // thread safe init
     static std::atomic_bool sInited;
@@ -58,7 +61,7 @@ public:
     
     // helper method to delete JNI local ref.
     // use only when you really understand JNIEnv::DeleteLocalRef.
-    void releaseLocalRef() {
+    void deleteLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
@@ -81,10 +84,10 @@ public:
 
 private:
     static jclass sClazz;
-
     static jmethodID sConstruct_0;
 
     static jmethodID sMethod_hello_0;
 
 
 };
+

@@ -12,6 +12,7 @@
 
 #include <jni.h>
 
+
 namespace ComputeIntensiveClass {
 
 // DO NOT modify
@@ -149,4 +150,6 @@ inline bool registerNativeFunctions(JNIEnv *env) {
    return success;
 }
 
-} //endof namespace ComputeIntensiveClass
+} // endof namespace ComputeIntensiveClass
+
+

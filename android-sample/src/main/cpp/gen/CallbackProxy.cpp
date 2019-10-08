@@ -8,6 +8,7 @@
  */
 #include "CallbackProxy.h"
 
+
 jclass CallbackProxy::sClazz = nullptr;
 
 // thread safe init
@@ -59,8 +60,8 @@ std::atomic_bool CallbackProxy::sInited;
             sField_lock_0 = env->GetFieldID(sClazz, "lock", "Ljava/lang/Object;");
             JENNY_CHECK_NULL(sField_lock_0);
 
-            sField_COMPILE_CONSTANT_INT_1 = env->GetStaticFieldID(sClazz, "COMPILE_CONSTANT_INT", "I");
-            JENNY_CHECK_NULL(sField_COMPILE_CONSTANT_INT_1);
+            sField_COMPILE_NON_CONSTANT_INT_1 = env->GetStaticFieldID(sClazz, "COMPILE_NON_CONSTANT_INT", "J");
+            JENNY_CHECK_NULL(sField_COMPILE_NON_CONSTANT_INT_1);
 
             sField_ANOTHER_COMPILE_CONSTANT_INT_2 = env->GetFieldID(sClazz, "ANOTHER_COMPILE_CONSTANT_INT", "I");
             JENNY_CHECK_NULL(sField_ANOTHER_COMPILE_CONSTANT_INT_2);
@@ -109,11 +110,12 @@ jmethodID CallbackProxy::sMethod_onJobStart_1;
 jmethodID CallbackProxy::sMethod_newInstnace_0;
 
 jfieldID CallbackProxy::sField_lock_0;
-jfieldID CallbackProxy::sField_COMPILE_CONSTANT_INT_1;
+jfieldID CallbackProxy::sField_COMPILE_NON_CONSTANT_INT_1;
 jfieldID CallbackProxy::sField_ANOTHER_COMPILE_CONSTANT_INT_2;
 jfieldID CallbackProxy::sField_count_3;
 jfieldID CallbackProxy::sField_staticCount_4;
 jfieldID CallbackProxy::sField_name_5;
 jfieldID CallbackProxy::sField_staticName_6;
 jfieldID CallbackProxy::sField_aStaticField_7;
+
 

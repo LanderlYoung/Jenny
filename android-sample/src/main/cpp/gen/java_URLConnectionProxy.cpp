@@ -6,8 +6,9 @@
  * For bug report, please refer to github issue tracker https://github.com/LanderlYoung/Jenny/issues,
  * or contact author landerlyoung@gmail.com.
  */
-#include "URLConnectionProxy.h"
+#include "java_URLConnectionProxy.h"
 
+namespace java {
 jclass URLConnectionProxy::sClazz = nullptr;
 
 // thread safe init
@@ -269,3 +270,4 @@ jmethodID URLConnectionProxy::sMethod_guessContentTypeFromStream_0;
 jfieldID URLConnectionProxy::sField_connected_0;
 jfieldID URLConnectionProxy::sField_url_1;
 
+} // endof namespace java

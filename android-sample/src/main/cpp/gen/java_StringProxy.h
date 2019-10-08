@@ -13,11 +13,14 @@
 #include <atomic>
 #include <mutex>
 
+namespace java {
 class StringProxy {
 
 public:
     static constexpr auto FULL_CLASS_NAME = "java/lang/String";
-    
+
+
+
 private:
     // thread safe init
     static std::atomic_bool sInited;
@@ -58,7 +61,7 @@ public:
     
     // helper method to delete JNI local ref.
     // use only when you really understand JNIEnv::DeleteLocalRef.
-    void releaseLocalRef() {
+    void deleteLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
@@ -511,16 +514,17 @@ public:
     jobject getCASE_INSENSITIVE_ORDER() const {
        return mJniEnv->GetStaticObjectField(sClazz, sField_CASE_INSENSITIVE_ORDER_0);
 
-   }
+    }
+
     // field: public static final java.util.Comparator<java.lang.String> CASE_INSENSITIVE_ORDER
     void setCASE_INSENSITIVE_ORDER(jobject CASE_INSENSITIVE_ORDER) const {
         mJniEnv->SetStaticObjectField(sClazz, sField_CASE_INSENSITIVE_ORDER_0, CASE_INSENSITIVE_ORDER);
     }
 
 
+
 private:
     static jclass sClazz;
-
     static jmethodID sConstruct_0;
     static jmethodID sConstruct_1;
     static jmethodID sConstruct_2;
@@ -608,3 +612,4 @@ private:
     static jfieldID sField_CASE_INSENSITIVE_ORDER_0;
 
 };
+} // endof namespace java

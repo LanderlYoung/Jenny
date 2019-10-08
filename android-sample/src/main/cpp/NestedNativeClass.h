@@ -12,6 +12,7 @@
 
 #include <jni.h>
 
+
 namespace NestedNativeClass {
 
 // DO NOT modify
@@ -20,7 +21,9 @@ static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/C
 static constexpr jint CONST = 0;
 
 
-} //endof namespace NestedNativeClass
+} // endof namespace NestedNativeClass
+
+
 
 #ifdef __cplusplus
 extern "C" {

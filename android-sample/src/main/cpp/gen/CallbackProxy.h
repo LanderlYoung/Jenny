@@ -13,11 +13,16 @@
 #include <atomic>
 #include <mutex>
 
+
 class CallbackProxy {
 
 public:
     static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback";
-    
+
+    static constexpr jint COMPILE_CONSTANT_INT = 15;
+    static constexpr jint ANOTHER_COMPILE_CONSTANT_INT = 16;
+
+
 private:
     // thread safe init
     static std::atomic_bool sInited;
@@ -58,7 +63,7 @@ public:
     
     // helper method to delete JNI local ref.
     // use only when you really understand JNIEnv::DeleteLocalRef.
-    void releaseLocalRef() {
+    void deleteLocalRef() {
        mJniEnv->DeleteLocalRef(mJavaObjectReference);
        mJavaObjectReference = nullptr;
     }
@@ -115,83 +120,95 @@ public:
     jobject getLock() const {
        return mJniEnv->GetObjectField(mJavaObjectReference, sField_lock_0);
 
-   }
+    }
+
     // field: protected java.lang.Object lock
     void setLock(jobject lock) const {
         mJniEnv->SetObjectField(mJavaObjectReference, sField_lock_0, lock);
     }
 
-    // field: public static final int COMPILE_CONSTANT_INT
-    jint getCOMPILE_CONSTANT_INT() const {
-       return mJniEnv->GetStaticIntField(sClazz, sField_COMPILE_CONSTANT_INT_1);
 
-   }
-    // field: public static final int COMPILE_CONSTANT_INT
-    void setCOMPILE_CONSTANT_INT(jint COMPILE_CONSTANT_INT) const {
-        mJniEnv->SetStaticIntField(sClazz, sField_COMPILE_CONSTANT_INT_1, COMPILE_CONSTANT_INT);
+    // field: public static final long COMPILE_NON_CONSTANT_INT
+    jlong getCOMPILE_NON_CONSTANT_INT() const {
+       return mJniEnv->GetStaticLongField(sClazz, sField_COMPILE_NON_CONSTANT_INT_1);
+
     }
+
+    // field: public static final long COMPILE_NON_CONSTANT_INT
+    void setCOMPILE_NON_CONSTANT_INT(jlong COMPILE_NON_CONSTANT_INT) const {
+        mJniEnv->SetStaticLongField(sClazz, sField_COMPILE_NON_CONSTANT_INT_1, COMPILE_NON_CONSTANT_INT);
+    }
+
 
     // field: public final int ANOTHER_COMPILE_CONSTANT_INT
     void setANOTHER_COMPILE_CONSTANT_INT(jint ANOTHER_COMPILE_CONSTANT_INT) const {
         mJniEnv->SetIntField(mJavaObjectReference, sField_ANOTHER_COMPILE_CONSTANT_INT_2, ANOTHER_COMPILE_CONSTANT_INT);
     }
 
+
     // field: public int count
     jint getCount() const {
        return mJniEnv->GetIntField(mJavaObjectReference, sField_count_3);
 
-   }
+    }
+
     // field: public int count
     void setCount(jint count) const {
         mJniEnv->SetIntField(mJavaObjectReference, sField_count_3, count);
     }
 
+
     // field: public static int staticCount
     jint getStaticCount() const {
        return mJniEnv->GetStaticIntField(sClazz, sField_staticCount_4);
 
-   }
+    }
+
     // field: public static int staticCount
     void setStaticCount(jint staticCount) const {
         mJniEnv->SetStaticIntField(sClazz, sField_staticCount_4, staticCount);
     }
 
+
     // field: public java.lang.String name
     jstring getName() const {
        return reinterpret_cast<jstring>(mJniEnv->GetObjectField(mJavaObjectReference, sField_name_5));
 
-   }
+    }
+
     // field: public java.lang.String name
     void setName(jstring name) const {
         mJniEnv->SetObjectField(mJavaObjectReference, sField_name_5, name);
     }
 
+
     // field: public static java.lang.String staticName
     jstring getStaticName() const {
        return reinterpret_cast<jstring>(mJniEnv->GetStaticObjectField(sClazz, sField_staticName_6));
 
-   }
+    }
+
     // field: public static java.lang.String staticName
     void setStaticName(jstring staticName) const {
         mJniEnv->SetStaticObjectField(sClazz, sField_staticName_6, staticName);
     }
 
+
     // field: public static java.util.List<java.lang.String> aStaticField
     jobject getAStaticField() const {
        return mJniEnv->GetStaticObjectField(sClazz, sField_aStaticField_7);
 
-   }
+    }
+
     // field: public static java.util.List<java.lang.String> aStaticField
     void setAStaticField(jobject aStaticField) const {
         mJniEnv->SetStaticObjectField(sClazz, sField_aStaticField_7, aStaticField);
     }
 
 
+
 private:
     static jclass sClazz;
-    static constexpr const jint COMPILE_CONSTANT_INT = 15;
-    static constexpr const jint ANOTHER_COMPILE_CONSTANT_INT = 16;
-
     static jmethodID sConstruct_0;
     static jmethodID sConstruct_1;
     static jmethodID sConstruct_2;
@@ -203,7 +220,7 @@ private:
     static jmethodID sMethod_newInstnace_0;
 
     static jfieldID sField_lock_0;
-    static jfieldID sField_COMPILE_CONSTANT_INT_1;
+    static jfieldID sField_COMPILE_NON_CONSTANT_INT_1;
     static jfieldID sField_ANOTHER_COMPILE_CONSTANT_INT_2;
     static jfieldID sField_count_3;
     static jfieldID sField_staticCount_4;
@@ -212,3 +229,4 @@ private:
     static jfieldID sField_aStaticField_7;
 
 };
+

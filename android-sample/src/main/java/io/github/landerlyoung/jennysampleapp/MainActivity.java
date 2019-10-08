@@ -92,21 +92,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                final String json = ComputeIntensiveClass.httpGet("https://jsonplaceholder.typicode.com/todos/1");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        toast(json);
-                    }
-                });
-            }
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+            final String json = ComputeIntensiveClass.httpGet("https://jsonplaceholder.typicode.com/todos/1");
+            runOnUiThread(() -> toast(json));
         });
     }
 
-    String httpGet(String url) throws IOException {
+    /**
+     * equivalent java code to {@link ComputeIntensiveClass#httpGet(String)}
+     */
+    private String httpGet(String url) throws IOException {
         URL u = new URL(url);
         URLConnection conn = u.openConnection();
         InputStream input = conn.getInputStream();

@@ -6,8 +6,9 @@
  * For bug report, please refer to github issue tracker https://github.com/LanderlYoung/Jenny/issues,
  * or contact author landerlyoung@gmail.com.
  */
-#include "StringProxy.h"
+#include "java_StringProxy.h"
 
+namespace java {
 jclass StringProxy::sClazz = nullptr;
 
 // thread safe init
@@ -385,3 +386,4 @@ jmethodID StringProxy::sMethod_intern_0;
 
 jfieldID StringProxy::sField_CASE_INSENSITIVE_ORDER_0;
 
+} // endof namespace java
