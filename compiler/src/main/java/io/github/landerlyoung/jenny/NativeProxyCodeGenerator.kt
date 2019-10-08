@@ -376,21 +376,27 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
 
 
             val static = if (isStatic) "Static" else ""
+            val staticMod = if (isStatic) "static " else ""
             val classOrObj = if (isStatic) "sClazz" else "mJavaObjectReference"
+            val assertInit = if (isStatic) "assertInited(env);" else ""
+            val jniEnv = if (isStatic) "env" else "mJniEnv"
+            val const = if (isStatic)  "" else "const "
 
             val comment = "// field: ${mHelper.getModifiers(f)} ${f.asType()} ${f.simpleName}"
 
             if (getterSetters.contains(GetterSetter.GETTER)) {
+                val env = if (isStatic) "JNIEnv* env" else ""
                 append("""
                     |    $comment
-                    |    $returnType get${camelCaseName}() const {
+                    |    ${staticMod}$returnType get${camelCaseName}(${env}) ${const}{
+                    |       $assertInit
                     |       return """.trimMargin())
 
                 if (returnTypeNeedCast(returnType)) {
                     append("reinterpret_cast<${returnType}>(")
                 }
 
-                append("mJniEnv->Get${static}${typeForJniCall}Field(${classOrObj}, $fieldId)")
+                append("${jniEnv}->Get${static}${typeForJniCall}Field(${classOrObj}, $fieldId)")
 
                 if (returnTypeNeedCast(returnType)) {
                     append(")")
@@ -404,10 +410,17 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
             }
 
             if (getterSetters.contains(GetterSetter.SETTER)) {
+                val param = "$jniType ${f.simpleName}".let {
+                    if (isStatic) {
+                        "JNIEnv* env, $it"
+                    } else
+                        it
+                }
                 append("""
                     |    $comment
-                    |    void set${camelCaseName}(${jniType} ${f.simpleName}) const {
-                    |        mJniEnv->Set${static}${typeForJniCall}Field(${classOrObj}, ${fieldId}, ${f.simpleName});
+                    |    ${staticMod}void set${camelCaseName}(${param}) ${const}{
+                    |        $assertInit
+                    |        ${jniEnv}->Set${static}${typeForJniCall}Field(${classOrObj}, ${fieldId}, ${f.simpleName});
                     |    }
                     |
                     |""".trimMargin())
@@ -645,7 +658,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
         mClazz.enclosedElements
                 .asSequence()
                 .filter {
-                    it.kind == ElementKind.FIELD && (it as VariableElement).constantValue != null
+                    it.kind.isField && (it as VariableElement).constantValue != null
                 }
                 .forEach { mConstants.add(it as VariableElement) }
     }
@@ -653,7 +666,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     private fun findFields() {
         mClazz.enclosedElements
                 .asSequence()
-                .filter { it.kind == ElementKind.FIELD && shouldGenerateField(it) }
+                .filter { it.kind.isField && shouldGenerateField(it) }
                 .forEach { mFields.add(it as VariableElement) }
     }
 

@@ -170,7 +170,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
     private fun StringBuilder.buildConstantsDefinition() {
         mClazz.enclosedElements
                 .asSequence()
-                .filter { it.kind == ElementKind.FIELD }
+                .filter { it.kind.isField }
                 .map { it as VariableElement }
                 .filter { it.constantValue != null }
                 .forEach {
