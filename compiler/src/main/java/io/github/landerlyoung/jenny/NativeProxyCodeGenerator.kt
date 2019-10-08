@@ -237,7 +237,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                     buildNativeInitClass()
 
                     mConstructors.forEach { r ->
-                        append("jmethodID ${cppClassName}::${getConstructorName(r.method, r.index)};\n")
+                        append("jmethodID ${cppClassName}::${getConstructorName(r.index)};\n")
                     }
                     append("\n")
                     mMethods.forEach { r ->
@@ -275,7 +275,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
 
     private fun StringBuilder.buildConstructorIdDeclare() {
         mConstructors.forEach { r ->
-            append("    static jmethodID ${getConstructorName(r.method, r.index)};\n")
+            append("    static jmethodID ${getConstructorName(r.index)};\n")
         }
         append('\n')
     }
@@ -289,12 +289,11 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
 
     private fun StringBuilder.buildFieldIdDeclare() {
         mFields.forEachIndexed { index, field ->
-            val f = field as VariableElement
-            if (f.constantValue != null) {
+            if (field.constantValue != null) {
                 warn("you are trying to add getter/setter to a compile-time constant "
-                        + mClassName + "." + f.simpleName.toString())
+                        + mClassName + "." + field.simpleName.toString())
             }
-            append("    static jfieldID ${getFieldName(f, index)};\n")
+            append("    static jfieldID ${getFieldName(field, index)};\n")
         }
         append('\n')
     }
@@ -309,7 +308,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                 |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
                 |    static $cppClassName newInstance${r.resolvedPostFix}(JNIEnv* env${param}) noexcept {
                 |       assertInited(env);
-                |       return ${cppClassName}(env, env->NewObject(sClazz, ${getConstructorName(r.method, r.index)}${getJniMethodParamVal(r.method)}));
+                |       return ${cppClassName}(env, env->NewObject(sClazz, ${getConstructorName(r.index)}${getJniMethodParamVal(r.method)}));
                 |    } 
                 |    
                 |""".trimMargin())
@@ -493,7 +492,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     private fun StringBuilder.buildConstructorIdInit() {
         mConstructors.forEach { r ->
             val c = r.method
-            val name = getConstructorName(c, r.index)
+            val name = getConstructorName(r.index)
             val signature = mHelper.getBinaryMethodSignature(c)
 
             append("""
@@ -602,7 +601,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
         }
     }
 
-    private fun getConstructorName(e: ExecutableElement, index: Int): String {
+    private fun getConstructorName(index: Int): String {
         return "sConstruct_$index"
     }
 
