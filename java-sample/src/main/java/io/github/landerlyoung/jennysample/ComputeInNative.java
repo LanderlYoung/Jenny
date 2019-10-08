@@ -15,11 +15,11 @@
  */
 package io.github.landerlyoung.jennysample;
 
+import java.util.Map;
+
 import io.github.landerlyoung.jenny.NativeClass;
 import io.github.landerlyoung.jenny.NativeFieldProxy;
 import io.github.landerlyoung.jenny.NativeProxy;
-
-import java.util.Map;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -35,7 +35,7 @@ import java.util.Map;
  */
 @NativeProxy(allFields = false, allMethods = false)
 //java project should disable android log marcos
-@NativeClass(androidLog = false)
+@NativeClass()
 public class ComputeInNative {
     static {
         System.loadLibrary("jnilib");

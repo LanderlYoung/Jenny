@@ -43,7 +43,7 @@ import java.lang.annotation.Target;
  * And if you really do that to a "static" compile-time constant,
  * the jvm will gracefully raise an {@link IllegalAccessException}.
  *
- * But Jenny tries to be help, so she logs a warning in the console,
+ * But Jenny tries to be helpful, so she logs a warning in the console,
  * and pray to god that you might see it.
  * However, you can still indicate Jenny to generate getter/setter to that field,
  * in case you may remove the final keyword latter or just want to make die.

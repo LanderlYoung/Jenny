@@ -39,11 +39,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface NativeClass {
     /**
-     * generate android log marcos
-     */
-    boolean androidLog() default true;
-
-    /**
      * C++ namespace for generated class
      */
     String namespace() default "";

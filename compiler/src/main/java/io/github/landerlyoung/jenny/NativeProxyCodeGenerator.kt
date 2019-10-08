@@ -21,7 +21,7 @@ import javax.lang.model.element.*
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.tools.StandardLocation
-import kotlin.collections.HashSet
+import kotlin.collections.LinkedHashSet
 
 /**
  * Author: landerlyoung@gmail.com
@@ -58,8 +58,8 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     private val mConstructors = mutableListOf<MethodOverloadResolver.MethodRecord>()
     private val mMethodSimpleName = mutableSetOf<String>()
     private val mMethods = mutableListOf<MethodOverloadResolver.MethodRecord>()
-    private val mFields = mutableListOf<Element>()
-    private val mConsts: MutableSet<String> = HashSet()
+    private val mFields = mutableListOf<VariableElement>()
+    private val mConstants: MutableSet<VariableElement> = LinkedHashSet()
     private val mNativeProxyConfig = nativeProxy
     private val mNamespaceHelper = NamespaceHelper(mNativeProxyConfig.namespace)
     private val mHeaderName: String
@@ -73,6 +73,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     }
 
     private fun init() {
+        findConstants()
         findConstructors()
         findMethods()
         findFields()
@@ -257,22 +258,16 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     }
 
     private fun StringBuilder.buildConstantsIdDeclare() {
-        mClazz.enclosedElements
-                .asSequence()
-                .filter { it.kind == ElementKind.FIELD }
-                .map { it as VariableElement }
-                .filter { it.constantValue != null }
-                .forEach { ve ->
-                    // if this field is a compile-time constant value it's
-                    // value will be returned, otherwise null will be returned.
-                    val constValue = ve.constantValue!!
+        mConstants.forEach { ve ->
+            // if this field is a compile-time constant value it's
+            // value will be returned, otherwise null will be returned.
+            val constValue = ve.constantValue!!
 
-                    mConsts.add(ve.simpleName.toString())
-                    val type = mHelper.toNativeType(ve.asType(), true)
-                    val name = ve.simpleName
-                    val value = HandyHelper.getJNIHeaderConstantValue(constValue)
-                    append("    static constexpr $type $name = ${value};\n")
-                }
+            val type = mHelper.toNativeType(ve.asType(), true)
+            val name = ve.simpleName
+            val value = HandyHelper.getJNIHeaderConstantValue(constValue)
+            append("    static constexpr $type $name = ${value};\n")
+        }
         append('\n')
     }
 
@@ -402,7 +397,8 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
 
                 append(""";
                     |
-                    |   }
+                    |    }
+                    |
                     |""".trimMargin())
             }
 
@@ -412,6 +408,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                     |    void set${camelCaseName}(${jniType} ${f.simpleName}) const {
                     |        mJniEnv->Set${static}${typeForJniCall}Field(${classOrObj}, ${fieldId}, ${f.simpleName});
                     |    }
+                    |
                     |""".trimMargin())
             }
             append('\n')
@@ -563,7 +560,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
             getter = annotation.getter
             setter = annotation.setter
         } else {
-            if (mConsts.contains(field.simpleName.toString())) {
+            if (mConstants.contains(field)) {
                 auto = false
                 //don't generate
                 getter = false
@@ -643,12 +640,20 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                 }
     }
 
+    private fun findConstants() {
+        mClazz.enclosedElements
+                .asSequence()
+                .filter {
+                    it.kind == ElementKind.FIELD && (it as VariableElement).constantValue != null
+                }
+                .forEach { mConstants.add(it as VariableElement) }
+    }
+
     private fun findFields() {
         mClazz.enclosedElements
                 .asSequence()
-                .filter { it.kind == ElementKind.FIELD }
-                .filter { shouldGenerateField(it) }
-                .forEach { mFields.add(it) }
+                .filter { it.kind == ElementKind.FIELD && shouldGenerateField(it) }
+                .forEach { mFields.add(it as VariableElement) }
     }
 
     private fun getJniMethodParamTypes(m: ExecutableElement) = buildString {

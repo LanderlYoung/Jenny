@@ -35,6 +35,8 @@ public class Callback {
     protected Object lock;
 
     public static final int COMPILE_CONSTANT_INT = 15;
+    
+    public static final long COMPILE_NON_CONSTANT_INT = System.currentTimeMillis();
 
     @NativeFieldProxy(setter = true)
     public final int ANOTHER_COMPILE_CONSTANT_INT = 16;
