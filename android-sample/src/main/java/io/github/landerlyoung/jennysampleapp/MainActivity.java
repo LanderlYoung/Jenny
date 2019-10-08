@@ -21,7 +21,6 @@ import com.google.android.material.snackbar.Snackbar;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,23 +39,33 @@ import androidx.appcompat.widget.Toolbar;
 public class MainActivity extends AppCompatActivity {
 
     private TextView mTextView;
+    private NativeDrawable mNativeDrawable;
 
     @Override
     @SuppressLint("SetTextI18n")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        mNativeDrawable = new NativeDrawable();
+        View bg = findViewById(R.id.text);
+        bg.setBackground(mNativeDrawable);
+        bg.setOnClickListener(v -> {
+            bg.invalidate();
+            mNativeDrawable.onClick();
+        });
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         final ComputeIntensiveClass nativeClass = new ComputeIntensiveClass();
-        mTextView = (TextView) findViewById(R.id.text);
-        mTextView.setMovementMethod(ScrollingMovementMethod.getInstance());
+        mTextView = findViewById(R.id.text);
         mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2) + "\n");
         mTextView.append(ComputeIntensiveClass.greet());
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +105,12 @@ public class MainActivity extends AppCompatActivity {
             final String json = ComputeIntensiveClass.httpGet("https://jsonplaceholder.typicode.com/todos/1");
             runOnUiThread(() -> toast(json));
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mNativeDrawable.release();
     }
 
     /**

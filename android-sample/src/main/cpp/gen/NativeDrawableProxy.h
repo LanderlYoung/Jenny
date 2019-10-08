@@ -14,11 +14,12 @@
 #include <mutex>
 
 
-class NestedClassProxy {
+class NativeDrawableProxy {
 
 public:
-    static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback$NestedClass";
+    static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/NativeDrawable";
 
+    static constexpr jlong nativeHandle = 0;
 
 
 private:
@@ -39,20 +40,20 @@ public:
         assert(initClazz(env));
     }
 
-    NestedClassProxy(JNIEnv *env, jobject javaObj)
+    NativeDrawableProxy(JNIEnv *env, jobject javaObj)
             : mJniEnv(env), mJavaObjectReference(javaObj) {
         assertInited(env);
     }
 
-    NestedClassProxy(const NestedClassProxy &from) = default;
-    NestedClassProxy &operator=(const NestedClassProxy &) = default;
+    NativeDrawableProxy(const NativeDrawableProxy &from) = default;
+    NativeDrawableProxy &operator=(const NativeDrawableProxy &) = default;
 
-    NestedClassProxy(NestedClassProxy &&from)
+    NativeDrawableProxy(NativeDrawableProxy &&from)
            : mJniEnv(from.mJniEnv), mJavaObjectReference(from.mJavaObjectReference) {
         from.mJavaObjectReference = nullptr;
     }
 
-    ~NestedClassProxy() = default;
+    ~NativeDrawableProxy() = default;
     
     // helper method to get underlay jobject reference
     jobject operator*() {
@@ -70,26 +71,22 @@ public:
     
     // === java methods below ===
     
-    // construct: public NestedClass()
-    static NestedClassProxy newInstance(JNIEnv* env, jobject enclosingClass) noexcept {
-       assertInited(env);
-       return NestedClassProxy(env, env->NewObject(sClazz, sConstruct_0, enclosingClass));
-    } 
-    
 
-    // method: public void hello()
-    void hello(jobject enclosingClass) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_hello_0, enclosingClass);
+
+    // field: private final long nativeHandle
+    jlong getNativeHandle() const {
+       
+       return mJniEnv->GetLongField(mJavaObjectReference, sField_nativeHandle_0);
+
     }
 
 
 
 private:
     static jclass sClazz;
-    static jmethodID sConstruct_0;
 
-    static jmethodID sMethod_hello_0;
 
+    static jfieldID sField_nativeHandle_0;
 
 };
 

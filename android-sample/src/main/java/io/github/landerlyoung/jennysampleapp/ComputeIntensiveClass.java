@@ -18,6 +18,9 @@ package io.github.landerlyoung.jennysampleapp;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
@@ -44,6 +47,10 @@ import io.github.landerlyoung.jenny.NativeProxyForClasses;
 @NativeProxyForClasses(
         namespace = "java", classes = {
         InputStream.class, String.class, URL.class, URLConnection.class,
+})
+@NativeProxyForClasses(
+        namespace = "android", classes = {
+        Drawable.class, Canvas.class, Paint.class, Paint.Style.class, Rect.class
 })
 public class ComputeIntensiveClass {
 
@@ -100,6 +107,7 @@ public class ComputeIntensiveClass {
 
     public static native Object returnsObject();
 
+    // showcase for native proxy
     public static native String httpGet(String url);
 
     public native int computeThenCallback(Callback listener);

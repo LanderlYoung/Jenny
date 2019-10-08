@@ -62,8 +62,10 @@ public:
     // helper method to delete JNI local ref.
     // use only when you really understand JNIEnv::DeleteLocalRef.
     void deleteLocalRef() {
-       mJniEnv->DeleteLocalRef(mJavaObjectReference);
-       mJavaObjectReference = nullptr;
+       if (mJavaObjectReference) {
+           mJniEnv->DeleteLocalRef(mJavaObjectReference);
+           mJavaObjectReference = nullptr;
+       }
     }
     
     // === java methods below ===
@@ -511,14 +513,16 @@ public:
 
 
     // field: public static final java.util.Comparator<java.lang.String> CASE_INSENSITIVE_ORDER
-    jobject getCASE_INSENSITIVE_ORDER() const {
-       return mJniEnv->GetStaticObjectField(sClazz, sField_CASE_INSENSITIVE_ORDER_0);
+    static jobject getCASE_INSENSITIVE_ORDER(JNIEnv* env) {
+       assertInited(env);
+       return env->GetStaticObjectField(sClazz, sField_CASE_INSENSITIVE_ORDER_0);
 
     }
 
     // field: public static final java.util.Comparator<java.lang.String> CASE_INSENSITIVE_ORDER
-    void setCASE_INSENSITIVE_ORDER(jobject CASE_INSENSITIVE_ORDER) const {
-        mJniEnv->SetStaticObjectField(sClazz, sField_CASE_INSENSITIVE_ORDER_0, CASE_INSENSITIVE_ORDER);
+    static void setCASE_INSENSITIVE_ORDER(JNIEnv* env, jobject CASE_INSENSITIVE_ORDER) {
+        assertInited(env);
+        env->SetStaticObjectField(sClazz, sField_CASE_INSENSITIVE_ORDER_0, CASE_INSENSITIVE_ORDER);
     }
 
 

@@ -4,6 +4,8 @@
  * For bug report, please refer to github issue tracker https://github.com/LanderlYoung/Jenny/issues,
  * or contact author landerlyoung@gmail.com.
  */
+#include <CallbackProxy.h>
+#include <NestedClassProxy.h>
 #include "ComputeIntensiveClass.h"
 #include "gen/java_InputStreamProxy.h"
 #include "gen/java_StringProxy.h"
@@ -104,6 +106,35 @@ jstring JNICALL ComputeIntensiveClass::httpGet(JNIEnv *env, jclass clazz, jstrin
  * Signature: (Lio/github/landerlyoung/jennysampleapp/Callback;)I
  */
 jint ComputeIntensiveClass::computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
+    CallbackProxy callback(env, listener);
+    callback.onJobStart();
+    callback.getName();
+
+    jstring name = (CallbackProxy(env, listener)).getName();
+
+    auto newInstance = CallbackProxy::newInstance(env);
+    callback.setLock(*newInstance);
+    callback.onJobProgress(20);
+
+    auto nestedClass = NestedClassProxy::newInstance(env, listener);
+    callback.setLock(*nestedClass);
+    callback.onJobProgress(50);
+
+    callback.setAStaticField(env, nullptr);
+
+    callback.setCount(100);
+    callback.setLock(listener);
+    callback.onJobProgress(100);
+
+    jstring str = env->NewStringUTF("Yes, callback from jni");
+    callback.onJobDone(JNI_TRUE, str);
+
+    env->DeleteLocalRef(name);
+    env->DeleteLocalRef(str);
+
+    newInstance.deleteLocalRef();
+    nestedClass.deleteLocalRef();
+    callback.deleteLocalRef();
     return 0;
 }
 

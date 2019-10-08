@@ -11,6 +11,7 @@
 #include <cassert>
 #include "ComputeIntensiveClass.h"
 #include "NestedNativeClass.h"
+#include "NativeDrawable.h"
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
@@ -19,6 +20,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
         return -1;
     }
     assert(ComputeIntensiveClass::registerNativeFunctions(env));
+    assert(NativeDrawable::registerNativeFunctions(env));
     return JNI_VERSION_1_6;
 }
 

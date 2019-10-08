@@ -62,8 +62,10 @@ public:
     // helper method to delete JNI local ref.
     // use only when you really understand JNIEnv::DeleteLocalRef.
     void deleteLocalRef() {
-       mJniEnv->DeleteLocalRef(mJavaObjectReference);
-       mJavaObjectReference = nullptr;
+       if (mJavaObjectReference) {
+           mJniEnv->DeleteLocalRef(mJavaObjectReference);
+           mJavaObjectReference = nullptr;
+       }
     }
     
     // === java methods below ===
