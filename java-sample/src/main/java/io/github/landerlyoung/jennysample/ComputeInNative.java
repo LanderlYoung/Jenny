@@ -19,7 +19,7 @@ import java.util.Map;
 
 import io.github.landerlyoung.jenny.NativeClass;
 import io.github.landerlyoung.jenny.NativeFieldProxy;
-import io.github.landerlyoung.jenny.NativeProxy;
+import io.github.landerlyoung.jenny.NativeClassProxy;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -33,7 +33,7 @@ import io.github.landerlyoung.jenny.NativeProxy;
  and also, disable all field getter/setter and method proxy,
  except for those we explicitly annotated with {@link NativeFieldProxy}
  */
-@NativeProxy(allFields = false, allMethods = false)
+@NativeClassProxy(allFields = false, allMethods = false)
 //java project should disable android log marcos
 @NativeClass()
 public class ComputeInNative {

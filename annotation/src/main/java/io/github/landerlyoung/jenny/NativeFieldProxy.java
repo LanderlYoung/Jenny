@@ -22,12 +22,12 @@ import java.lang.annotation.Target;
 
 /**
  * Control whether should Jenny generate proxy getter/setter functions for this field.
- * Regardless of the {@link NativeProxy @NativeProxy(allFields = flse) or @NativeProxy(allFields = true)} config.
+ * Regardless of the {@link NativeClassProxy @NativeClassProxy(allFields = flse) or @NativeClassProxy(allFields = true)} config.
  * <br>
  * <p>
  * <hr>
  * If a field is not annotated with this Annotation,
- * and @NativeProxy(allFields = true) for the enclosing class is set,
+ * and @NativeClassProxy(allFields = true) for the enclosing class is set,
  * the "auto" strategy is applied.
  * The algorithm of "auto" is described below:
  * <ul>
@@ -58,14 +58,14 @@ import java.lang.annotation.Target;
  * Life with Passion, Code with Creativity.
  * </pre>
  *
- * @see NativeProxy#allFields()
+ * @see NativeClassProxy#allFields()
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
 public @interface NativeFieldProxy {
     /** generate getter function or not */
-    boolean getter() default false;
+    boolean getter() default true;
 
     /** generate setter function or not */
-    boolean setter() default false;
+    boolean setter() default true;
 }

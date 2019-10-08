@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface NativeProxy {
+public @interface NativeClassProxy {
     /**
      * should jenny generate native glue code for all method,
      * inside this class/interface.

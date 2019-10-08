@@ -35,7 +35,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
             val allMethods: Boolean,
             val allFields: Boolean,
             val namespace: String) {
-        constructor(proxy: NativeProxy)
+        constructor(proxy: NativeClassProxy)
                 : this(proxy.allMethods, proxy.allFields, proxy.namespace)
     }
 

@@ -20,10 +20,10 @@ import java.lang.annotation.Target;
  * Life with Passion, Code with Creativity.
  * </pre>
  */
-@Repeatable(NativeProxyForClass.RepeatContainer.class)
+@Repeatable(NativeProxyForClasses.RepeatContainer.class)
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface NativeProxyForClass {
+public @interface NativeProxyForClasses {
     /**
      * @return class generate proxy code for.
      */
@@ -40,6 +40,6 @@ public @interface NativeProxyForClass {
     @Retention(RetentionPolicy.SOURCE)
     @Target(ElementType.TYPE)
     @interface RepeatContainer {
-        NativeProxyForClass[] value() default {};
+        NativeProxyForClasses[] value() default {};
     }
 }

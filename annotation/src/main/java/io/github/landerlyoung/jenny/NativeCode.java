@@ -22,7 +22,8 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Fill the native function body with given cpp code! Cool!
+ *     With this annotation you can fill the native function body with given cpp code! For convenience only.
+ *     Only use when the function body is really short.
  * </p>
  *
  * example:
@@ -31,7 +32,7 @@ import java.lang.annotation.Target;
  *     "jint c = a + b;",
  *     "return c;"
  * })
- * public native int addInNative(int a, int b);
+ * public native int add(int a, int b);
  * </pre>
  *
  * <hr>

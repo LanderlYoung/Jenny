@@ -69,21 +69,21 @@ class JennyAnnotationProcessor : AbstractProcessor() {
     private fun generateNativeProxy(roundEnv: RoundEnvironment): Boolean {
         val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
 
-        roundEnv.getElementsAnnotatedWith(NativeProxy::class.java)
+        roundEnv.getElementsAnnotatedWith(NativeClassProxy::class.java)
                 .forEach {
                     val config = NativeProxyCodeGenerator.NativeProxyConfig(
-                            (it.getAnnotation(NativeProxy::class.java)
-                                    ?: AnnotationResolver.getDefaultImplementation(NativeProxy::class.java)))
+                            (it.getAnnotation(NativeClassProxy::class.java)
+                                    ?: AnnotationResolver.getDefaultImplementation(NativeClassProxy::class.java)))
                     NativeProxyCodeGenerator(env, it as TypeElement, config).doGenerate()
                 }
 
-        (roundEnv.getElementsAnnotatedWith(NativeProxyForClass::class.java)
+        (roundEnv.getElementsAnnotatedWith(NativeProxyForClasses::class.java)
                 .asSequence()
-                .map { it.getAnnotation(NativeProxyForClass::class.java) }
+                .map { it.getAnnotation(NativeProxyForClasses::class.java) }
                 +
-                roundEnv.getElementsAnnotatedWith(NativeProxyForClass.RepeatContainer::class.java)
+                roundEnv.getElementsAnnotatedWith(NativeProxyForClasses.RepeatContainer::class.java)
                         .asSequence()
-                        .flatMap { it.getAnnotationsByType(NativeProxyForClass::class.java).asSequence() }
+                        .flatMap { it.getAnnotationsByType(NativeProxyForClasses::class.java).asSequence() }
                 )
                 .forEach { annotation ->
                     try {
@@ -117,8 +117,8 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                 NativeCode::class.java.name,
                 NativeFieldProxy::class.java.name,
                 NativeMethodProxy::class.java.name,
-                NativeProxy::class.java.name,
-                NativeProxyForClass::class.java.name
+                NativeClassProxy::class.java.name,
+                NativeProxyForClasses::class.java.name
         )
     }
 }

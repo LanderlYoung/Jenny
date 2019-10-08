@@ -19,9 +19,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import io.github.landerlyoung.jenny.NativeClassProxy;
 import io.github.landerlyoung.jenny.NativeFieldProxy;
 import io.github.landerlyoung.jenny.NativeMethodProxy;
-import io.github.landerlyoung.jenny.NativeProxy;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -29,23 +29,22 @@ import io.github.landerlyoung.jenny.NativeProxy;
  * Time:   19-58
  * Life with Passion, Code with Creativity.
  */
-@NativeProxy(allFields = true, allMethods = false)
+@NativeClassProxy(allFields = true, allMethods = false)
 public class Callback {
 
     protected Object lock;
 
     public static final int COMPILE_CONSTANT_INT = 15;
-    
+
     public static final long COMPILE_NON_CONSTANT_INT = System.currentTimeMillis();
 
-    @NativeFieldProxy(setter = true)
+    @NativeFieldProxy(getter = false, setter = true) // just try
     public final int ANOTHER_COMPILE_CONSTANT_INT = 16;
 
     public int count = 160;
     public static int staticCount = 10;
 
     public String name = "callback";
-
 
 
     public static String staticName = "static";
@@ -66,7 +65,7 @@ public class Callback {
 
     }
 
-    @NativeProxy
+    @NativeClassProxy
     public class NestedClass {
         public void hello() {
             int a = COMPILE_CONSTANT_INT;

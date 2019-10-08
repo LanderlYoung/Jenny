@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import io.github.landerlyoung.jenny.NativeClass;
 import io.github.landerlyoung.jenny.NativeCode;
-import io.github.landerlyoung.jenny.NativeProxyForClass;
+import io.github.landerlyoung.jenny.NativeProxyForClasses;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -41,20 +41,20 @@ import io.github.landerlyoung.jenny.NativeProxyForClass;
  * Life with Passion, Code with Creativity.
  */
 @NativeClass(namespace = "io::github::landerlyoung")
-@NativeProxyForClass(
+@NativeProxyForClasses(
         namespace = "java", classes = {
         Runnable.class, File.class, InputStream.class,
         String.class, URL.class, URLConnection.class,
         Collections.class,
         ReentrantLock.class, AtomicInteger.class, Thread.class
 })
-@NativeProxyForClass(
+@NativeProxyForClasses(
         namespace = "android", classes = {
         Context.class, Surface.class, SurfaceHolder.class
 })
 public class ComputeIntensiveClass {
 
-    @NativeProxyForClass(
+    @NativeProxyForClasses(
             namespace = "android::graphics", classes = {
             Canvas.class, Bitmap.class
     })
