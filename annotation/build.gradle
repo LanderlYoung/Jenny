@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'bintray-release'
 
 // This is important even if Android Studio claims it isn't
 // used. Android can't interpret Java 8 byte code.
@@ -9,21 +8,3 @@ targetCompatibility = JavaVersion.VERSION_1_7
 dependencies {
 }
 
-publish {
-    artifactId = 'jenny-annotation'
-    userOrg = rootProject.userOrg
-    groupId = rootProject.groupId
-    publishVersion = rootProject.publishVersion
-    description = rootProject.description
-    website = rootProject.website
-    licences = rootProject.licences
-    desc = "rootProject.description"
-
-    //account config
-    bintrayUser = rootProject.user
-    bintrayKey = rootProject.key
-    dryRun = true
-}
-
-println ">>>>>>=================="
-println "publish.description:" + publish.desc

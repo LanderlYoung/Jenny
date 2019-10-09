@@ -2,7 +2,17 @@
 
 buildscript {
     ext {
+        pub = [
+                publishVersion: '0.1.1',
+                userOrg       : 'landerlyoung',
+                groupId       : 'io.github.landerlyoung.jenny',
+                desc          : 'Java/Android Jni glue code generator',
+                website       : 'https://github.com/LanderlYoung/Jenny',
+                licences      : ['Apache-2.0']
+        ]
+
         kotlin_version = '1.3.50'
+
         configRepo = { repo ->
             repo.mavenLocal()
             repo.jcenter()
@@ -15,40 +25,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.novoda:bintray-release:0.9.1'
-//
-//        classpath 'com.novoda:bintray-release:0.3.0'
         classpath 'com.android.tools.build:gradle:3.5.1'
-    }
-}
-
-ext {
-    publishVersion = '0.1.0'
-
-    userOrg = 'landerlyoung'
-    groupId = 'io.github.landerlyoung.jenny'
-    description = 'Java/Android Jni glue code generator'
-    website = 'https://github.com/LanderlYoung/Jenny'
-    licences = ['Apache-2.0']
-
-    // Bintray
-    if (rootProject.hasProperty('publish_bintrayUser')) {
-        // from properties
-        user = rootProject.property('publish_bintrayUser')
-        key = rootProject.property('publish_bintrayKey')
-    } else if (System.getenv('publish_bintrayUser') != null) {
-        // from env
-        user = System.getenv('publish_bintrayUser')
-        key = System.getenv('publish_bintrayKey')
-    } else if (rootProject.file('local.properties').exists()) {
-        // from local.properties config
-        def properties = new Properties()
-        properties.load(rootProject.file('local.properties').newInputStream())
-        user = properties.getProperty("publish.bintrayUser")
-        key = properties.getProperty("publish.bintrayKey")
-    } else {
-        // default
-        user = ""
-        key = ""
     }
 }
 
@@ -56,34 +33,30 @@ allprojects {
     // basic
     configRepo buildscript.repositories
     configRepo repositories
-    version = rootProject.publishVersion
-    description = "rootProject.description"
+    version = pub.publishVersion
+    description = pub.desc
 
     // publish
-
     final def publishProject = [
             "annotation", "compiler"
     ] as Set
 
-//        afterEvaluate {
-//    if (project.plugins.findPlugin('com.novoda.bintray-release') != null) {
-            if (publishProject.contains(name)) {
-            apply plugin: 'com.novoda.bintray-release'
+    if (publishProject.contains(name)) {
+        apply plugin: 'com.novoda.bintray-release'
 
-            publish {
-                publishVersion = version
-                artifactId = name
-                userOrg = 'landerlyoung'
-                groupId = 'io.github.landerlyoung'
-                desc = 'Java/Android Jni glue code generator'
-                website = 'https://github.com/LanderlYoung/Jenny'
-                licences = ['Apache-2.0']
+        publish {
+            publishVersion = version
+            artifactId = "jenny-$name"
+            userOrg = pub.userOrg
+            groupId = pub.groupId
+            desc = pub.desc
+            website = pub.website
+            licences = pub.licences
 
-                // account config
-                bintrayUser = rootProject.user
-                bintrayKey = rootProject.key
-                dryRun = true
-            }
-//        }
+            // account config from commpand line
+            // -PbintrayUser=xxx
+            // -PbintrayKey=xxx
+            // -PdryRun=xxx
+        }
     }
 }

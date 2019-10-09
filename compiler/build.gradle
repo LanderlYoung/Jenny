@@ -1,6 +1,5 @@
 apply plugin: 'java'
 apply plugin: 'kotlin'
-apply plugin: 'bintray-release'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -10,20 +9,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
-publish {
-    artifactId = 'jenny-compiler'
-    userOrg = rootProject.userOrg
-    groupId = rootProject.groupId
-    publishVersion = rootProject.publishVersion
-    desc = "rootProject.description"
-    website = rootProject.website
-    licences = rootProject.licences
-
-    //account config
-    bintrayUser = rootProject.user
-    bintrayKey = rootProject.key
-    dryRun = true
-}
 repositories {
     mavenCentral()
 }
