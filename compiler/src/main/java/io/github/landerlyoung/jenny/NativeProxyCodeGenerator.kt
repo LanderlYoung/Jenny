@@ -455,6 +455,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                 |            sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
                 |            env->DeleteLocalRef(clazz);
                 |            JENNY_CHECK_NULL(sClazz);
+                |
                 |""".trimMargin())
 
         buildConstructorIdInit()
