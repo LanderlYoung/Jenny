@@ -2,8 +2,6 @@ name: Publish
 
 on:
   push:
-    branches:
-      # no branch
     tags:
       # all tags
       - '**'
