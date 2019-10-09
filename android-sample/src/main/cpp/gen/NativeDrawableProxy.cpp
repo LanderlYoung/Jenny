@@ -33,6 +33,7 @@ std::atomic_bool NativeDrawableProxy::sInited;
             JENNY_CHECK_NULL(sClazz);
 
 
+
             sField_nativeHandle_0 = env->GetFieldID(sClazz, "nativeHandle", "J");
             JENNY_CHECK_NULL(sField_nativeHandle_0);
 

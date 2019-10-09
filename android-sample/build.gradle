@@ -77,3 +77,24 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.annotation:annotation:1.1.0'
 }
+
+task copyGeneratedCpp {
+    doLast {
+        copy {
+            // copy proxy
+            from new File(project.buildDir, "generated/source/kapt/debug/jenny/proxy")
+            exclude 'test_**'
+            into project.file('src/main/cpp/gen')
+        }
+        copy {
+            // copy glue header
+            from new File(project.buildDir, "generated/source/kapt/debug/jenny/glue/header")
+            into project.file('src/main/cpp')
+        }
+    }
+}
+
+afterEvaluate {
+    // copy file to source after jenny generate
+    tasks.kaptDebugKotlin.finalizedBy copyGeneratedCpp
+}

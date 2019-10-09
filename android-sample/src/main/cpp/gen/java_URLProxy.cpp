@@ -31,6 +31,7 @@ std::atomic_bool URLProxy::sInited;
             sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
             env->DeleteLocalRef(clazz);
             JENNY_CHECK_NULL(sClazz);
+
             sConstruct_0 = env->GetMethodID(sClazz, "<init>", "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V");
             JENNY_CHECK_NULL(sConstruct_0);
 
