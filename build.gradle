@@ -3,35 +3,30 @@
 buildscript {
     ext {
         kotlin_version = '1.3.50'
-    }
-}
-
-allprojects {
-    buildscript {
-        repositories {
-            mavenLocal()
-            jcenter()
-            google()
-        }
-
-        dependencies {
-            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        configRepo = { repo ->
+            repo.mavenLocal()
+            repo.jcenter()
+            repo.google()
         }
     }
 
-    repositories {
-        mavenLocal()
-        jcenter()
-        google()
+    configRepo repositories
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.novoda:bintray-release:0.9.1'
+//
+//        classpath 'com.novoda:bintray-release:0.3.0'
+        classpath 'com.android.tools.build:gradle:3.5.1'
     }
 }
-
 
 ext {
-    userOrg = 'landerlyoung'
-    groupId = 'io.github.landerlyoung'
-    description = 'Java/Android Jni glue code generator'
     publishVersion = '0.1.0'
+
+    userOrg = 'landerlyoung'
+    groupId = 'io.github.landerlyoung.jenny'
+    description = 'Java/Android Jni glue code generator'
     website = 'https://github.com/LanderlYoung/Jenny'
     licences = ['Apache-2.0']
 
@@ -55,4 +50,40 @@ ext {
         user = ""
         key = ""
     }
+}
+
+allprojects {
+    // basic
+    configRepo buildscript.repositories
+    configRepo repositories
+    version = rootProject.publishVersion
+    description = "rootProject.description"
+
+    // publish
+
+    final def publishProject = [
+            "annotation", "compiler"
+    ] as Set
+
+  /*  if (false && publishProject.contains(name)) {
+        afterEvaluate {
+//            apply plugin: 'com.novoda.bintray-release'
+        apply plugin: 'bintray-release'
+
+            publish {
+                publishVersion = version
+                artifactId = name
+                userOrg = 'landerlyoung'
+                groupId = 'io.github.landerlyoung'
+                description = 'Java/Android Jni glue code generator'
+                website = 'https://github.com/LanderlYoung/Jenny'
+                licences = ['Apache-2.0']
+
+                // account config
+                bintrayUser = rootProject.user
+                bintrayKey = rootProject.key
+                dryRun = true
+            }
+        }
+    }*/
 }
