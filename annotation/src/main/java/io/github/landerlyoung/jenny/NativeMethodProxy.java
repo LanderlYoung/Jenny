@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 /**
  * <p>
  * Control whether should Jenny generate proxy function for this method/constructor.
- * Regardless of the {@link NativeClassProxy @NativeReflace(allMethos = false) or @NativeReflace(allMethos = true)} config.
+ * Regardless of the {@link NativeProxy @NativeReflace(allMethos = false) or @NativeReflace(allMethos = true)} config.
  * </p>
  *
  * <hr>
@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * Time:   20-01
  * Life with Passion, Code with Creativity.
  * </pre>
- * @see NativeClassProxy#allMethods()
+ * @see NativeProxy#allMethods()
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})

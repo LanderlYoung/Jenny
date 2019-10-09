@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import io.github.landerlyoung.jenny.NativeClassProxy;
+import io.github.landerlyoung.jenny.NativeProxy;
 import io.github.landerlyoung.jenny.NativeFieldProxy;
 import io.github.landerlyoung.jenny.NativeMethodProxy;
 
@@ -29,7 +29,7 @@ import io.github.landerlyoung.jenny.NativeMethodProxy;
  * Time:   19-58
  * Life with Passion, Code with Creativity.
  */
-@NativeClassProxy(allFields = true, allMethods = false)
+@NativeProxy(allFields = true, allMethods = false)
 public class Callback {
 
     protected Object lock;
@@ -65,7 +65,7 @@ public class Callback {
 
     }
 
-    @NativeClassProxy
+    @NativeProxy
     public class NestedClass {
         public void hello() {
             int a = COMPILE_CONSTANT_INT;

@@ -52,6 +52,7 @@ allprojects {
             desc = pub.desc
             website = pub.website
             licences = pub.licences
+            override = true
 
             // account config from commpand line
             // -PbintrayUser=xxx

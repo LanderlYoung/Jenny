@@ -69,11 +69,11 @@ class JennyAnnotationProcessor : AbstractProcessor() {
     private fun generateNativeProxy(roundEnv: RoundEnvironment): Boolean {
         val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
 
-        roundEnv.getElementsAnnotatedWith(NativeClassProxy::class.java)
+        roundEnv.getElementsAnnotatedWith(NativeProxy::class.java)
                 .forEach {
                     val config = NativeProxyCodeGenerator.NativeProxyConfig(
-                            (it.getAnnotation(NativeClassProxy::class.java)
-                                    ?: AnnotationResolver.getDefaultImplementation(NativeClassProxy::class.java)))
+                            (it.getAnnotation(NativeProxy::class.java)
+                                    ?: AnnotationResolver.getDefaultImplementation(NativeProxy::class.java)))
                     NativeProxyCodeGenerator(env, it as TypeElement, config).doGenerate()
                 }
 
@@ -117,7 +117,7 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                 NativeCode::class.java.name,
                 NativeFieldProxy::class.java.name,
                 NativeMethodProxy::class.java.name,
-                NativeClassProxy::class.java.name,
+                NativeProxy::class.java.name,
                 NativeProxyForClasses::class.java.name
         )
     }

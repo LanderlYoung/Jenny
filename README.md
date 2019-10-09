@@ -7,7 +7,7 @@
 [PUB_B]: https://github.com/LanderlYoung/Jenny/workflows/Publish/badge.svg
 [PUB]: https://github.com/LanderlYoung/Jenny/actions?workflow=Publish
 [BT_B]: https://api.bintray.com/packages/landerlyoung/maven/jenny-annotation/images/download.svg
-[BT]: https://bintray.com/landerlyoung/maven/jenny-annotation/0.9.0/link
+[BT]: https://bintray.com/landerlyoung/maven
 [CS_B]: https://img.shields.io/github/languages/code-size/LanderlYoung/Jenny
 [LC_B]: https://img.shields.io/github/license/LanderlYoung/Jenny
 

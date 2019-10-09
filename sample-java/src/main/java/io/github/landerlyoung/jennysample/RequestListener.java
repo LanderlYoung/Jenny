@@ -15,7 +15,7 @@
  */
 package io.github.landerlyoung.jennysample;
 
-import io.github.landerlyoung.jenny.NativeClassProxy;
+import io.github.landerlyoung.jenny.NativeProxy;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -23,7 +23,7 @@ import io.github.landerlyoung.jenny.NativeClassProxy;
  * Time:   21:54
  * Life with Passion, Code with Creativity.
  */
-@NativeClassProxy
+@NativeProxy
 public interface RequestListener {
     void onResponse(boolean success, String rsp);
 }
