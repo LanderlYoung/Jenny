@@ -17,4 +17,4 @@ jobs:
       env:
         publish_bintrayUser: ${{ secrets.publish_bintrayUser }}
         publish_bintrayKey: ${{ secrets.publish_bintrayKey }}
-      run: ./gradlew :android:assembleDebug
+      run: ./gradlew :sample-android:assembleDebug
