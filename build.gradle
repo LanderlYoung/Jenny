@@ -5,7 +5,7 @@ buildscript {
         pub = [
                 publishVersion: '0.9.0',
                 userOrg       : 'landerlyoung',
-                groupId       : 'io.github.landerlyoung.jenny',
+                groupId       : 'io.github.landerlyoung',
                 desc          : 'Java/Android Jni glue code generator',
                 website       : 'https://github.com/LanderlYoung/Jenny',
                 licences      : ['Apache-2.0']
