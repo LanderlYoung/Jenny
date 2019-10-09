@@ -15,6 +15,6 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    compile project(':annotation')
-    compile project(':compiler')
+    implementation project(':annotation')
+    annotationProcessor project(':compiler')
 }
