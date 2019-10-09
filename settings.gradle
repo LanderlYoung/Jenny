@@ -1,2 +1,2 @@
-include ':annotation', ':compiler', ':android-sample', ':java-sample'
+include ':annotation', ':compiler', ':sample-android', ':sample-java'
 
