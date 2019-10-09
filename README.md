@@ -1,5 +1,16 @@
 #Jenny
 
+[![CI][CI_B]][CI]  [![Publish][PUB_B]][PUB] [![Download][BT_B]][BT] ![GitHub code size in bytes][CS_B] ![GitHub][LC_B]
+
+[CI_B]: https://github.com/LanderlYoung/Jenny/workflows/Android%20CI/badge.svg
+[CI]: https://github.com/LanderlYoung/Jenny/actions?workflow=Android+CI
+[PUB_B]: https://github.com/LanderlYoung/Jenny/workflows/Publish/badge.svg
+[PUB]: https://github.com/LanderlYoung/Jenny/actions?workflow=Publish
+[BT_B]: https://api.bintray.com/packages/landerlyoung/maven/jenny-annotation/images/download.svg
+[BT]: https://bintray.com/landerlyoung/maven/jenny-annotation/0.9.0/link
+[CS_B]: https://img.shields.io/github/languages/code-size/LanderlYoung/Jenny
+[LC_B]: https://img.shields.io/github/license/LanderlYoung/Jenny
+
 **JNI glue code generator**
 
 This is a java annotation processor, which helps you generate C/C++ code for JNI calls according to your java native class.
