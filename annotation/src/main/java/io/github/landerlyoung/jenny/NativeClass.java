@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface NativeClass {
     /**
-     * C++ namespace for generated class
+     * @return C++ namespace for generated class
      */
     String namespace() default "";
 
@@ -49,6 +49,7 @@ public @interface NativeClass {
      * <p>
      * The dynamic way can hide your shared library export functions,
      * so it is recommended.
+     * @return use dynamic register or JNI function name conversions
      */
     boolean dynamicRegisterJniMethods() default true;
 }

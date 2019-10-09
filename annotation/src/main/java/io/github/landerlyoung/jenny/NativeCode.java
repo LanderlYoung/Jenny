@@ -46,6 +46,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
 public @interface NativeCode {
-    /** source code */
+    /**
+     * @return source code
+     */
     String[] value() default "";
 }

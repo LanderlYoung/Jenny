@@ -39,15 +39,19 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface NativeClassProxy {
     /**
-     * should jenny generate native glue code for all method,
+     * @return should jenny generate native glue code for all methods
      * inside this class/interface.
      */
     boolean allMethods() default true;
 
+    /**
+     * @return should jenny generate native glue code for all fields
+     * inside this class/interface.
+     */
     boolean allFields() default true;
 
     /**
-     * C++ namespace for generated class
+     * @return C++ namespace for generated class
      */
     String namespace() default "";
 }

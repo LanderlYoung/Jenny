@@ -65,17 +65,17 @@ allprojects {
             "annotation", "compiler"
     ] as Set
 
-  /*  if (false && publishProject.contains(name)) {
-        afterEvaluate {
-//            apply plugin: 'com.novoda.bintray-release'
-        apply plugin: 'bintray-release'
+//        afterEvaluate {
+//    if (project.plugins.findPlugin('com.novoda.bintray-release') != null) {
+            if (publishProject.contains(name)) {
+            apply plugin: 'com.novoda.bintray-release'
 
             publish {
                 publishVersion = version
                 artifactId = name
                 userOrg = 'landerlyoung'
                 groupId = 'io.github.landerlyoung'
-                description = 'Java/Android Jni glue code generator'
+                desc = 'Java/Android Jni glue code generator'
                 website = 'https://github.com/LanderlYoung/Jenny'
                 licences = ['Apache-2.0']
 
@@ -84,6 +84,6 @@ allprojects {
                 bintrayKey = rootProject.key
                 dryRun = true
             }
-        }
-    }*/
+//        }
+    }
 }

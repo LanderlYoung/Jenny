@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  * <p>
  * Control whether should Jenny generate proxy function for this method/constructor.
  * Regardless of the {@link NativeClassProxy @NativeReflace(allMethos = false) or @NativeReflace(allMethos = true)} config.
- * <p>
+ * </p>
  *
  * <hr>
  * <pre>

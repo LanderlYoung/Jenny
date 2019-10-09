@@ -24,7 +24,6 @@ import java.lang.annotation.Target;
  * Control whether should Jenny generate proxy getter/setter functions for this field.
  * Regardless of the {@link NativeClassProxy @NativeClassProxy(allFields = flse) or @NativeClassProxy(allFields = true)} config.
  * <br>
- * <p>
  * <hr>
  * If a field is not annotated with this Annotation,
  * and @NativeClassProxy(allFields = true) for the enclosing class is set,
@@ -63,9 +62,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
 public @interface NativeFieldProxy {
-    /** generate getter function or not */
+    /**
+     * @return generate getter function or not
+     */
     boolean getter() default true;
 
-    /** generate setter function or not */
+    /**
+     * @return generate setter function or not
+     */
     boolean setter() default true;
 }
