@@ -146,7 +146,8 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                         |    static void releaseClazz(JNIEnv *env);
                         |
                         |    static void assertInited(JNIEnv *env) {
-                        |        assert(initClazz(env));
+                        |        auto initClazzSuccess = initClazz(env);
+                        |        assert(initClazzSuccess);
                         |    }
                         |
                         |    ${cppClassName}(JNIEnv *env, jobject javaObj)
@@ -511,6 +512,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                 |        std::lock_guard<std::mutex> lg(sInitLock);
                 |        if (sInited) {
                 |            env->DeleteLocalRef(sClazz);
+                |            sClazz = nullptr;
                 |            sInited = false;
                 |        }
                 |    }
