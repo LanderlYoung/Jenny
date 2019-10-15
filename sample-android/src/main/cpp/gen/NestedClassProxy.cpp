@@ -9,6 +9,10 @@
 #include "NestedClassProxy.h"
 
 
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
 
 
 jclass NestedClassProxy::sClazz = nullptr;
@@ -21,7 +25,7 @@ std::atomic_bool NestedClassProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-               env->ExceptionDescribe();           \
+               jennySampleErrorLog(env, "can't init NestedClassProxy::" #val); \
                return false;                       \
            }                                       \
        } while(false)
@@ -56,6 +60,7 @@ std::atomic_bool NestedClassProxy::sInited;
         std::lock_guard<std::mutex> lg(sInitLock);
         if (sInited) {
             env->DeleteLocalRef(sClazz);
+            sClazz = nullptr;
             sInited = false;
         }
     }

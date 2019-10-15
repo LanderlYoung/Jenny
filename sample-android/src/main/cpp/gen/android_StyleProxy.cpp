@@ -9,6 +9,10 @@
 #include "android_StyleProxy.h"
 
 
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
 namespace android {
 
 jclass StyleProxy::sClazz = nullptr;
@@ -21,7 +25,7 @@ std::atomic_bool StyleProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-               env->ExceptionDescribe();           \
+               jennySampleErrorLog(env, "can't init StyleProxy::" #val); \
                return false;                       \
            }                                       \
        } while(false)
@@ -68,6 +72,7 @@ std::atomic_bool StyleProxy::sInited;
         std::lock_guard<std::mutex> lg(sInitLock);
         if (sInited) {
             env->DeleteLocalRef(sClazz);
+            sClazz = nullptr;
             sInited = false;
         }
     }

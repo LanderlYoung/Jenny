@@ -9,6 +9,10 @@
 #include "java_URLConnectionProxy.h"
 
 
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
 namespace java {
 
 jclass URLConnectionProxy::sClazz = nullptr;
@@ -21,7 +25,7 @@ std::atomic_bool URLConnectionProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-               env->ExceptionDescribe();           \
+               jennySampleErrorLog(env, "can't init URLConnectionProxy::" #val); \
                return false;                       \
            }                                       \
        } while(false)
@@ -212,6 +216,7 @@ std::atomic_bool URLConnectionProxy::sInited;
         std::lock_guard<std::mutex> lg(sInitLock);
         if (sInited) {
             env->DeleteLocalRef(sClazz);
+            sClazz = nullptr;
             sInited = false;
         }
     }

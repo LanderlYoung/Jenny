@@ -37,7 +37,8 @@ public:
     static void releaseClazz(JNIEnv *env);
 
     static void assertInited(JNIEnv *env) {
-        assert(initClazz(env));
+        auto initClazzSuccess = initClazz(env);
+        assert(initClazzSuccess);
     }
 
     NativeDrawableProxy(JNIEnv *env, jobject javaObj)

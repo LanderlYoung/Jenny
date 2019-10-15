@@ -9,6 +9,10 @@
 #include "android_PaintProxy.h"
 
 
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
 namespace android {
 
 jclass PaintProxy::sClazz = nullptr;
@@ -21,7 +25,7 @@ std::atomic_bool PaintProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-               env->ExceptionDescribe();           \
+               jennySampleErrorLog(env, "can't init PaintProxy::" #val); \
                return false;                       \
            }                                       \
        } while(false)
@@ -359,6 +363,7 @@ std::atomic_bool PaintProxy::sInited;
         std::lock_guard<std::mutex> lg(sInitLock);
         if (sInited) {
             env->DeleteLocalRef(sClazz);
+            sClazz = nullptr;
             sInited = false;
         }
     }

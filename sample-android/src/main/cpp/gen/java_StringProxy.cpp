@@ -9,6 +9,10 @@
 #include "java_StringProxy.h"
 
 
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
 namespace java {
 
 jclass StringProxy::sClazz = nullptr;
@@ -21,7 +25,7 @@ std::atomic_bool StringProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-               env->ExceptionDescribe();           \
+               jennySampleErrorLog(env, "can't init StringProxy::" #val); \
                return false;                       \
            }                                       \
        } while(false)
@@ -299,6 +303,7 @@ std::atomic_bool StringProxy::sInited;
         std::lock_guard<std::mutex> lg(sInitLock);
         if (sInited) {
             env->DeleteLocalRef(sClazz);
+            sClazz = nullptr;
             sInited = false;
         }
     }

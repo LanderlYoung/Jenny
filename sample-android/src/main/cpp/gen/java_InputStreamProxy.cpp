@@ -9,6 +9,10 @@
 #include "java_InputStreamProxy.h"
 
 
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
 namespace java {
 
 jclass InputStreamProxy::sClazz = nullptr;
@@ -21,7 +25,7 @@ std::atomic_bool InputStreamProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-               env->ExceptionDescribe();           \
+               jennySampleErrorLog(env, "can't init InputStreamProxy::" #val); \
                return false;                       \
            }                                       \
        } while(false)
@@ -80,6 +84,7 @@ std::atomic_bool InputStreamProxy::sInited;
         std::lock_guard<std::mutex> lg(sInitLock);
         if (sInited) {
             env->DeleteLocalRef(sClazz);
+            sClazz = nullptr;
             sInited = false;
         }
     }
