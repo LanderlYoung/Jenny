@@ -9,10 +9,6 @@
 #include "java_StringProxy.h"
 
 
-// external logger function passed by jenny.errorLoggerFunction
-void jennySampleErrorLog(const char* error);
-
-
 namespace java {
 
 jclass StringProxy::sClazz = nullptr;
@@ -25,7 +21,6 @@ std::atomic_bool StringProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-                jennySampleErrorLog("can't init StringProxy::" #val); \
                env->ExceptionDescribe();           \
                return false;                       \
            }                                       \

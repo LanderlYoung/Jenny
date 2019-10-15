@@ -9,10 +9,6 @@
 #include "android_RectProxy.h"
 
 
-// external logger function passed by jenny.errorLoggerFunction
-void jennySampleErrorLog(const char* error);
-
-
 namespace android {
 
 jclass RectProxy::sClazz = nullptr;
@@ -25,7 +21,6 @@ std::atomic_bool RectProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-                jennySampleErrorLog("can't init RectProxy::" #val); \
                env->ExceptionDescribe();           \
                return false;                       \
            }                                       \

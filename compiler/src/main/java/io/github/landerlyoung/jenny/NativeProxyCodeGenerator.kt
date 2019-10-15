@@ -227,7 +227,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                         append("""
                            |
                            |// external logger function passed by ${Configurations.ERROR_LOGGER_FUNCTION}
-                           |void ${mEnv.configurations.errorLoggerFunction}(const char* error);
+                           |void ${mEnv.configurations.errorLoggerFunction}(JNIEnv* env, const char* error);
                            |
                            |""".trimMargin())
                     }
@@ -454,12 +454,15 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
 
         if (!mEnv.configurations.errorLoggerFunction.isNullOrBlank()) {
             append("""
-            |                ${mEnv.configurations.errorLoggerFunction}("can't init ${cppClassName}::" #val); \
+            |               ${mEnv.configurations.errorLoggerFunction}(env, "can't init ${cppClassName}::" #val); \
+            |""".trimMargin())
+        } else {
+            append("""
+            |               env->ExceptionDescribe();           \
             |""".trimMargin())
         }
 
         append("""
-            |               env->ExceptionDescribe();           \
             |               return false;                       \
             |           }                                       \
             |       } while(false)

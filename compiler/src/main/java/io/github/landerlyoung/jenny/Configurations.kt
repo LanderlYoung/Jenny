@@ -19,6 +19,10 @@ data class Configurations(
     companion object {
         private const val PREFIX = "jenny."
         val THREAD_SAFE = PREFIX + Configurations::threadSafe.name
+        /**
+         * external error log function
+         * void (function_type)(JNIEnv* env, const char* error);
+         */
         val ERROR_LOGGER_FUNCTION = PREFIX + Configurations::errorLoggerFunction.name
 
         fun fromOptions(options: Map<String, String>) = Configurations(

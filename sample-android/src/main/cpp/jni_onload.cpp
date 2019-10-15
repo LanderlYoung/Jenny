@@ -25,6 +25,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_6;
 }
 
-void jennySampleErrorLog(const char *error) {
-    __android_log_assert(error, "jenny", nullptr);
+void jennySampleErrorLog(JNIEnv *env, const char *error) {
+    __android_log_write(ANDROID_LOG_ERROR, "jenny", error);
+    env->ExceptionDescribe();
 }

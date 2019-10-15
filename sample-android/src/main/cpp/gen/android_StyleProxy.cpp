@@ -9,10 +9,6 @@
 #include "android_StyleProxy.h"
 
 
-// external logger function passed by jenny.errorLoggerFunction
-void jennySampleErrorLog(const char* error);
-
-
 namespace android {
 
 jclass StyleProxy::sClazz = nullptr;
@@ -25,7 +21,6 @@ std::atomic_bool StyleProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-                jennySampleErrorLog("can't init StyleProxy::" #val); \
                env->ExceptionDescribe();           \
                return false;                       \
            }                                       \

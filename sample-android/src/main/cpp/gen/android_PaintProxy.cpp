@@ -9,10 +9,6 @@
 #include "android_PaintProxy.h"
 
 
-// external logger function passed by jenny.errorLoggerFunction
-void jennySampleErrorLog(const char* error);
-
-
 namespace android {
 
 jclass PaintProxy::sClazz = nullptr;
@@ -25,7 +21,6 @@ std::atomic_bool PaintProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-                jennySampleErrorLog("can't init PaintProxy::" #val); \
                env->ExceptionDescribe();           \
                return false;                       \
            }                                       \
