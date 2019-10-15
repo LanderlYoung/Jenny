@@ -217,10 +217,25 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                 log("write native proxy file [" + fileObject.name + "]")
                 buildString {
                     append(Constants.AUTO_GENERATE_NOTICE)
+
                     append("""
                         |#include "$mHeaderName"
                         |
+                        |""".trimMargin())
+
+                    if (!mEnv.configurations.errorLoggerFunction.isNullOrBlank()) {
+                        append("""
+                           |
+                           |// external logger function passed by ${Configurations.ERROR_LOGGER_FUNCTION}
+                           |void ${mEnv.configurations.errorLoggerFunction}(const char* error);
+                           |
+                           |""".trimMargin())
+                    }
+
+                    append("""
+                        |
                         |${mNamespaceHelper.beginNamespace()}
+                        |
                         |jclass ${cppClassName}::sClazz = nullptr;
                         |
                         |""".trimMargin())
@@ -430,12 +445,21 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     }
 
     private fun StringBuilder.buildNativeInitClass() {
-
         append("""
             |/*static*/ bool $cppClassName::initClazz(JNIEnv *env) {
             |#define JENNY_CHECK_NULL(val)                      \
             |       do {                                        \
             |           if ((val) == nullptr) {                 \
+            |""".trimMargin())
+
+        if (!mEnv.configurations.errorLoggerFunction.isNullOrBlank()) {
+            append("""
+            |                ${mEnv.configurations.errorLoggerFunction}("can't init ${cppClassName}::" #val); \
+            |""".trimMargin())
+        }
+
+        append("""
+            |               env->ExceptionDescribe();           \
             |               return false;                       \
             |           }                                       \
             |       } while(false)

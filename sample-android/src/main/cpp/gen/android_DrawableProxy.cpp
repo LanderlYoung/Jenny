@@ -8,7 +8,13 @@
  */
 #include "android_DrawableProxy.h"
 
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(const char* error);
+
+
 namespace android {
+
 jclass DrawableProxy::sClazz = nullptr;
 
 // thread safe init
@@ -19,6 +25,8 @@ std::atomic_bool DrawableProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
+                jennySampleErrorLog("can't init DrawableProxy::" #val); \
+               env->ExceptionDescribe();           \
                return false;                       \
            }                                       \
        } while(false)

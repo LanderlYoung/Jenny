@@ -13,14 +13,17 @@ package io.github.landerlyoung.jenny
  */
 
 data class Configurations(
-        val threadSafe: Boolean = true
+        val threadSafe: Boolean = true,
+        val errorLoggerFunction: String?
 ) {
     companion object {
         private const val PREFIX = "jenny."
         val THREAD_SAFE = PREFIX + Configurations::threadSafe.name
+        val ERROR_LOGGER_FUNCTION = PREFIX + Configurations::errorLoggerFunction.name
 
         fun fromOptions(options: Map<String, String>) = Configurations(
-                options[THREAD_SAFE] != false.toString()
+                options[THREAD_SAFE] != false.toString(),
+                options[ERROR_LOGGER_FUNCTION]
         )
     }
 }

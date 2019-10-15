@@ -9,6 +9,7 @@
 
 #include <jni.h>
 #include <cassert>
+#include <android/log.h>
 #include "ComputeIntensiveClass.h"
 #include "NestedNativeClass.h"
 #include "NativeDrawable.h"
@@ -24,3 +25,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_6;
 }
 
+void jennySampleErrorLog(const char *error) {
+    __android_log_assert(error, "jenny", nullptr);
+}

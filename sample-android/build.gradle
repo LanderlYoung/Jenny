@@ -45,6 +45,7 @@ kapt {
     arguments {
         // pass arguments to jenny
         // arg("jenny.threadSafe", "false")
+        arg("jenny.errorLoggerFunction", "jennySampleErrorLog")
     }
 }
 

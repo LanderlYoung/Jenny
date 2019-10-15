@@ -9,6 +9,12 @@
 #include "CallbackProxy.h"
 
 
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(const char* error);
+
+
+
+
 jclass CallbackProxy::sClazz = nullptr;
 
 // thread safe init
@@ -19,6 +25,8 @@ std::atomic_bool CallbackProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
+                jennySampleErrorLog("can't init CallbackProxy::" #val); \
+               env->ExceptionDescribe();           \
                return false;                       \
            }                                       \
        } while(false)

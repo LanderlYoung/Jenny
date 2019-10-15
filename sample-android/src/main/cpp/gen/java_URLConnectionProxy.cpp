@@ -8,7 +8,13 @@
  */
 #include "java_URLConnectionProxy.h"
 
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(const char* error);
+
+
 namespace java {
+
 jclass URLConnectionProxy::sClazz = nullptr;
 
 // thread safe init
@@ -19,6 +25,8 @@ std::atomic_bool URLConnectionProxy::sInited;
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
+                jennySampleErrorLog("can't init URLConnectionProxy::" #val); \
+               env->ExceptionDescribe();           \
                return false;                       \
            }                                       \
        } while(false)
