@@ -16,12 +16,17 @@
 package io.github.landerlyoung.jenny
 
 import java.io.IOException
-import java.util.*
-import javax.lang.model.element.*
+import java.util.EnumSet
+import java.util.Locale
+import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.tools.StandardLocation
-import kotlin.collections.LinkedHashSet
 
 /**
  * Author: landerlyoung@gmail.com
@@ -511,7 +516,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                 |    if (sInited) {
                 |        std::lock_guard<std::mutex> lg(sInitLock);
                 |        if (sInited) {
-                |            env->DeleteLocalRef(sClazz);
+                |            env->DeleteGlobalRef(sClazz);
                 |            sClazz = nullptr;
                 |            sInited = false;
                 |        }
@@ -523,7 +528,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
             append("""
                 |/*static*/ void $cppClassName::releaseClazz(JNIEnv *env) {
                 |    if (sInited) {
-                |        env->DeleteLocalRef(sClazz);
+                |        env->DeleteGlobalRef(sClazz);
                 |        sInited = false;
                 |    }
                 |}
