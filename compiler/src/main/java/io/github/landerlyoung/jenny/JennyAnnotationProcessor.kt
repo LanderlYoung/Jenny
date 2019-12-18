@@ -15,7 +15,11 @@
  */
 package io.github.landerlyoung.jenny
 
-import javax.annotation.processing.*
+import javax.annotation.processing.AbstractProcessor
+import javax.annotation.processing.Filer
+import javax.annotation.processing.Messager
+import javax.annotation.processing.ProcessingEnvironment
+import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypesException
@@ -111,6 +115,10 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         return SUPPORTED_ANNOTATIONS
     }
 
+    override fun getSupportedOptions(): MutableSet<String> {
+        return SUPPORTED_OPTIONS.toMutableSet()
+    }
+
     companion object {
         private val SUPPORTED_ANNOTATIONS: Set<String> = setOf(
                 NativeClass::class.java.name,
@@ -119,6 +127,11 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                 NativeMethodProxy::class.java.name,
                 NativeProxy::class.java.name,
                 NativeProxyForClasses::class.java.name
+        )
+
+        private val SUPPORTED_OPTIONS: Set<String> = setOf(
+                Configurations.ERROR_LOGGER_FUNCTION,
+                Configurations.THREAD_SAFE
         )
     }
 }
