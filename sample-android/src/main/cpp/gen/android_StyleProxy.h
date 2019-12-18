@@ -71,12 +71,6 @@ public:
     
     // === java methods below ===
     
-    // construct: private Style()
-    static StyleProxy newInstance(JNIEnv* env) noexcept {
-       assertInited(env);
-       return StyleProxy(env, env->NewObject(sClazz, sConstruct_0));
-    } 
-    
 
     // method: public static android.graphics.Paint.Style[] values()
     static jobjectArray values(JNIEnv* env) {
@@ -136,7 +130,6 @@ public:
 
 private:
     static jclass sClazz;
-    static jmethodID sConstruct_0;
 
     static jmethodID sMethod_values_0;
     static jmethodID sMethod_valueOf_0;

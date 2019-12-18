@@ -319,21 +319,6 @@ public:
         return mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getTransparentRegion_0);
     }
 
-    // method: protected boolean onStateChange(int[] state)
-    jboolean onStateChange(jintArray state) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_onStateChange_0, state);
-    }
-
-    // method: protected boolean onLevelChange(int level)
-    jboolean onLevelChange(jint level) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_onLevelChange_0, level);
-    }
-
-    // method: protected void onBoundsChange(android.graphics.Rect bounds)
-    void onBoundsChange(jobject bounds) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_onBoundsChange_0, bounds);
-    }
-
     // method: public int getIntrinsicWidth()
     jint getIntrinsicWidth() const {
         return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_getIntrinsicWidth_0);
@@ -486,9 +471,6 @@ private:
     static jmethodID sMethod_getOpacity_0;
     static jmethodID sMethod_resolveOpacity_0;
     static jmethodID sMethod_getTransparentRegion_0;
-    static jmethodID sMethod_onStateChange_0;
-    static jmethodID sMethod_onLevelChange_0;
-    static jmethodID sMethod_onBoundsChange_0;
     static jmethodID sMethod_getIntrinsicWidth_0;
     static jmethodID sMethod_getIntrinsicHeight_0;
     static jmethodID sMethod_getMinimumWidth_0;

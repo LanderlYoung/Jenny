@@ -39,9 +39,6 @@ std::atomic_bool StyleProxy::sInited;
             env->DeleteLocalRef(clazz);
             JENNY_CHECK_NULL(sClazz);
 
-            sConstruct_0 = env->GetMethodID(sClazz, "<init>", "()V");
-            JENNY_CHECK_NULL(sConstruct_0);
-
 
             sMethod_values_0 = env->GetStaticMethodID(sClazz, "values", "()[Landroid/graphics/Paint$Style;");
             JENNY_CHECK_NULL(sMethod_values_0);
@@ -78,7 +75,6 @@ std::atomic_bool StyleProxy::sInited;
     }
 }
 
-jmethodID StyleProxy::sConstruct_0;
 
 jmethodID StyleProxy::sMethod_values_0;
 jmethodID StyleProxy::sMethod_valueOf_0;

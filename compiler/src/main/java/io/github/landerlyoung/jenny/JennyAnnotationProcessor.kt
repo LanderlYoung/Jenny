@@ -99,7 +99,7 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                         val clazz = mTypeUtils.asElement(it) as TypeElement
 
                         val config = NativeProxyCodeGenerator.NativeProxyConfig(
-                                allMethods = true, allFields = true, namespace = annotation.namespace)
+                                allMethods = true, allFields = true, namespace = annotation.namespace, onlyPublic = true)
 
                         NativeProxyCodeGenerator(env, clazz, config).doGenerate()
                     }

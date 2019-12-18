@@ -187,15 +187,6 @@ std::atomic_bool DrawableProxy::sInited;
             sMethod_getTransparentRegion_0 = env->GetMethodID(sClazz, "getTransparentRegion", "()Landroid/graphics/Region;");
             JENNY_CHECK_NULL(sMethod_getTransparentRegion_0);
 
-            sMethod_onStateChange_0 = env->GetMethodID(sClazz, "onStateChange", "([I)Z");
-            JENNY_CHECK_NULL(sMethod_onStateChange_0);
-
-            sMethod_onLevelChange_0 = env->GetMethodID(sClazz, "onLevelChange", "(I)Z");
-            JENNY_CHECK_NULL(sMethod_onLevelChange_0);
-
-            sMethod_onBoundsChange_0 = env->GetMethodID(sClazz, "onBoundsChange", "(Landroid/graphics/Rect;)V");
-            JENNY_CHECK_NULL(sMethod_onBoundsChange_0);
-
             sMethod_getIntrinsicWidth_0 = env->GetMethodID(sClazz, "getIntrinsicWidth", "()I");
             JENNY_CHECK_NULL(sMethod_getIntrinsicWidth_0);
 
@@ -320,9 +311,6 @@ jmethodID DrawableProxy::sMethod_canApplyTheme_0;
 jmethodID DrawableProxy::sMethod_getOpacity_0;
 jmethodID DrawableProxy::sMethod_resolveOpacity_0;
 jmethodID DrawableProxy::sMethod_getTransparentRegion_0;
-jmethodID DrawableProxy::sMethod_onStateChange_0;
-jmethodID DrawableProxy::sMethod_onLevelChange_0;
-jmethodID DrawableProxy::sMethod_onBoundsChange_0;
 jmethodID DrawableProxy::sMethod_getIntrinsicWidth_0;
 jmethodID DrawableProxy::sMethod_getIntrinsicHeight_0;
 jmethodID DrawableProxy::sMethod_getMinimumWidth_0;

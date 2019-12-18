@@ -39,9 +39,10 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     data class NativeProxyConfig(
             val allMethods: Boolean,
             val allFields: Boolean,
-            val namespace: String) {
+            val namespace: String,
+            val onlyPublic: Boolean) {
         constructor(proxy: NativeProxy)
-                : this(proxy.allMethods, proxy.allFields, proxy.namespace)
+                : this(proxy.allMethods, proxy.allFields, proxy.namespace, false)
     }
 
     //what we need to generate includes
@@ -666,7 +667,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                 .asSequence()
                 .filter { it.kind == ElementKind.CONSTRUCTOR }
                 .map { it as ExecutableElement }
-                .filter { shouldGenerateMethod(it) }
+                .filter { visibilityMatched(it) && shouldGenerateMethod(it) }
                 .toList()
                 .let {
                     MethodOverloadResolver(mHelper, this::getJniMethodParamTypes).resolve(it)
@@ -679,7 +680,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
                 .asSequence()
                 .filter { it.kind == ElementKind.METHOD }
                 .map { it as ExecutableElement }
-                .filter { shouldGenerateMethod(it) }
+                .filter { visibilityMatched(it) && shouldGenerateMethod(it) }
                 .groupBy { it.simpleName.toString() }
                 .forEach { (simpleName, methodList) ->
                     mMethodSimpleName.add(simpleName)
@@ -693,7 +694,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
         mClazz.enclosedElements
                 .asSequence()
                 .filter {
-                    it.kind.isField && (it as VariableElement).constantValue != null
+                    it.kind.isField && (it as VariableElement).constantValue != null && visibilityMatched(it)
                 }
                 .forEach { mConstants.add(it as VariableElement) }
     }
@@ -701,8 +702,15 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
     private fun findFields() {
         mClazz.enclosedElements
                 .asSequence()
-                .filter { it.kind.isField && shouldGenerateField(it) }
+                .filter { it.kind.isField && shouldGenerateField(it) && visibilityMatched(it) }
                 .forEach { mFields.add(it as VariableElement) }
+    }
+
+    private fun visibilityMatched(element: Element): Boolean {
+        if (mNativeProxyConfig.onlyPublic) {
+            return element.modifiers.contains(Modifier.PUBLIC)
+        }
+        return true
     }
 
     private fun getJniMethodParamTypes(m: ExecutableElement) = buildString {

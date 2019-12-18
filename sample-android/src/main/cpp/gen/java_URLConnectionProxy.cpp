@@ -39,9 +39,6 @@ std::atomic_bool URLConnectionProxy::sInited;
             env->DeleteLocalRef(clazz);
             JENNY_CHECK_NULL(sClazz);
 
-            sConstruct_0 = env->GetMethodID(sClazz, "<init>", "(Ljava/net/URL;)V");
-            JENNY_CHECK_NULL(sConstruct_0);
-
 
             sMethod_getFileNameMap_0 = env->GetStaticMethodID(sClazz, "getFileNameMap", "()Ljava/net/FileNameMap;");
             JENNY_CHECK_NULL(sMethod_getFileNameMap_0);
@@ -197,12 +194,6 @@ std::atomic_bool URLConnectionProxy::sInited;
             JENNY_CHECK_NULL(sMethod_guessContentTypeFromStream_0);
 
 
-            sField_connected_0 = env->GetFieldID(sClazz, "connected", "Z");
-            JENNY_CHECK_NULL(sField_connected_0);
-
-            sField_url_1 = env->GetFieldID(sClazz, "url", "Ljava/net/URL;");
-            JENNY_CHECK_NULL(sField_url_1);
-
 
             sInited = true;
         }
@@ -222,7 +213,6 @@ std::atomic_bool URLConnectionProxy::sInited;
     }
 }
 
-jmethodID URLConnectionProxy::sConstruct_0;
 
 jmethodID URLConnectionProxy::sMethod_getFileNameMap_0;
 jmethodID URLConnectionProxy::sMethod_setFileNameMap_0;
@@ -276,7 +266,5 @@ jmethodID URLConnectionProxy::sMethod_setContentHandlerFactory_0;
 jmethodID URLConnectionProxy::sMethod_guessContentTypeFromName_0;
 jmethodID URLConnectionProxy::sMethod_guessContentTypeFromStream_0;
 
-jfieldID URLConnectionProxy::sField_connected_0;
-jfieldID URLConnectionProxy::sField_url_1;
 
 } // endof namespace java

@@ -71,12 +71,6 @@ public:
     
     // === java methods below ===
     
-    // construct: protected URLConnection(java.net.URL url)
-    static URLConnectionProxy newInstance(JNIEnv* env, jobject url) noexcept {
-       assertInited(env);
-       return URLConnectionProxy(env, env->NewObject(sClazz, sConstruct_0, url));
-    } 
-    
 
     // method: public static synchronized java.net.FileNameMap getFileNameMap()
     static jobject getFileNameMap(JNIEnv* env) {
@@ -343,38 +337,9 @@ public:
     }
 
 
-    // field: protected boolean connected
-    jboolean getConnected() const {
-       
-       return mJniEnv->GetBooleanField(mJavaObjectReference, sField_connected_0);
-
-    }
-
-    // field: protected boolean connected
-    void setConnected(jboolean connected) const {
-        
-        mJniEnv->SetBooleanField(mJavaObjectReference, sField_connected_0, connected);
-    }
-
-
-    // field: protected java.net.URL url
-    jobject getUrl() const {
-       
-       return mJniEnv->GetObjectField(mJavaObjectReference, sField_url_1);
-
-    }
-
-    // field: protected java.net.URL url
-    void setUrl(jobject url) const {
-        
-        mJniEnv->SetObjectField(mJavaObjectReference, sField_url_1, url);
-    }
-
-
 
 private:
     static jclass sClazz;
-    static jmethodID sConstruct_0;
 
     static jmethodID sMethod_getFileNameMap_0;
     static jmethodID sMethod_setFileNameMap_0;
@@ -428,8 +393,6 @@ private:
     static jmethodID sMethod_guessContentTypeFromName_0;
     static jmethodID sMethod_guessContentTypeFromStream_0;
 
-    static jfieldID sField_connected_0;
-    static jfieldID sField_url_1;
 
 };
 } // endof namespace java
