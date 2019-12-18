@@ -3,7 +3,7 @@
 buildscript {
     ext {
         pub = [
-                publishVersion: '0.9.2',
+                publishVersion: '0.9.3',
                 userOrg       : 'landerlyoung',
                 groupId       : 'io.github.landerlyoung',
                 desc          : 'Java/Android Jni glue code generator',
@@ -54,7 +54,7 @@ allprojects {
             licences = pub.licences
             override = true
 
-            // account config from commpand line
+            // account config from command line
             // -PbintrayUser=xxx
             // -PbintrayKey=xxx
             // -PdryRun=xxx

@@ -137,7 +137,7 @@ std::atomic_bool URLProxy::sInited;
     if (sInited) {
         std::lock_guard<std::mutex> lg(sInitLock);
         if (sInited) {
-            env->DeleteLocalRef(sClazz);
+            env->DeleteGlobalRef(sClazz);
             sClazz = nullptr;
             sInited = false;
         }

@@ -71,7 +71,7 @@ std::atomic_bool StyleProxy::sInited;
     if (sInited) {
         std::lock_guard<std::mutex> lg(sInitLock);
         if (sInited) {
-            env->DeleteLocalRef(sClazz);
+            env->DeleteGlobalRef(sClazz);
             sClazz = nullptr;
             sInited = false;
         }
