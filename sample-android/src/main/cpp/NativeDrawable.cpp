@@ -6,12 +6,9 @@
  */
 #include <NativeDrawableProxy.h>
 #include "NativeDrawable.h"
-#include "gen/android_DrawableProxy.h"
-#include "gen/android_RectProxy.h"
-#include "gen/android_PaintProxy.h"
-#include "gen/android_CanvasProxy.h"
+#include "gen/jenny_GraphicsProxy.h"
 #include "gen/android_StyleProxy.h"
-
+#include "gen/android_RectProxy.h"
 
 class State {
 private:
@@ -40,15 +37,15 @@ public:
  * Signature: ()J
  */
 jlong NativeDrawable::nativeInit(JNIEnv *env, jobject thiz) {
-    using android::PaintProxy;
+    using jenny::GraphicsProxy;
+    using android::StyleProxy;
 
     android::StyleProxy fillType(env, android::StyleProxy::getFILL(env));
-    auto paint = PaintProxy::newInstance(env, PaintProxy::ANTI_ALIAS_FLAG);
-    paint.setStyle(*fillType);
+    auto paint = GraphicsProxy::newPaint(env);
+    GraphicsProxy::paintSetStyle(env, paint, *fillType);
 
-    auto paintGlobal = env->NewGlobalRef(*paint);
+    auto paintGlobal = env->NewGlobalRef(paint);
     fillType.deleteLocalRef();
-    paint.deleteLocalRef();
 
     return reinterpret_cast<jlong>(new State(paintGlobal));
 }
@@ -70,18 +67,19 @@ void NativeDrawable::onClick(JNIEnv *env, jobject thiz) {
  */
 void NativeDrawable::draw(JNIEnv *env, jobject thiz, jobject _canvas) {
     using namespace android;
+    using jenny::GraphicsProxy;
     State *state = reinterpret_cast<State *>(NativeDrawableProxy(env, thiz).getNativeHandle());
-    DrawableProxy drawable(env, thiz);
-    RectProxy bounds(env, drawable.getBounds());
-    PaintProxy paint(env, state->paint);
-    CanvasProxy canvas(env, _canvas);
 
-    paint.setColor(state->color());
-    canvas.drawCircle(
+    RectProxy bounds(env, GraphicsProxy::drawableGetBounds(env, thiz));
+
+    GraphicsProxy::setColor(env, state->paint, state->color());
+    GraphicsProxy::drawableCircle(
+            env, _canvas,
             bounds.exactCenterX(),
             bounds.exactCenterY(),
             std::min(bounds.exactCenterX(), bounds.exactCenterY()) * 0.7f,
-            *paint);
+            state->paint
+    );
 
     bounds.deleteLocalRef();
 }

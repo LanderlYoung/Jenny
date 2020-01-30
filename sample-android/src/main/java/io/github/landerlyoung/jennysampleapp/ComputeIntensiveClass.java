@@ -15,15 +15,6 @@
  */
 package io.github.landerlyoung.jennysampleapp;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -48,26 +39,14 @@ import io.github.landerlyoung.jenny.NativeProxyForClasses;
         namespace = "java", classes = {
         InputStream.class, String.class, URL.class, URLConnection.class,
 })
-@NativeProxyForClasses(
-        namespace = "android", classes = {
-        Drawable.class, Canvas.class, Paint.class, Paint.Style.class, Rect.class
-})
 public class ComputeIntensiveClass {
 
     @NativeProxyForClasses(
-            namespace = "test::android::graphics", classes = {
-            Canvas.class, Bitmap.class
-    })
-    @NativeProxyForClasses(
             namespace = "test::java::lang", classes = {
-            Runnable.class, File.class, InputStream.class,
+            File.class, InputStream.class,
             String.class, URL.class, URLConnection.class,
-            Collections.class,
-            ReentrantLock.class, AtomicInteger.class, Thread.class
-    })
-    @NativeProxyForClasses(
-            namespace = "test::android", classes = {
-            Context.class, Surface.class, SurfaceHolder.class
+            Collections.class, ReentrantLock.class,
+            AtomicInteger.class, Thread.class
     })
     private class Test {
     }

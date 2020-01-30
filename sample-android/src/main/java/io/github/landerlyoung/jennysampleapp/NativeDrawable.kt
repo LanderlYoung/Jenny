@@ -1,12 +1,11 @@
 package io.github.landerlyoung.jennysampleapp
 
-import android.graphics.Canvas
-import android.graphics.ColorFilter
-import android.graphics.PixelFormat
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import io.github.landerlyoung.jenny.NativeClass
 import io.github.landerlyoung.jenny.NativeFieldProxy
 import io.github.landerlyoung.jenny.NativeProxy
+import io.github.landerlyoung.jenny.NativeProxyForClasses
 
 /*
  * ```
@@ -18,6 +17,8 @@ import io.github.landerlyoung.jenny.NativeProxy
  */
 @NativeClass
 @NativeProxy(allMethods = false, allFields = false)
+@NativeProxyForClasses(namespace = "android",
+        classes = [Paint.Style::class, Rect::class])
 class NativeDrawable : Drawable() {
     @NativeFieldProxy(setter = false)
     private val nativeHandle = nativeInit()
@@ -44,5 +45,29 @@ class NativeDrawable : Drawable() {
         init {
             System.loadLibrary("hello-jenny")
         }
+    }
+}
+
+@NativeProxy(namespace = "jenny")
+object Graphics {
+    @JvmStatic
+    fun newPaint() = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    @JvmStatic
+    fun paintSetStyle(paint: Paint, style: Paint.Style) {
+        paint.style = style
+    }
+
+    @JvmStatic
+    fun drawableCircle(canvas: Canvas, x: Float, y: Float, r: Float, paint: Paint) {
+        canvas.drawCircle(x, y, r, paint)
+    }
+
+    @JvmStatic
+    fun drawableGetBounds(drawable: Drawable) = drawable.bounds
+
+    @JvmStatic
+    fun setColor(paint: Paint, color: Int) {
+        paint.color = color
     }
 }
