@@ -172,16 +172,12 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
                 .asSequence()
                 .filter { it.kind.isField }
                 .map { it as VariableElement }
-                .filter { it.constantValue != null }
-                .forEach {
+                .filter {
                     // if this field is a compile-time constant value it's
                     // value will be returned, otherwise null will be returned.
-                    val constValue = it.constantValue!!
-
-                    val nativeType = mHelper.toNativeType(it.asType(), true)
-
-                    append("static constexpr $nativeType ${it.simpleName} = ${HandyHelper.getJNIHeaderConstantValue(constValue)};\n")
+                    it.constantValue != null
                 }
+                .forEach { append("${mHelper.getConstexprStatement(it)}\n") }
         append('\n')
     }
 

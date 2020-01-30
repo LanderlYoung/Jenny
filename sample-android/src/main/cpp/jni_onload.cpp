@@ -13,6 +13,7 @@
 #include "ComputeIntensiveClass.h"
 #include "NestedNativeClass.h"
 #include "NativeDrawable.h"
+#include "gen/GenericProxy.h"
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
@@ -22,6 +23,9 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     }
     assert(ComputeIntensiveClass::registerNativeFunctions(env));
     assert(NativeDrawable::registerNativeFunctions(env));
+
+    // test generic init success
+    assert(GenericProxy::initClazz(env));
     return JNI_VERSION_1_6;
 }
 
