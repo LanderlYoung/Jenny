@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
  * </pre>
  */
 @Repeatable(NativeProxyForClasses.RepeatContainer.class)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
 public @interface NativeProxyForClasses {
     /**
@@ -37,7 +37,7 @@ public @interface NativeProxyForClasses {
     /**
      * Java 8 repeatable annotation container.
      */
-    @Retention(RetentionPolicy.SOURCE)
+    @Retention(RetentionPolicy.CLASS)
     @Target(ElementType.TYPE)
     @interface RepeatContainer {
         NativeProxyForClasses[] value() default {};

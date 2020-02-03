@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * </pre>
 
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
 public @interface NativeProxy {
     /**

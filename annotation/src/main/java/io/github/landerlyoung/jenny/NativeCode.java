@@ -43,7 +43,7 @@ import java.lang.annotation.Target;
  * Life with passion. Code with creativity!
  * </pre>
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 public @interface NativeCode {
     /**

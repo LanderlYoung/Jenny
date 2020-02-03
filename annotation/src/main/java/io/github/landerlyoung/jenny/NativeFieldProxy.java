@@ -59,7 +59,7 @@ import java.lang.annotation.Target;
  *
  * @see NativeProxy#allFields()
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)
 public @interface NativeFieldProxy {
     /**

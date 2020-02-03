@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * </pre>
  * @see NativeProxy#allMethods()
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface NativeMethodProxy {
     boolean enabled() default true;
