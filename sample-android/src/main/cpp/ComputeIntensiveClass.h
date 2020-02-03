@@ -16,10 +16,10 @@
 namespace ComputeIntensiveClass {
 
 // DO NOT modify
-static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass";
+static constexpr auto FULL_CLASS_NAME = u8"io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass";
 
-static constexpr auto LOG_TAG = "ComputeIntensiveClass";
-static constexpr auto KEY_WHERE_ARE_YOUT_FROM = "where_are_you_from";
+static constexpr auto LOG_TAG = u8"ComputeIntensiveClass";
+static constexpr auto KEY_WHERE_ARE_YOUT_FROM = u8"where_are_you_from";
 static constexpr jint IDEL = -1;
 static constexpr jint BUSY = 1;
 
@@ -91,63 +91,67 @@ jint JNICALL computeThenCallback(JNIEnv *env, jobject thiz, jobject listener);
 * @returns success or not
 */
 inline bool registerNativeFunctions(JNIEnv *env) {
+// 1. C++20 has u8"" string as char8_t type, we should cast them.
+// 2. jni.h has JNINativeMethod::name as char* type not const char*. (while Android does)
+#define jenny_u8cast(u8) const_cast<char *>(reinterpret_cast<const char *>(u8))
    const JNINativeMethod gsNativeMethods[] = {
        {
-           /* method name      */ const_cast<char *>("addInNative"),
-           /* method signature */ const_cast<char *>("(II)I"),
+           /* method name      */ jenny_u8cast(u8"addInNative"),
+           /* method signature */ jenny_u8cast(u8"(II)I"),
            /* function pointer */ reinterpret_cast<void *>(addInNative)
        },
        {
-           /* method name      */ const_cast<char *>("computeSomething"),
-           /* method signature */ const_cast<char *>("([B)V"),
+           /* method name      */ jenny_u8cast(u8"computeSomething"),
+           /* method signature */ jenny_u8cast(u8"([B)V"),
            /* function pointer */ reinterpret_cast<void *>(computeSomething)
        },
        {
-           /* method name      */ const_cast<char *>("greet"),
-           /* method signature */ const_cast<char *>("()Ljava/lang/String;"),
+           /* method name      */ jenny_u8cast(u8"greet"),
+           /* method signature */ jenny_u8cast(u8"()Ljava/lang/String;"),
            /* function pointer */ reinterpret_cast<void *>(greet)
        },
        {
-           /* method name      */ const_cast<char *>("testParamParse"),
-           /* method signature */ const_cast<char *>("(ILjava/lang/String;[J[[FLjava/lang/Exception;Ljava/lang/Class;Ljava/util/HashMap;)V"),
+           /* method name      */ jenny_u8cast(u8"testParamParse"),
+           /* method signature */ jenny_u8cast(u8"(ILjava/lang/String;[J[[FLjava/lang/Exception;Ljava/lang/Class;Ljava/util/HashMap;)V"),
            /* function pointer */ reinterpret_cast<void *>(testParamParse)
        },
        {
-           /* method name      */ const_cast<char *>("returnsLong"),
-           /* method signature */ const_cast<char *>("()J"),
+           /* method name      */ jenny_u8cast(u8"returnsLong"),
+           /* method signature */ jenny_u8cast(u8"()J"),
            /* function pointer */ reinterpret_cast<void *>(returnsLong)
        },
        {
-           /* method name      */ const_cast<char *>("returnsBool"),
-           /* method signature */ const_cast<char *>("()Z"),
+           /* method name      */ jenny_u8cast(u8"returnsBool"),
+           /* method signature */ jenny_u8cast(u8"()Z"),
            /* function pointer */ reinterpret_cast<void *>(returnsBool)
        },
        {
-           /* method name      */ const_cast<char *>("returnsObject"),
-           /* method signature */ const_cast<char *>("()Ljava/lang/Object;"),
+           /* method name      */ jenny_u8cast(u8"returnsObject"),
+           /* method signature */ jenny_u8cast(u8"()Ljava/lang/Object;"),
            /* function pointer */ reinterpret_cast<void *>(returnsObject)
        },
        {
-           /* method name      */ const_cast<char *>("httpGet"),
-           /* method signature */ const_cast<char *>("(Ljava/lang/String;)Ljava/lang/String;"),
+           /* method name      */ jenny_u8cast(u8"httpGet"),
+           /* method signature */ jenny_u8cast(u8"(Ljava/lang/String;)Ljava/lang/String;"),
            /* function pointer */ reinterpret_cast<void *>(httpGet)
        },
        {
-           /* method name      */ const_cast<char *>("computeThenCallback"),
-           /* method signature */ const_cast<char *>("(Lio/github/landerlyoung/jennysampleapp/Callback;)I"),
+           /* method name      */ jenny_u8cast(u8"computeThenCallback"),
+           /* method signature */ jenny_u8cast(u8"(Lio/github/landerlyoung/jennysampleapp/Callback;)I"),
            /* function pointer */ reinterpret_cast<void *>(computeThenCallback)
        }
    };
-   const int gsMethodCount =
-       sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
+
+   const int gsMethodCount = sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
 
    bool success = false;
-   jclass clazz = env->FindClass(FULL_CLASS_NAME);
+   jclass clazz = env->FindClass(jenny_u8cast(FULL_CLASS_NAME));
    if (clazz != nullptr) {
-       success = 0 == env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
+       success = !env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
        env->DeleteLocalRef(clazz);
    }
    return success;
+#undef jenny_u8cast
 }
 
 } // endof namespace ComputeIntensiveClass

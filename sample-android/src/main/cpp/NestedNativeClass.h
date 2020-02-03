@@ -16,7 +16,7 @@
 namespace NestedNativeClass {
 
 // DO NOT modify
-static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
+static constexpr auto FULL_CLASS_NAME = u8"io/github/landerlyoung/jennysampleapp/ComputeIntensiveClass$NestedNativeClass";
 
 static constexpr jint CONST = 0;
 

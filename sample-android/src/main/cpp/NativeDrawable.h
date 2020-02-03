@@ -16,7 +16,7 @@
 namespace NativeDrawable {
 
 // DO NOT modify
-static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/NativeDrawable";
+static constexpr auto FULL_CLASS_NAME = u8"io/github/landerlyoung/jennysampleapp/NativeDrawable";
 
 static constexpr jlong nativeHandle = 0;
 
@@ -53,38 +53,42 @@ void JNICALL release(JNIEnv *env, jobject thiz);
 * @returns success or not
 */
 inline bool registerNativeFunctions(JNIEnv *env) {
+// 1. C++20 has u8"" string as char8_t type, we should cast them.
+// 2. jni.h has JNINativeMethod::name as char* type not const char*. (while Android does)
+#define jenny_u8cast(u8) const_cast<char *>(reinterpret_cast<const char *>(u8))
    const JNINativeMethod gsNativeMethods[] = {
        {
-           /* method name      */ const_cast<char *>("nativeInit"),
-           /* method signature */ const_cast<char *>("()J"),
+           /* method name      */ jenny_u8cast(u8"nativeInit"),
+           /* method signature */ jenny_u8cast(u8"()J"),
            /* function pointer */ reinterpret_cast<void *>(nativeInit)
        },
        {
-           /* method name      */ const_cast<char *>("onClick"),
-           /* method signature */ const_cast<char *>("()V"),
+           /* method name      */ jenny_u8cast(u8"onClick"),
+           /* method signature */ jenny_u8cast(u8"()V"),
            /* function pointer */ reinterpret_cast<void *>(onClick)
        },
        {
-           /* method name      */ const_cast<char *>("draw"),
-           /* method signature */ const_cast<char *>("(Landroid/graphics/Canvas;)V"),
+           /* method name      */ jenny_u8cast(u8"draw"),
+           /* method signature */ jenny_u8cast(u8"(Landroid/graphics/Canvas;)V"),
            /* function pointer */ reinterpret_cast<void *>(draw)
        },
        {
-           /* method name      */ const_cast<char *>("release"),
-           /* method signature */ const_cast<char *>("()V"),
+           /* method name      */ jenny_u8cast(u8"release"),
+           /* method signature */ jenny_u8cast(u8"()V"),
            /* function pointer */ reinterpret_cast<void *>(release)
        }
    };
-   const int gsMethodCount =
-       sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
+
+   const int gsMethodCount = sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
 
    bool success = false;
-   jclass clazz = env->FindClass(FULL_CLASS_NAME);
+   jclass clazz = env->FindClass(jenny_u8cast(FULL_CLASS_NAME));
    if (clazz != nullptr) {
-       success = 0 == env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
+       success = !env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
        env->DeleteLocalRef(clazz);
    }
    return success;
+#undef jenny_u8cast
 }
 
 } // endof namespace NativeDrawable

@@ -66,7 +66,7 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
         classes.asSequence()
                 .filter { it is TypeElement }
-                .forEach { CppGlueCodeGenerator(env, it as TypeElement).doGenerate() }
+                .forEach { NativeGlueGenerator(env, it as TypeElement).doGenerate() }
         return true
     }
 

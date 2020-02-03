@@ -35,7 +35,7 @@ import javax.tools.StandardLocation
 //XXXX support for pure c code
 //DONE file output
 //GOING use file template
-class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerator(env, clazz) {
+class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerator(env, clazz) {
     private lateinit var mNamespaceHelper: NamespaceHelper
     // header file name
     private lateinit var mHeaderName: String
@@ -109,7 +109,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
                         |namespace $cppClassName {
                         |
                         |// DO NOT modify
-                        |static constexpr auto FULL_CLASS_NAME = "$mSlashClassName";
+                        |static constexpr auto FULL_CLASS_NAME = u8"$mSlashClassName";
                         |
                         |""".trimMargin())
 
@@ -261,21 +261,25 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
             |* @returns success or not
             |*/
             |inline bool registerNativeFunctions(JNIEnv *env) {
+            |// 1. C++20 has u8"" string as char8_t type, we should cast them.
+            |// 2. jni.h has JNINativeMethod::name as char* type not const char*. (while Android does)
+            |#define jenny_u8cast(u8) const_cast<char *>(reinterpret_cast<const char *>(u8))
             |   const JNINativeMethod gsNativeMethods[] = {
             |""".trimMargin())
         buildJniNativeMethodStructs()
         append("""
             |   };
-            |   const int gsMethodCount =
-            |       sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
+            |
+            |   const int gsMethodCount = sizeof(gsNativeMethods) / sizeof(JNINativeMethod);
             |
             |   bool success = false;
-            |   jclass clazz = env->FindClass(FULL_CLASS_NAME);
+            |   jclass clazz = env->FindClass(jenny_u8cast(FULL_CLASS_NAME));
             |   if (clazz != nullptr) {
-            |       success = 0 == env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
+            |       success = !env->RegisterNatives(clazz, gsNativeMethods, gsMethodCount);
             |       env->DeleteLocalRef(clazz);
             |   }
             |   return success;
+            |#undef jenny_u8cast
             |}
             |""".trimMargin())
     }
@@ -288,8 +292,8 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
             val signature = mHelper.getBinaryMethodSignature(m)
             append("""
             |       {
-            |           /* method name      */ const_cast<char *>("$methodName"),
-            |           /* method signature */ const_cast<char *>("$signature"),
+            |           /* method name      */ jenny_u8cast(u8"$methodName"),
+            |           /* method signature */ jenny_u8cast(u8"$signature"),
             |           /* function pointer */ reinterpret_cast<void *>(${methodName})
             |       }""".trimMargin())
             if (it.hasNext()) {
