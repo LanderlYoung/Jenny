@@ -25,6 +25,24 @@ jlong Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024Nest
 }
 
 /*
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
+ * Method:    public void testOverload()
+ * Signature: ()V
+ */
+void Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_testOverload__(JNIEnv *env, jobject thiz) {
+
+}
+
+/*
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
+ * Method:    public void testOverload(java.lang.Object o)
+ * Signature: (Ljava/lang/Object;)V
+ */
+void Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_testOverload__Ljava_lang_Object_2(JNIEnv *env, jobject thiz, jobject o) {
+
+}
+
+/*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
  * Method:    public void nativeRelease(long handle)
  * Signature: (J)V

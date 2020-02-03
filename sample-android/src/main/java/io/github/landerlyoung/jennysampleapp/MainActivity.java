@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
         mTextView = findViewById(R.id.text);
         mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2) + "\n");
         mTextView.append(ComputeIntensiveClass.greet());
+        ComputeIntensiveClass.testOverload();
+        ComputeIntensiveClass.testOverload(0);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         assert fab != null;
@@ -69,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
                         .show();
                 ComputeIntensiveClass.NestedNativeClass nestedNativeClass = new ComputeIntensiveClass.NestedNativeClass();
                 long handle = nestedNativeClass.nativeInit();
+                nestedNativeClass.testOverload();
+                nestedNativeClass.testOverload(nestedNativeClass);
                 nestedNativeClass.nativeRelease(handle);
                 nestedNativeClass.one("hello");
                 nativeClass.computeThenCallback(new Callback() {

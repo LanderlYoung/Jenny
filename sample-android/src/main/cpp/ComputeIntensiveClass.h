@@ -74,6 +74,20 @@ jobject JNICALL returnsObject(JNIEnv *env, jclass clazz);
 
 /*
  * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
+ * Method:    public static void testOverload()
+ * Signature: ()V
+ */
+void JNICALL testOverload__(JNIEnv *env, jclass clazz);
+
+/*
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
+ * Method:    public static void testOverload(int i)
+ * Signature: (I)V
+ */
+void JNICALL testOverload__I(JNIEnv *env, jclass clazz, jint i);
+
+/*
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static java.lang.String httpGet(java.lang.String url)
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
@@ -129,6 +143,16 @@ inline bool registerNativeFunctions(JNIEnv *env) {
            /* method name      */ jenny_u8cast(u8"returnsObject"),
            /* method signature */ jenny_u8cast(u8"()Ljava/lang/Object;"),
            /* function pointer */ reinterpret_cast<void *>(returnsObject)
+       },
+       {
+           /* method name      */ jenny_u8cast(u8"testOverload"),
+           /* method signature */ jenny_u8cast(u8"()V"),
+           /* function pointer */ reinterpret_cast<void *>(testOverload__)
+       },
+       {
+           /* method name      */ jenny_u8cast(u8"testOverload"),
+           /* method signature */ jenny_u8cast(u8"(I)V"),
+           /* function pointer */ reinterpret_cast<void *>(testOverload__I)
        },
        {
            /* method name      */ jenny_u8cast(u8"httpGet"),

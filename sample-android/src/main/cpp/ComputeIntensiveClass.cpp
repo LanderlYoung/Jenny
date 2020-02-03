@@ -77,6 +77,24 @@ jobject ComputeIntensiveClass::returnsObject(JNIEnv *env, jclass clazz) {
 }
 
 /*
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
+ * Method:    public static void testOverload()
+ * Signature: ()V
+ */
+void ComputeIntensiveClass::testOverload__(JNIEnv *env, jclass clazz) {
+
+}
+
+/*
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
+ * Method:    public static void testOverload(int i)
+ * Signature: (I)V
+ */
+void ComputeIntensiveClass::testOverload__I(JNIEnv *env, jclass clazz, jint i) {
+
+}
+
+/*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
  * Method:    public static java.lang.String httpGet(java.lang.String url)
  * Signature: (Ljava/lang/String;)Ljava/lang/String;

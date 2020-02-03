@@ -209,7 +209,7 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
             val jniReturnType = mHelper.toJNIType(e.returnType)
             val nativeMethodName =
                     if (isSource && mNativeClassAnnotation.dynamicRegisterJniMethods)
-                        cppClassName + "::" + getMethodName(e)
+                        cppClassName + "::" + getMethodName(e) + m.resolvedPostFix
                     else
                         getMethodName(e) + m.resolvedPostFix
             val nativeParameters = mHelper.getNativeMethodParam(e)
@@ -287,14 +287,15 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
     private fun StringBuilder.buildJniNativeMethodStructs() {
         val it = mMethods.iterator()
         while (it.hasNext()) {
-            val m = it.next().method
-            val methodName = m.simpleName.toString()
-            val signature = mHelper.getBinaryMethodSignature(m)
+            val m = it.next()
+            val methodName = m.method.simpleName.toString()
+            val symbol = getMethodName(m.method) + m.resolvedPostFix
+            val signature = mHelper.getBinaryMethodSignature(m.method)
             append("""
             |       {
             |           /* method name      */ jenny_u8cast(u8"$methodName"),
             |           /* method signature */ jenny_u8cast(u8"$signature"),
-            |           /* function pointer */ reinterpret_cast<void *>(${methodName})
+            |           /* function pointer */ reinterpret_cast<void *>(${symbol})
             |       }""".trimMargin())
             if (it.hasNext()) {
                 append(",")

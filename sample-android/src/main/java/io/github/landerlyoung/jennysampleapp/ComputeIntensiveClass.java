@@ -86,6 +86,9 @@ public class ComputeIntensiveClass {
 
     public static native Object returnsObject();
 
+    public static native void testOverload();
+    public static native void testOverload(int i);
+
     // showcase for native proxy
     public static native String httpGet(String url);
 
@@ -105,6 +108,10 @@ public class ComputeIntensiveClass {
         public native HashMap<String, String> one(String param);
 
         public native long nativeInit();
+
+        public native void testOverload();
+
+        public native void testOverload(Object o);
 
         public native void nativeRelease(long handle);
     }
