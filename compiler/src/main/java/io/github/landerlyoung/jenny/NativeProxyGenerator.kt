@@ -31,7 +31,7 @@ import kotlin.collections.component2
  * Time:   00:30
  * Life with Passion, Code with Creativity.
  */
-class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy: NativeProxyConfig) : AbsCodeGenerator(env, clazz) {
+class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: NativeProxyConfig) : AbsCodeGenerator(env, clazz) {
 
     data class NativeProxyConfig(
             val allMethods: Boolean,

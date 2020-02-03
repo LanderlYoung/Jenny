@@ -9,10 +9,10 @@ package io.github.landerlyoung.jenny
  * ```
  */
 class NamespaceHelper(namespace: String) {
-    private val namesSegment: List<String> = namespace.split("::").map { it.trim() }
-    private val namespace: String = namesSegment.joinToString("::")
+    private val namespaces: List<String> = namespace.split("::").map { it.trim() }
+            .filter { it.isNotEmpty() }
 
-    val fileNamePrefix: String = namesSegment.joinToString("_").let {
+    val fileNamePrefix: String = namespaces.joinToString("_").let {
         if (it.isNotEmpty()) {
             it + "_"
         } else {
@@ -20,17 +20,9 @@ class NamespaceHelper(namespace: String) {
         }
     }
 
-    fun beginNamespace() =
-            if (namespace.isNotEmpty()) {
-                // C++17 style
-                "namespace $namespace {"
-            } else {
-                ""
-            }
+    fun beginNamespace() = namespaces.joinToString(" ") { "namespace $it {" }
 
-    fun endNamespace() =
-            if (namespace.isNotEmpty())
-                "} // endof namespace $namespace"
-            else
-                ""
+    fun endNamespace() = if (namespaces.isNotEmpty())
+        namespaces.joinToString(" ", postfix = " // endof namespace ${namespaces.joinToString("::") { it }}") { "}" }
+    else ""
 }
