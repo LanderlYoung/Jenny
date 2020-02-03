@@ -91,13 +91,29 @@ jstring JNICALL ComputeIntensiveClass::httpGet(JNIEnv *env, jclass clazz, jstrin
     jint len = input.read(buffer);
     input.close();
 
-    jstring ret =  (jstring) (*StringProxy::newInstance(env, buffer, 0, len));
+    jstring ret = reinterpret_cast<jstring>(*StringProxy::newInstance(env, buffer, 0, len));
 
     url.deleteLocalRef();
     urlConn.deleteLocalRef();
     input.deleteLocalRef();
     env->DeleteLocalRef(buffer);
     return ret;
+
+    /*
+     * equivalent java code to {@link ComputeIntensiveClass#httpGet(String)}
+
+     private String httpGet(String url) throws IOException {
+        URL u = new URL(url);
+        URLConnection conn = u.openConnection();
+        InputStream input = conn.getInputStream();
+
+        byte[] buffer = new byte[1024];
+        int len = input.read(buffer);
+        input.close();
+
+        return new String(buffer, 0, len);
+    }
+     */
 }
 
 /*
@@ -120,7 +136,7 @@ jint ComputeIntensiveClass::computeThenCallback(JNIEnv *env, jobject thiz, jobje
     callback.setLock(*nestedClass);
     callback.onJobProgress(50);
 
-    callback.setAStaticField(env, nullptr);
+    CallbackProxy::setAStaticField(env, nullptr);
 
     callback.setCount(100);
     callback.setLock(listener);
@@ -134,7 +150,6 @@ jint ComputeIntensiveClass::computeThenCallback(JNIEnv *env, jobject thiz, jobje
 
     newInstance.deleteLocalRef();
     nestedClass.deleteLocalRef();
-    callback.deleteLocalRef();
     return 0;
 }
 

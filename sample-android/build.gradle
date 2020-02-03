@@ -73,7 +73,7 @@ task copyGeneratedCpp {
         copy {
             // copy proxy
             from new File(project.buildDir, "generated/source/kapt/debug/jenny/proxy")
-            exclude 'test_**'
+            exclude 'test_*', "Unicode*"
             into project.file('src/main/cpp/gen')
         }
         copy {

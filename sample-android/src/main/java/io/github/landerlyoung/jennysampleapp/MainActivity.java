@@ -1,12 +1,12 @@
 /**
  * Copyright 2016 landerlyoung@gmail.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 package io.github.landerlyoung.jennysampleapp;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
@@ -27,13 +24,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -80,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onJobDone(boolean success, String result) {
                         toast("success=" + success + " result=" + result
-                        + "\ncount=" + count + " obj==this = " + (lock == this));
+                                + "\ncount=" + count + " obj==this = " + (lock == this));
                     }
 
                     @Override
@@ -103,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
         AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
             final String json = ComputeIntensiveClass.httpGet("https://jsonplaceholder.typicode.com/todos/1");
-            runOnUiThread(() -> toast(json));
+            runOnUiThread(() -> toast("http get\n" + json));
         });
     }
 
@@ -111,21 +106,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mNativeDrawable.release();
-    }
-
-    /**
-     * equivalent java code to {@link ComputeIntensiveClass#httpGet(String)}
-     */
-    private String httpGet(String url) throws IOException {
-        URL u = new URL(url);
-        URLConnection conn = u.openConnection();
-        InputStream input = conn.getInputStream();
-
-        byte[] buffer = new byte[1024];
-        int len = input.read(buffer);
-        input.close();
-
-        return new String(buffer, 0, len);
     }
 
     private void toast(String msg) {

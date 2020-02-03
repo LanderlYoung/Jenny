@@ -707,7 +707,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
         var needComma = false
         if (mHelper.isNestedClass(mClazz)) {
             val enclosingElement = mClazz.enclosingElement
-            //nested class has an this$0 in its constructor
+            // nested class has an this$0 in its constructor
             append(mHelper.toJNIType(enclosingElement.asType()))
             needComma = true
         }
@@ -722,7 +722,7 @@ class NativeProxyCodeGenerator(env: Environment, clazz: TypeElement, nativeProxy
         var needComma = false
         if (mHelper.isNestedClass(mClazz)) {
             val enclosingElement = mClazz.enclosingElement
-            //nested class has an this$0 in its constructor
+            // nested class has an this$0 in its constructor
             append(mHelper.toJNIType(enclosingElement.asType()))
                     .append(" ")
                     .append("enclosingClass")

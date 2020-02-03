@@ -41,7 +41,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
     private lateinit var mHeaderName: String
     // source file Name
     private lateinit var mSourceName: String
-    private val mMethods: MutableList<Element> = LinkedList()
+    private val mMethods: MutableList<MethodOverloadResolver.MethodRecord> = LinkedList()
     private val mNativeClassAnnotation: NativeClass =
             clazz.getAnnotation(NativeClass::class.java)
                     ?: AnnotationResolver.getDefaultImplementation(NativeClass::class.java)
@@ -75,12 +75,17 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
         mClazz.enclosedElements
                 .asSequence()
                 .filter { it.kind == ElementKind.METHOD }
-                .forEach { e ->
-                    if (e.modifiers.contains(Modifier.NATIVE)) {
-                        mMethods.add(e)
-                    } else if (e.getAnnotation(NativeCode::class.java) != null) {
+                .map { e ->
+                    if (!e.modifiers.contains(Modifier.NATIVE) && e.getAnnotation(NativeCode::class.java) != null) {
                         error("Annotation @" + NativeCode::class.java.simpleName
-                                + " should only be applied to NATIVE method!")
+                                + " should only be applied to NATIVE method! found at:${mClassName}.${e}")
+                    }
+                    e as ExecutableElement
+                }.filter {
+                    it.modifiers.contains(Modifier.NATIVE)
+                }.groupBy { it.simpleName.toString() }.forEach { (_, methods) ->
+                    MethodOverloadResolver(mHelper) { "" }.resolve(methods).let {
+                        mMethods.addAll(it)
                     }
                 }
     }
@@ -193,12 +198,12 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
                 |""".trimMargin())
         }
         mMethods.forEach { m ->
-            val e = m as ExecutableElement
+            val e = m.method
             val javaModifiers = mHelper.getModifiers(e)
             val javaReturnType = e.returnType.toString()
             val javaMethodName = e.simpleName.toString()
             val javaParameters = mHelper.getJavaMethodParam(e)
-            val javaMethodSignature = mHelper.getMethodSignature(e)
+            val javaMethodSignature = mHelper.getBinaryMethodSignature(e)
             val export = if (isSource || mNativeClassAnnotation.dynamicRegisterJniMethods) "" else "JNIEXPORT "
             val jniCall = if (isSource) "" else "JNICALL "
             val jniReturnType = mHelper.toJNIType(e.returnType)
@@ -206,19 +211,19 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
                     if (isSource && mNativeClassAnnotation.dynamicRegisterJniMethods)
                         cppClassName + "::" + getMethodName(e)
                     else
-                        getMethodName(e)
+                        getMethodName(e) + m.resolvedPostFix
             val nativeParameters = mHelper.getNativeMethodParam(e)
 
             append("""
             |/*
-            | * Class:     $mJNIClassName
+            | * Class:     $mClassName
             | * Method:    $javaModifiers $javaReturnType ${javaMethodName}(${javaParameters})
             | * Signature: $javaMethodSignature
             | */
             |${export}${jniReturnType} ${jniCall}${nativeMethodName}(${nativeParameters})""".trimMargin())
 
             if (isSource) {
-                buildMethodBodyWithReturnStatement(m)
+                buildMethodBodyWithReturnStatement(e)
             } else {
                 append(';')
             }
@@ -278,7 +283,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
     private fun StringBuilder.buildJniNativeMethodStructs() {
         val it = mMethods.iterator()
         while (it.hasNext()) {
-            val m = it.next() as ExecutableElement
+            val m = it.next().method
             val methodName = m.simpleName.toString()
             val signature = mHelper.getBinaryMethodSignature(m)
             append("""
@@ -300,7 +305,7 @@ class CppGlueCodeGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenera
         return if (mNativeClassAnnotation.dynamicRegisterJniMethods) {
             simpleName
         } else {
-            "Java_" + mJNIClassName + "_" + simpleName
+            "Java_" + mJNIClassName + "_" + simpleName.replace("_", "_1").stripNonUnicode()
         }
     }
 

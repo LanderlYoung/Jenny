@@ -21,28 +21,28 @@ static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/N
 static constexpr jlong nativeHandle = 0;
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_NativeDrawable
+ * Class:     io.github.landerlyoung.jennysampleapp.NativeDrawable
  * Method:    private final long nativeInit()
  * Signature: ()J
  */
 jlong JNICALL nativeInit(JNIEnv *env, jobject thiz);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_NativeDrawable
+ * Class:     io.github.landerlyoung.jennysampleapp.NativeDrawable
  * Method:    public final void onClick()
  * Signature: ()V
  */
 void JNICALL onClick(JNIEnv *env, jobject thiz);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_NativeDrawable
+ * Class:     io.github.landerlyoung.jennysampleapp.NativeDrawable
  * Method:    public void draw(android.graphics.Canvas canvas)
  * Signature: (Landroid/graphics/Canvas;)V
  */
 void JNICALL draw(JNIEnv *env, jobject thiz, jobject canvas);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_NativeDrawable
+ * Class:     io.github.landerlyoung.jennysampleapp.NativeDrawable
  * Method:    public final void release()
  * Signature: ()V
  */

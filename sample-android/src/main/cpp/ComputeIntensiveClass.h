@@ -24,63 +24,63 @@ static constexpr jint IDEL = -1;
 static constexpr jint BUSY = 1;
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public int addInNative(int a, int b)
  * Signature: (II)I
  */
 jint JNICALL addInNative(JNIEnv *env, jobject thiz, jint a, jint b);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static void computeSomething(byte[] sth)
  * Signature: ([B)V
  */
 void JNICALL computeSomething(JNIEnv *env, jclass clazz, jbyteArray sth);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static java.lang.String greet()
  * Signature: ()Ljava/lang/String;
  */
 jstring JNICALL greet(JNIEnv *env, jclass clazz);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public final void testParamParse(int a, java.lang.String b, long[] c, float[][] d, java.lang.Exception e, java.lang.Class<java.lang.String> f, java.util.HashMap<?,?> g)
  * Signature: (ILjava/lang/String;[J[[FLjava/lang/Exception;Ljava/lang/Class;Ljava/util/HashMap;)V
  */
 void JNICALL testParamParse(JNIEnv *env, jobject thiz, jint a, jstring b, jlongArray c, jobjectArray d, jthrowable e, jclass f, jobject g);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static long returnsLong()
  * Signature: ()J
  */
 jlong JNICALL returnsLong(JNIEnv *env, jclass clazz);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static boolean returnsBool()
  * Signature: ()Z
  */
 jboolean JNICALL returnsBool(JNIEnv *env, jclass clazz);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static java.lang.Object returnsObject()
  * Signature: ()Ljava/lang/Object;
  */
 jobject JNICALL returnsObject(JNIEnv *env, jclass clazz);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static java.lang.String httpGet(java.lang.String url)
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
 jstring JNICALL httpGet(JNIEnv *env, jclass clazz, jstring url);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public int computeThenCallback(io.github.landerlyoung.jennysampleapp.Callback listener)
  * Signature: (Lio/github/landerlyoung/jennysampleapp/Callback;)I
  */

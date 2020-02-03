@@ -30,21 +30,21 @@ extern "C" {
 #endif
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
  * Method:    public java.util.HashMap<java.lang.String,java.lang.String> one(java.lang.String param)
  * Signature: (Ljava/lang/String;)Ljava/util/HashMap;
  */
 JNIEXPORT jobject JNICALL Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_one(JNIEnv *env, jobject thiz, jstring param);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
  * Method:    public long nativeInit()
  * Signature: ()J
  */
 JNIEXPORT jlong JNICALL Java_io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass_nativeInit(JNIEnv *env, jobject thiz);
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass$NestedNativeClass
  * Method:    public void nativeRelease(long handle)
  * Signature: (J)V
  */
