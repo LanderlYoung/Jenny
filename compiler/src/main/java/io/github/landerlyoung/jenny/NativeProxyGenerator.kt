@@ -16,12 +16,17 @@
 package io.github.landerlyoung.jenny
 
 import java.io.IOException
-import java.util.*
-import javax.lang.model.element.*
+import java.util.EnumSet
+import java.util.Locale
+import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.tools.StandardLocation
-import kotlin.collections.LinkedHashSet
 import kotlin.collections.component1
 import kotlin.collections.component2
 
@@ -144,32 +149,43 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         |
                         |public:
                         |
-                        |    static bool initClazz(JNIEnv *env);
+                        |    static bool initClazz(JNIEnv* env);
                         |    
-                        |    static void releaseClazz(JNIEnv *env);
+                        |    static void releaseClazz(JNIEnv* env);
                         |
-                        |    static void assertInited(JNIEnv *env) {
+                        |    static void assertInited(JNIEnv* env) {
                         |        auto initClazzSuccess = initClazz(env);
                         |        assert(initClazzSuccess);
                         |    }
                         |
-                        |    ${cppClassName}(JNIEnv *env, jobject javaObj)
+                        |    ${cppClassName}(JNIEnv* env, jobject javaObj)
                         |            : mJniEnv(env), mJavaObjectReference(javaObj) {
-                        |        assertInited(env);
+                        |        if (env) { assertInited(env); }
                         |    }
                         |
-                        |    ${cppClassName}(const $cppClassName &from) = default;
+                        |    ${cppClassName}(const $cppClassName& from) = default;
                         |    $cppClassName &operator=(const $cppClassName &) = default;
                         |
-                        |    ${cppClassName}($cppClassName &&from)
+                        |    ${cppClassName}($cppClassName&& from) noexcept
                         |           : mJniEnv(from.mJniEnv), mJavaObjectReference(from.mJavaObjectReference) {
                         |        from.mJavaObjectReference = nullptr;
                         |    }
+                        |    
+                        |    ${cppClassName}& operator=($cppClassName&& from) noexcept {
+                        |       mJniEnv = from.mJniEnv;
+                        |       std::swap(mJavaObjectReference, from.mJavaObjectReference);
+                        |       return *this;
+                        |   }
                         |
                         |    ~${cppClassName}() = default;
                         |    
                         |    // helper method to get underlay jobject reference
-                        |    jobject operator*() {
+                        |    jobject operator*() const {
+                        |       return mJavaObjectReference;
+                        |    }
+                        |    
+                        |    // helper method to check underlay jobject reference is not nullptr
+                        |    operator bool() const {
                         |       return mJavaObjectReference;
                         |    }
                         |    
@@ -443,7 +459,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private fun StringBuilder.buildNativeInitClass() {
         append("""
-            |/*static*/ bool $cppClassName::initClazz(JNIEnv *env) {
+            |/*static*/ bool $cppClassName::initClazz(JNIEnv* env) {
             |#define JENNY_CHECK_NULL(val)                      \
             |       do {                                        \
             |           if ((val) == nullptr) {                 \
@@ -503,7 +519,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
         if (mEnv.configurations.threadSafe) {
             append("""
-                |/*static*/ void $cppClassName::releaseClazz(JNIEnv *env) {
+                |/*static*/ void $cppClassName::releaseClazz(JNIEnv* env) {
                 |    if (sInited) {
                 |        std::lock_guard<std::mutex> lg(sInitLock);
                 |        if (sInited) {
@@ -517,7 +533,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 |""".trimMargin())
         } else {
             append("""
-                |/*static*/ void $cppClassName::releaseClazz(JNIEnv *env) {
+                |/*static*/ void $cppClassName::releaseClazz(JNIEnv* env) {
                 |    if (sInited) {
                 |        env->DeleteGlobalRef(sClazz);
                 |        sInited = false;

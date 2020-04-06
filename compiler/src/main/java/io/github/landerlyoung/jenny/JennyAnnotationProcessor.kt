@@ -50,7 +50,9 @@ class JennyAnnotationProcessor : AbstractProcessor() {
     }
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        if (roundEnv.errorRaised() || roundEnv.processingOver()) return false
+        if (roundEnv.errorRaised()
+                || roundEnv.processingOver()
+                || !annotations.any { it.qualifiedName.toString() in SUPPORTED_ANNOTATIONS }) return false
 
         generateNativeGlueCode(roundEnv)
         generateNativeProxy(roundEnv)
@@ -58,19 +60,17 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         return true
     }
 
-    private fun generateNativeGlueCode(roundEnv: RoundEnvironment): Boolean {
+    private fun generateNativeGlueCode(roundEnv: RoundEnvironment) {
         // classify annotations by class
         val classes = roundEnv.getElementsAnnotatedWith(NativeClass::class.java)
-        if (classes.isEmpty()) return false
 
         val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
         classes.asSequence()
                 .filter { it is TypeElement }
                 .forEach { NativeGlueGenerator(env, it as TypeElement).doGenerate() }
-        return true
     }
 
-    private fun generateNativeProxy(roundEnv: RoundEnvironment): Boolean {
+    private fun generateNativeProxy(roundEnv: RoundEnvironment) {
         val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
 
         roundEnv.getElementsAnnotatedWith(NativeProxy::class.java)
@@ -104,7 +104,6 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                         NativeProxyGenerator(env, clazz, config).doGenerate()
                     }
                 }
-        return false
     }
 
     override fun getSupportedSourceVersion(): SourceVersion {
@@ -115,8 +114,8 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         return SUPPORTED_ANNOTATIONS
     }
 
-    override fun getSupportedOptions(): MutableSet<String> {
-        return SUPPORTED_OPTIONS.toMutableSet()
+    override fun getSupportedOptions(): Set<String> {
+        return SUPPORTED_OPTIONS
     }
 
     companion object {

@@ -16,8 +16,12 @@
 package io.github.landerlyoung.jenny
 
 import java.io.IOException
-import java.util.*
-import javax.lang.model.element.*
+import java.util.LinkedList
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.tools.StandardLocation
 
 /**
@@ -137,7 +141,7 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
         log("write source file [" + fileObject.name + "]")
         try {
             buildString {
-                append(Constants.AUTO_GENERATE_SOURE_NOTICE)
+                append(Constants.AUTO_GENERATE_SOURCE_NOTICE)
                 append("""
                     |#include "$mHeaderName"
                     |
@@ -260,7 +264,7 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
             |* register Native functions
             |* @returns success or not
             |*/
-            |inline bool registerNativeFunctions(JNIEnv *env) {
+            |inline bool registerNativeFunctions(JNIEnv* env) {
             |// 1. C++20 has u8"" string as char8_t type, we should cast them.
             |// 2. jni.h has JNINativeMethod::name as char* type not const char*. (while Android does)
             |#define jenny_u8cast(u8) const_cast<char *>(reinterpret_cast<const char *>(u8))
@@ -310,7 +314,7 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
         return if (mNativeClassAnnotation.dynamicRegisterJniMethods) {
             simpleName
         } else {
-            "Java_" + mJNIClassName + "_" + simpleName.replace("_", "_1").stripNonUnicode()
+            "Java_" + mJNIClassName + "_" + simpleName.replace("_", "_1").stripNonASCII()
         }
     }
 

@@ -30,7 +30,7 @@ public @interface NativeProxyForClasses {
     Class<?>[] classes() default {};
 
     /**
-     *@return C++ namespace for generated class
+     * @return C++ namespace for generated class
      */
     String namespace() default "";
 
