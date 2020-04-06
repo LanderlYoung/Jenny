@@ -39,6 +39,8 @@ public:
         assert(initClazzSuccess);
     }
 
+    GraphicsProxy(): GraphicsProxy(nullptr, nullptr) {}
+    
     GraphicsProxy(JNIEnv* env, jobject javaObj)
             : mJniEnv(env), mJavaObjectReference(javaObj) {
         if (env) { assertInited(env); }

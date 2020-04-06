@@ -158,6 +158,8 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         |        assert(initClazzSuccess);
                         |    }
                         |
+                        |    ${cppClassName}(): ${cppClassName}(nullptr, nullptr) {}
+                        |    
                         |    ${cppClassName}(JNIEnv* env, jobject javaObj)
                         |            : mJniEnv(env), mJavaObjectReference(javaObj) {
                         |        if (env) { assertInited(env); }

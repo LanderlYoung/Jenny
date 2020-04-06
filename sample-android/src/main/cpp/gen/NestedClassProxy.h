@@ -39,6 +39,8 @@ public:
         assert(initClazzSuccess);
     }
 
+    NestedClassProxy(): NestedClassProxy(nullptr, nullptr) {}
+    
     NestedClassProxy(JNIEnv* env, jobject javaObj)
             : mJniEnv(env), mJavaObjectReference(javaObj) {
         if (env) { assertInited(env); }

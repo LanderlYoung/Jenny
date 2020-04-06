@@ -39,6 +39,8 @@ public:
         assert(initClazzSuccess);
     }
 
+    RectProxy(): RectProxy(nullptr, nullptr) {}
+    
     RectProxy(JNIEnv* env, jobject javaObj)
             : mJniEnv(env), mJavaObjectReference(javaObj) {
         if (env) { assertInited(env); }

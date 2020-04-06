@@ -39,6 +39,8 @@ public:
         assert(initClazzSuccess);
     }
 
+    InputStreamProxy(): InputStreamProxy(nullptr, nullptr) {}
+    
     InputStreamProxy(JNIEnv* env, jobject javaObj)
             : mJniEnv(env), mJavaObjectReference(javaObj) {
         if (env) { assertInited(env); }

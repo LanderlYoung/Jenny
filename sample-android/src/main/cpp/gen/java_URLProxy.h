@@ -39,6 +39,8 @@ public:
         assert(initClazzSuccess);
     }
 
+    URLProxy(): URLProxy(nullptr, nullptr) {}
+    
     URLProxy(JNIEnv* env, jobject javaObj)
             : mJniEnv(env), mJavaObjectReference(javaObj) {
         if (env) { assertInited(env); }

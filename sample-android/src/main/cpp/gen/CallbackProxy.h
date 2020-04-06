@@ -41,6 +41,8 @@ public:
         assert(initClazzSuccess);
     }
 
+    CallbackProxy(): CallbackProxy(nullptr, nullptr) {}
+    
     CallbackProxy(JNIEnv* env, jobject javaObj)
             : mJniEnv(env), mJavaObjectReference(javaObj) {
         if (env) { assertInited(env); }

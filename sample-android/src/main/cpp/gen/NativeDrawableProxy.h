@@ -40,6 +40,8 @@ public:
         assert(initClazzSuccess);
     }
 
+    NativeDrawableProxy(): NativeDrawableProxy(nullptr, nullptr) {}
+    
     NativeDrawableProxy(JNIEnv* env, jobject javaObj)
             : mJniEnv(env), mJavaObjectReference(javaObj) {
         if (env) { assertInited(env); }
