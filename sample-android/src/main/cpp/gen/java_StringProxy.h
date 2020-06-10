@@ -89,10 +89,10 @@ public:
        return StringProxy(env, env->NewObject(sClazz, sConstruct_0));
     } 
     
-    // construct: public String(java.lang.String original)
-    static StringProxy newInstance(JNIEnv* env, jstring original) noexcept {
+    // construct: public String(java.lang.String arg0)
+    static StringProxy newInstance(JNIEnv* env, jstring arg0) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_1, original));
+       return StringProxy(env, env->NewObject(sClazz, sConstruct_1, arg0));
     } 
     
     // construct: public String(char[] value)
@@ -125,28 +125,28 @@ public:
        return StringProxy(env, env->NewObject(sClazz, sConstruct_6, ascii, hibyte));
     } 
     
-    // construct: public String(byte[] bytes, int offset, int length, java.lang.String charsetName)
-    static StringProxy newInstance(JNIEnv* env, jbyteArray bytes, jint offset, jint length, jstring charsetName) noexcept {
+    // construct: public String(byte[] arg0, int arg1, int arg2, java.lang.String arg3)
+    static StringProxy newInstance(JNIEnv* env, jbyteArray arg0, jint arg1, jint arg2, jstring arg3) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_7, bytes, offset, length, charsetName));
+       return StringProxy(env, env->NewObject(sClazz, sConstruct_7, arg0, arg1, arg2, arg3));
     } 
     
-    // construct: public String(byte[] bytes, int offset, int length, java.nio.charset.Charset charset)
-    static StringProxy newInstance(JNIEnv* env, jbyteArray bytes, jint offset, jint length, jobject charset) noexcept {
+    // construct: public String(byte[] arg0, int arg1, int arg2, java.nio.charset.Charset arg3)
+    static StringProxy newInstance(JNIEnv* env, jbyteArray arg0, jint arg1, jint arg2, jobject arg3) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_8, bytes, offset, length, charset));
+       return StringProxy(env, env->NewObject(sClazz, sConstruct_8, arg0, arg1, arg2, arg3));
     } 
     
-    // construct: public String(byte[] bytes, java.lang.String charsetName)
-    static StringProxy newInstance(JNIEnv* env, jbyteArray bytes, jstring charsetName) noexcept {
+    // construct: public String(byte[] arg0, java.lang.String arg1)
+    static StringProxy newInstance(JNIEnv* env, jbyteArray arg0, jstring arg1) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_9, bytes, charsetName));
+       return StringProxy(env, env->NewObject(sClazz, sConstruct_9, arg0, arg1));
     } 
     
-    // construct: public String(byte[] bytes, java.nio.charset.Charset charset)
-    static StringProxy newInstance(JNIEnv* env, jbyteArray bytes, jobject charset) noexcept {
+    // construct: public String(byte[] arg0, java.nio.charset.Charset arg1)
+    static StringProxy newInstance(JNIEnv* env, jbyteArray arg0, jobject arg1) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_10, bytes, charset));
+       return StringProxy(env, env->NewObject(sClazz, sConstruct_10, arg0, arg1));
     } 
     
     // construct: public String(byte[] bytes, int offset, int length)
@@ -161,16 +161,16 @@ public:
        return StringProxy(env, env->NewObject(sClazz, sConstruct_12, bytes));
     } 
     
-    // construct: public String(java.lang.StringBuffer buffer)
-    static StringProxy newInstance__Ljava_lang_StringBuffer_2(JNIEnv* env, jobject buffer) noexcept {
+    // construct: public String(java.lang.StringBuffer arg0)
+    static StringProxy newInstance__Ljava_lang_StringBuffer_2(JNIEnv* env, jobject arg0) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_13, buffer));
+       return StringProxy(env, env->NewObject(sClazz, sConstruct_13, arg0));
     } 
     
-    // construct: public String(java.lang.StringBuilder builder)
-    static StringProxy newInstance__Ljava_lang_StringBuilder_2(JNIEnv* env, jobject builder) noexcept {
+    // construct: public String(java.lang.StringBuilder arg0)
+    static StringProxy newInstance__Ljava_lang_StringBuilder_2(JNIEnv* env, jobject arg0) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_14, builder));
+       return StringProxy(env, env->NewObject(sClazz, sConstruct_14, arg0));
     } 
     
 
@@ -219,14 +219,14 @@ public:
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_getBytes_0, srcBegin, srcEnd, dst, dstBegin);
     }
 
-    // method: public byte[] getBytes(java.lang.String charsetName)
-    jbyteArray getBytes(jstring charsetName) const {
-        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getBytes_1, charsetName));
+    // method: public byte[] getBytes(java.lang.String arg0)
+    jbyteArray getBytes(jstring arg0) const {
+        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getBytes_1, arg0));
     }
 
-    // method: public byte[] getBytes(java.nio.charset.Charset charset)
-    jbyteArray getBytes(jobject charset) const {
-        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getBytes_2, charset));
+    // method: public byte[] getBytes(java.nio.charset.Charset arg0)
+    jbyteArray getBytes(jobject arg0) const {
+        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getBytes_2, arg0));
     }
 
     // method: public byte[] getBytes()
@@ -234,24 +234,24 @@ public:
         return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getBytes_3));
     }
 
-    // method: public boolean equals(java.lang.Object anObject)
-    jboolean equals(jobject anObject) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_equals_0, anObject);
+    // method: public boolean equals(java.lang.Object arg0)
+    jboolean equals(jobject arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_equals_0, arg0);
     }
 
-    // method: public boolean contentEquals(java.lang.StringBuffer sb)
-    jboolean contentEquals__Ljava_lang_StringBuffer_2(jobject sb) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contentEquals_0, sb);
+    // method: public boolean contentEquals(java.lang.StringBuffer arg0)
+    jboolean contentEquals__Ljava_lang_StringBuffer_2(jobject arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contentEquals_0, arg0);
     }
 
-    // method: public boolean contentEquals(java.lang.CharSequence cs)
-    jboolean contentEquals__Ljava_lang_CharSequence_2(jobject cs) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contentEquals_1, cs);
+    // method: public boolean contentEquals(java.lang.CharSequence arg0)
+    jboolean contentEquals__Ljava_lang_CharSequence_2(jobject arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contentEquals_1, arg0);
     }
 
-    // method: public boolean equalsIgnoreCase(java.lang.String anotherString)
-    jboolean equalsIgnoreCase(jstring anotherString) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_equalsIgnoreCase_0, anotherString);
+    // method: public boolean equalsIgnoreCase(java.lang.String arg0)
+    jboolean equalsIgnoreCase(jstring arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_equalsIgnoreCase_0, arg0);
     }
 
     // method: public int compareTo(java.lang.String arg0)
@@ -259,34 +259,34 @@ public:
         return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_compareTo_0, arg0);
     }
 
-    // method: public int compareToIgnoreCase(java.lang.String str)
-    jint compareToIgnoreCase(jstring str) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_compareToIgnoreCase_0, str);
+    // method: public int compareToIgnoreCase(java.lang.String arg0)
+    jint compareToIgnoreCase(jstring arg0) const {
+        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_compareToIgnoreCase_0, arg0);
     }
 
-    // method: public boolean regionMatches(int toffset, java.lang.String other, int ooffset, int len)
-    jboolean regionMatches(jint toffset, jstring other, jint ooffset, jint len) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_regionMatches_0, toffset, other, ooffset, len);
+    // method: public boolean regionMatches(int arg0, java.lang.String arg1, int arg2, int arg3)
+    jboolean regionMatches(jint arg0, jstring arg1, jint arg2, jint arg3) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_regionMatches_0, arg0, arg1, arg2, arg3);
     }
 
-    // method: public boolean regionMatches(boolean ignoreCase, int toffset, java.lang.String other, int ooffset, int len)
-    jboolean regionMatches(jboolean ignoreCase, jint toffset, jstring other, jint ooffset, jint len) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_regionMatches_1, ignoreCase, toffset, other, ooffset, len);
+    // method: public boolean regionMatches(boolean arg0, int arg1, java.lang.String arg2, int arg3, int arg4)
+    jboolean regionMatches(jboolean arg0, jint arg1, jstring arg2, jint arg3, jint arg4) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_regionMatches_1, arg0, arg1, arg2, arg3, arg4);
     }
 
-    // method: public boolean startsWith(java.lang.String prefix, int toffset)
-    jboolean startsWith(jstring prefix, jint toffset) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_startsWith_0, prefix, toffset);
+    // method: public boolean startsWith(java.lang.String arg0, int arg1)
+    jboolean startsWith(jstring arg0, jint arg1) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_startsWith_0, arg0, arg1);
     }
 
-    // method: public boolean startsWith(java.lang.String prefix)
-    jboolean startsWith(jstring prefix) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_startsWith_1, prefix);
+    // method: public boolean startsWith(java.lang.String arg0)
+    jboolean startsWith(jstring arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_startsWith_1, arg0);
     }
 
-    // method: public boolean endsWith(java.lang.String suffix)
-    jboolean endsWith(jstring suffix) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_endsWith_0, suffix);
+    // method: public boolean endsWith(java.lang.String arg0)
+    jboolean endsWith(jstring arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_endsWith_0, arg0);
     }
 
     // method: public int hashCode()
@@ -304,14 +304,14 @@ public:
         return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_indexOf_1, ch, fromIndex);
     }
 
-    // method: public int indexOf(java.lang.String str)
-    jint indexOf(jstring str) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_indexOf_2, str);
+    // method: public int indexOf(java.lang.String arg0)
+    jint indexOf(jstring arg0) const {
+        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_indexOf_2, arg0);
     }
 
-    // method: public int indexOf(java.lang.String str, int fromIndex)
-    jint indexOf(jstring str, jint fromIndex) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_indexOf_3, str, fromIndex);
+    // method: public int indexOf(java.lang.String arg0, int arg1)
+    jint indexOf(jstring arg0, jint arg1) const {
+        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_indexOf_3, arg0, arg1);
     }
 
     // method: public int lastIndexOf(int ch)
@@ -324,14 +324,14 @@ public:
         return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_lastIndexOf_1, ch, fromIndex);
     }
 
-    // method: public int lastIndexOf(java.lang.String str)
-    jint lastIndexOf(jstring str) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_lastIndexOf_2, str);
+    // method: public int lastIndexOf(java.lang.String arg0)
+    jint lastIndexOf(jstring arg0) const {
+        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_lastIndexOf_2, arg0);
     }
 
-    // method: public int lastIndexOf(java.lang.String str, int fromIndex)
-    jint lastIndexOf(jstring str, jint fromIndex) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_lastIndexOf_3, str, fromIndex);
+    // method: public int lastIndexOf(java.lang.String arg0, int arg1)
+    jint lastIndexOf(jstring arg0, jint arg1) const {
+        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_lastIndexOf_3, arg0, arg1);
     }
 
     // method: public java.lang.String substring(int beginIndex)
@@ -359,56 +359,56 @@ public:
         return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replace_0, oldChar, newChar));
     }
 
-    // method: public java.lang.String replace(java.lang.CharSequence target, java.lang.CharSequence replacement)
-    jstring replace(jobject target, jobject replacement) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replace_1, target, replacement));
+    // method: public java.lang.String replace(java.lang.CharSequence arg0, java.lang.CharSequence arg1)
+    jstring replace(jobject arg0, jobject arg1) const {
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replace_1, arg0, arg1));
     }
 
-    // method: public boolean matches(java.lang.String regex)
-    jboolean matches(jstring regex) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_matches_0, regex);
+    // method: public boolean matches(java.lang.String arg0)
+    jboolean matches(jstring arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_matches_0, arg0);
     }
 
-    // method: public boolean contains(java.lang.CharSequence s)
-    jboolean contains(jobject s) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contains_0, s);
+    // method: public boolean contains(java.lang.CharSequence arg0)
+    jboolean contains(jobject arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contains_0, arg0);
     }
 
-    // method: public java.lang.String replaceFirst(java.lang.String regex, java.lang.String replacement)
-    jstring replaceFirst(jstring regex, jstring replacement) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replaceFirst_0, regex, replacement));
+    // method: public java.lang.String replaceFirst(java.lang.String arg0, java.lang.String arg1)
+    jstring replaceFirst(jstring arg0, jstring arg1) const {
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replaceFirst_0, arg0, arg1));
     }
 
-    // method: public java.lang.String replaceAll(java.lang.String regex, java.lang.String replacement)
-    jstring replaceAll(jstring regex, jstring replacement) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replaceAll_0, regex, replacement));
+    // method: public java.lang.String replaceAll(java.lang.String arg0, java.lang.String arg1)
+    jstring replaceAll(jstring arg0, jstring arg1) const {
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replaceAll_0, arg0, arg1));
     }
 
-    // method: public java.lang.String[] split(java.lang.String regex, int limit)
-    jobjectArray split(jstring regex, jint limit) const {
-        return reinterpret_cast<jobjectArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_split_0, regex, limit));
+    // method: public java.lang.String[] split(java.lang.String arg0, int arg1)
+    jobjectArray split(jstring arg0, jint arg1) const {
+        return reinterpret_cast<jobjectArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_split_0, arg0, arg1));
     }
 
-    // method: public java.lang.String[] split(java.lang.String regex)
-    jobjectArray split(jstring regex) const {
-        return reinterpret_cast<jobjectArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_split_1, regex));
+    // method: public java.lang.String[] split(java.lang.String arg0)
+    jobjectArray split(jstring arg0) const {
+        return reinterpret_cast<jobjectArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_split_1, arg0));
     }
 
-    // method: public static java.lang.String join(java.lang.CharSequence delimiter, java.lang.CharSequence[] elements)
-    static jstring join(JNIEnv* env, jobject delimiter, jobjectArray elements) {
+    // method: public static java.lang.String join(java.lang.CharSequence arg0, java.lang.CharSequence[] arg1)
+    static jstring join(JNIEnv* env, jobject arg0, jobjectArray arg1) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_join_0, delimiter, elements));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_join_0, arg0, arg1));
     }
 
-    // method: public static java.lang.String join(java.lang.CharSequence delimiter, java.lang.Iterable<? extends java.lang.CharSequence> elements)
-    static jstring join(JNIEnv* env, jobject delimiter, jobject elements) {
+    // method: public static java.lang.String join(java.lang.CharSequence arg0, java.lang.Iterable<? extends java.lang.CharSequence> arg1)
+    static jstring join(JNIEnv* env, jobject arg0, jobject arg1) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_join_1, delimiter, elements));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_join_1, arg0, arg1));
     }
 
-    // method: public java.lang.String toLowerCase(java.util.Locale locale)
-    jstring toLowerCase(jobject locale) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toLowerCase_0, locale));
+    // method: public java.lang.String toLowerCase(java.util.Locale arg0)
+    jstring toLowerCase(jobject arg0) const {
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toLowerCase_0, arg0));
     }
 
     // method: public java.lang.String toLowerCase()
@@ -416,9 +416,9 @@ public:
         return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toLowerCase_1));
     }
 
-    // method: public java.lang.String toUpperCase(java.util.Locale locale)
-    jstring toUpperCase(jobject locale) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toUpperCase_0, locale));
+    // method: public java.lang.String toUpperCase(java.util.Locale arg0)
+    jstring toUpperCase(jobject arg0) const {
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toUpperCase_0, arg0));
     }
 
     // method: public java.lang.String toUpperCase()
@@ -441,22 +441,22 @@ public:
         return reinterpret_cast<jcharArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toCharArray_0));
     }
 
-    // method: public static java.lang.String format(java.lang.String format, java.lang.Object[] args)
-    static jstring format(JNIEnv* env, jstring format, jobjectArray args) {
+    // method: public static java.lang.String format(java.lang.String arg0, java.lang.Object[] arg1)
+    static jstring format(JNIEnv* env, jstring arg0, jobjectArray arg1) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_format_0, format, args));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_format_0, arg0, arg1));
     }
 
-    // method: public static java.lang.String format(java.util.Locale l, java.lang.String format, java.lang.Object[] args)
-    static jstring format(JNIEnv* env, jobject l, jstring format, jobjectArray args) {
+    // method: public static java.lang.String format(java.util.Locale arg0, java.lang.String arg1, java.lang.Object[] arg2)
+    static jstring format(JNIEnv* env, jobject arg0, jstring arg1, jobjectArray arg2) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_format_1, l, format, args));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_format_1, arg0, arg1, arg2));
     }
 
-    // method: public static java.lang.String valueOf(java.lang.Object obj)
-    static jstring valueOf(JNIEnv* env, jobject obj) {
+    // method: public static java.lang.String valueOf(java.lang.Object arg0)
+    static jstring valueOf(JNIEnv* env, jobject arg0) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_0, obj));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_0, arg0));
     }
 
     // method: public static java.lang.String valueOf(char[] data)

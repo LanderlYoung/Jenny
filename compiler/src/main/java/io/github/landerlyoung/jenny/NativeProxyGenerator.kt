@@ -95,10 +95,9 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     }
 
     private fun generatorHeader() {
-        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, Constants.JENNY_GEN_DIR_PROXY, mHeaderName)
-        fileObject.openOutputStream().use { out ->
+        mEnv.createOutputFile(Constants.JENNY_GEN_DIR_PROXY, mHeaderName).use { out ->
             try {
-                log("write native proxy file [" + fileObject.name + "]")
+                log("write native proxy file [$mHeaderName]")
                 buildString {
                     append(Constants.AUTO_GENERATE_NOTICE)
                     append("""
@@ -233,28 +232,28 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     }
 
     private fun generateSource() {
-        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, Constants.JENNY_GEN_DIR_PROXY, mSourceName)
-        fileObject.openOutputStream().use { out ->
-            try {
-                log("write native proxy file [" + fileObject.name + "]")
-                buildString {
-                    append(Constants.AUTO_GENERATE_NOTICE)
+        mEnv.createOutputFile(Constants.JENNY_GEN_DIR_PROXY, mSourceName)
+                .use { out ->
+                    try {
+                        log("write native proxy file [$mSourceName]")
+                        buildString {
+                            append(Constants.AUTO_GENERATE_NOTICE)
 
-                    append("""
+                            append("""
                         |#include "$mHeaderName"
                         |
                         |""".trimMargin())
 
-                    if (!mEnv.configurations.errorLoggerFunction.isNullOrBlank()) {
-                        append("""
+                            if (!mEnv.configurations.errorLoggerFunction.isNullOrBlank()) {
+                                append("""
                            |
                            |// external logger function passed by ${Configurations.ERROR_LOGGER_FUNCTION}
                            |void ${mEnv.configurations.errorLoggerFunction}(JNIEnv* env, const char* error);
                            |
                            |""".trimMargin())
-                    }
+                            }
 
-                    append("""
+                            append("""
                         |
                         |${mNamespaceHelper.beginNamespace()}
                         |
@@ -262,38 +261,38 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         |
                         |""".trimMargin())
 
-                    if (mEnv.configurations.threadSafe) {
-                        append("""
+                            if (mEnv.configurations.threadSafe) {
+                                append("""
                             |// thread safe init
                             |std::mutex $cppClassName::sInitLock;
                             |std::atomic_bool $cppClassName::sInited;
                             |
                             |""".trimMargin())
-                    }
+                            }
 
-                    buildNativeInitClass()
+                            buildNativeInitClass()
 
-                    mConstructors.forEach { r ->
-                        append("jmethodID ${cppClassName}::${getConstructorName(r.index)};\n")
+                            mConstructors.forEach { r ->
+                                append("jmethodID ${cppClassName}::${getConstructorName(r.index)};\n")
+                            }
+                            append("\n")
+                            mMethods.forEach { r ->
+                                append("jmethodID ${cppClassName}::${getMethodName(r.method, r.index)};\n")
+                            }
+                            append("\n")
+                            mFields.forEachIndexed { index, f ->
+                                append("jfieldID ${cppClassName}::${getFieldName(f, index)};\n")
+                            }
+                            append("\n")
+                            append(mNamespaceHelper.endNamespace())
+                            append("\n")
+                        }.let { content ->
+                            out.write(content.toByteArray(Charsets.UTF_8))
+                        }
+                    } catch (e: IOException) {
+                        warn("generate header file $mHeaderName failed!")
                     }
-                    append("\n")
-                    mMethods.forEach { r ->
-                        append("jmethodID ${cppClassName}::${getMethodName(r.method, r.index)};\n")
-                    }
-                    append("\n")
-                    mFields.forEachIndexed { index, f ->
-                        append("jfieldID ${cppClassName}::${getFieldName(f, index)};\n")
-                    }
-                    append("\n")
-                    append(mNamespaceHelper.endNamespace())
-                    append("\n")
-                }.let { content ->
-                    out.write(content.toByteArray(Charsets.UTF_8))
                 }
-            } catch (e: IOException) {
-                warn("generate header file $mHeaderName failed!")
-            }
-        }
     }
 
     private fun StringBuilder.buildConstantsIdDeclare() {
@@ -410,7 +409,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             val classOrObj = if (isStatic) "sClazz" else "mJavaObjectReference"
             val assertInit = if (isStatic) "assertInited(env);" else ""
             val jniEnv = if (isStatic) "env" else "mJniEnv"
-            val const = if (isStatic)  "" else "const "
+            val const = if (isStatic) "" else "const "
 
             val comment = "// field: ${mHelper.getModifiers(f)} ${f.asType()} ${f.simpleName}"
 

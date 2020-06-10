@@ -15,10 +15,14 @@
  */
 package io.github.landerlyoung.jenny
 
+import java.io.File
+import java.io.OutputStream
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
+import javax.tools.Diagnostic
+import javax.tools.StandardLocation
 
 /**
  * Author: landerlyoung@gmail.com
@@ -30,6 +34,15 @@ class Environment(
         val messager: Messager,
         val typeUtils: Types,
         val elementUtils: Elements,
-        val filer: Filer,
+        private val filer: Filer,
         val configurations: Configurations
-)
+) {
+
+    fun createOutputFile(packageName: String, name: String): OutputStream =
+            configurations.outputDirectory?.let {
+                File(it, packageName.replace('.', File.separatorChar) + File.separatorChar + name)
+                        .apply { parentFile.mkdirs() }
+                        .outputStream().buffered()
+            } ?: filer.createResource(StandardLocation.SOURCE_OUTPUT, packageName, name).openOutputStream()
+
+}

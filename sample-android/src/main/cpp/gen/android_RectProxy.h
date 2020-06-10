@@ -95,10 +95,10 @@ public:
        return RectProxy(env, env->NewObject(sClazz, sConstruct_1, left, top, right, bottom));
     } 
     
-    // construct: public Rect(android.graphics.Rect r)
-    static RectProxy newInstance(JNIEnv* env, jobject r) noexcept {
+    // construct: public Rect(android.graphics.Rect arg0)
+    static RectProxy newInstance(JNIEnv* env, jobject arg0) noexcept {
        assertInited(env);
-       return RectProxy(env, env->NewObject(sClazz, sConstruct_2, r));
+       return RectProxy(env, env->NewObject(sClazz, sConstruct_2, arg0));
     } 
     
 
@@ -127,10 +127,10 @@ public:
         return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_flattenToString_0));
     }
 
-    // method: public static android.graphics.Rect unflattenFromString(java.lang.String str)
-    static jobject unflattenFromString(JNIEnv* env, jstring str) {
+    // method: public static android.graphics.Rect unflattenFromString(java.lang.String arg0)
+    static jobject unflattenFromString(JNIEnv* env, jstring arg0) {
         assertInited(env);
-        return env->CallStaticObjectMethod(sClazz, sMethod_unflattenFromString_0, str);
+        return env->CallStaticObjectMethod(sClazz, sMethod_unflattenFromString_0, arg0);
     }
 
     // method: public boolean isEmpty()
@@ -178,9 +178,9 @@ public:
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_set_0, left, top, right, bottom);
     }
 
-    // method: public void set(android.graphics.Rect src)
-    void set(jobject src) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_set_1, src);
+    // method: public void set(android.graphics.Rect arg0)
+    void set(jobject arg0) const {
+        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_set_1, arg0);
     }
 
     // method: public void offset(int dx, int dy)
@@ -208,9 +208,9 @@ public:
         return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contains_1, left, top, right, bottom);
     }
 
-    // method: public boolean contains(android.graphics.Rect r)
-    jboolean contains(jobject r) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contains_2, r);
+    // method: public boolean contains(android.graphics.Rect arg0)
+    jboolean contains(jobject arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contains_2, arg0);
     }
 
     // method: public boolean intersect(int left, int top, int right, int bottom)
@@ -218,14 +218,14 @@ public:
         return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_intersect_0, left, top, right, bottom);
     }
 
-    // method: public boolean intersect(android.graphics.Rect r)
-    jboolean intersect(jobject r) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_intersect_1, r);
+    // method: public boolean intersect(android.graphics.Rect arg0)
+    jboolean intersect(jobject arg0) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_intersect_1, arg0);
     }
 
-    // method: public boolean setIntersect(android.graphics.Rect a, android.graphics.Rect b)
-    jboolean setIntersect(jobject a, jobject b) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_setIntersect_0, a, b);
+    // method: public boolean setIntersect(android.graphics.Rect arg0, android.graphics.Rect arg1)
+    jboolean setIntersect(jobject arg0, jobject arg1) const {
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_setIntersect_0, arg0, arg1);
     }
 
     // method: public boolean intersects(int left, int top, int right, int bottom)
@@ -233,10 +233,10 @@ public:
         return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_intersects_0, left, top, right, bottom);
     }
 
-    // method: public static boolean intersects(android.graphics.Rect a, android.graphics.Rect b)
-    static jboolean intersects(JNIEnv* env, jobject a, jobject b) {
+    // method: public static boolean intersects(android.graphics.Rect arg0, android.graphics.Rect arg1)
+    static jboolean intersects(JNIEnv* env, jobject arg0, jobject arg1) {
         assertInited(env);
-        return env->CallStaticBooleanMethod(sClazz, sMethod_intersects_1, a, b);
+        return env->CallStaticBooleanMethod(sClazz, sMethod_intersects_1, arg0, arg1);
     }
 
     // method: public void union(int left, int top, int right, int bottom)
@@ -244,9 +244,9 @@ public:
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_union_0, left, top, right, bottom);
     }
 
-    // method: public void union(android.graphics.Rect r)
-    void union__Landroid_graphics_Rect_2(jobject r) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_union_1, r);
+    // method: public void union(android.graphics.Rect arg0)
+    void union__Landroid_graphics_Rect_2(jobject arg0) const {
+        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_union_1, arg0);
     }
 
     // method: public void union(int x, int y)
@@ -269,9 +269,9 @@ public:
         mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_writeToParcel_0, out, flags);
     }
 
-    // method: public void readFromParcel(android.os.Parcel in)
-    void readFromParcel(jobject in) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_readFromParcel_0, in);
+    // method: public void readFromParcel(android.os.Parcel arg0)
+    void readFromParcel(jobject arg0) const {
+        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_readFromParcel_0, arg0);
     }
 
 

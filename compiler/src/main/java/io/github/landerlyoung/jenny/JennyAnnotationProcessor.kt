@@ -25,6 +25,7 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
+import javax.tools.Diagnostic
 
 /**
  * Author: landerlyoung@gmail.com
@@ -54,8 +55,13 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                 || roundEnv.processingOver()
                 || !annotations.any { it.qualifiedName.toString() in SUPPORTED_ANNOTATIONS }) return false
 
-        generateNativeGlueCode(roundEnv)
-        generateNativeProxy(roundEnv)
+        try {
+            generateNativeGlueCode(roundEnv)
+            generateNativeProxy(roundEnv)
+        } catch (e: Throwable) {
+            mMessager.printMessage(Diagnostic.Kind.ERROR, "Jenny failed to process ${e.javaClass.name} ${e.message}")
+            throw e
+        }
 
         return true
     }
@@ -129,8 +135,9 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         )
 
         private val SUPPORTED_OPTIONS: Set<String> = setOf(
+                Configurations.THREAD_SAFE,
                 Configurations.ERROR_LOGGER_FUNCTION,
-                Configurations.THREAD_SAFE
+                Configurations.OUTPUT_DIRECTORY
         )
     }
 }

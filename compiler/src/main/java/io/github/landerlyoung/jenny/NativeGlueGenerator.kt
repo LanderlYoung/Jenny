@@ -41,8 +41,10 @@ import javax.tools.StandardLocation
 //GOING use file template
 class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerator(env, clazz) {
     private lateinit var mNamespaceHelper: NamespaceHelper
+
     // header file name
     private lateinit var mHeaderName: String
+
     // source file Name
     private lateinit var mSourceName: String
     private val mMethods: MutableList<MethodOverloadResolver.MethodRecord> = LinkedList()
@@ -95,10 +97,9 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
     }
 
     private fun generateHeader() {
-        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, Constants.JENNY_GEN_DIR_GLUE_HEADER, mHeaderName)
-        log("write header file [" + fileObject.name + "]")
+        log("write header file [$mHeaderName]")
 
-        fileObject.openOutputStream().use { out ->
+        mEnv.createOutputFile(Constants.JENNY_GEN_DIR_GLUE_HEADER, mHeaderName).use { out ->
             try {
                 buildString {
                     append(Constants.AUTO_GENERATE_NOTICE)
@@ -137,8 +138,7 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
     }
 
     private fun generateSource() {
-        val fileObject = mEnv.filer.createResource(StandardLocation.SOURCE_OUTPUT, Constants.JENNY_GEN_DIR_GLUE_SOURCE, mSourceName)
-        log("write source file [" + fileObject.name + "]")
+        log("write source file [$mSourceName]")
         try {
             buildString {
                 append(Constants.AUTO_GENERATE_SOURCE_NOTICE)
@@ -161,7 +161,9 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
                     endNamespace(true)
                 }
             }.let { content ->
-                fileObject.openOutputStream().write(content.toByteArray(Charsets.UTF_8))
+                mEnv.createOutputFile(Constants.JENNY_GEN_DIR_GLUE_SOURCE, mSourceName).use {
+                    it.write(content.toByteArray(Charsets.UTF_8))
+                }
             }
         } catch (e: IOException) {
             warn("generate source file $mSourceName failed")
