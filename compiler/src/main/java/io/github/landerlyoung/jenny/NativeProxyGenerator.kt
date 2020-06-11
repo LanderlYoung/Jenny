@@ -701,7 +701,9 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         mClazz.enclosedElements
                 .asSequence()
                 .filter {
-                    it.kind.isField && (it as VariableElement).constantValue != null && visibilityMatched(it)
+                    it.kind.isField && visibilityMatched(it)
+                            && it.modifiers.containsAll(listOf(Modifier.STATIC, Modifier.FINAL))
+                            && (it as VariableElement).constantValue != null
                 }
                 .forEach { mConstants.add(it as VariableElement) }
     }

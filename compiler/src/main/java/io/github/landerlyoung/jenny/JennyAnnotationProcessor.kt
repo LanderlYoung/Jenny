@@ -60,7 +60,6 @@ class JennyAnnotationProcessor : AbstractProcessor() {
             generateNativeProxy(roundEnv)
         } catch (e: Throwable) {
             mMessager.printMessage(Diagnostic.Kind.ERROR, "Jenny failed to process ${e.javaClass.name} ${e.message}")
-            throw e
         }
 
         return true

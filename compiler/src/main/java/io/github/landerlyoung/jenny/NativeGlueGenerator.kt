@@ -181,7 +181,7 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
     private fun StringBuilder.buildConstantsDefinition() {
         mClazz.enclosedElements
                 .asSequence()
-                .filter { it.kind.isField }
+                .filter { it.kind.isField && it.modifiers.containsAll(listOf(Modifier.STATIC, Modifier.FINAL)) }
                 .map { it as VariableElement }
                 .filter {
                     // if this field is a compile-time constant value it's
