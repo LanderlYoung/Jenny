@@ -63,15 +63,15 @@ abstract class AbsCodeGenerator(protected val mEnv: Environment, protected val m
     abstract fun doGenerate()
 
     fun log(msg: String) {
-        mEnv.messager.printMessage(Diagnostic.Kind.NOTE, LOG_PREFIX + msg)
+        mEnv.messager.printMessage(Diagnostic.Kind.NOTE, LOG_PREFIX + msg + "\n")
     }
 
     fun warn(msg: String) {
-        mEnv.messager.printMessage(Diagnostic.Kind.WARNING, LOG_PREFIX + msg)
+        mEnv.messager.printMessage(Diagnostic.Kind.WARNING, LOG_PREFIX + msg + "\n")
     }
 
     fun error(msg: String) {
-        mEnv.messager.printMessage(Diagnostic.Kind.ERROR, LOG_PREFIX + msg)
+        mEnv.messager.printMessage(Diagnostic.Kind.ERROR, LOG_PREFIX + msg + "\n")
     }
 
     companion object {
