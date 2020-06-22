@@ -26,7 +26,6 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
-import javax.tools.StandardLocation
 import kotlin.collections.component1
 import kotlin.collections.component2
 
@@ -91,7 +90,9 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         init()
 
         generatorHeader()
-        generateSource()
+        if (!mEnv.configurations.headerOnlyProxy) {
+            generateSource()
+        }
     }
 
     private fun generatorHeader() {
@@ -130,16 +131,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         |private:
                         |
                     """.trimMargin())
-
-                    if (mEnv.configurations.threadSafe) {
-                        append("""
-                        |    // thread safe init
-                        |    static std::atomic_bool sInited;
-                        |    static std::mutex sInitLock;
-                        |""".trimMargin())
-                    } else {
-                        append("    static bool sInited;\n")
-                    }
 
                     append("""
                         |
@@ -210,18 +201,48 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     append("""
                         |
                         |private:
-                        |    static jclass sClazz;
+                        |    struct ClassInitState {
                         |
                     """.trimMargin())
 
+                    if (mEnv.configurations.threadSafe) {
+                        append("""
+                        |    // thread safe init
+                        |    std::atomic_bool sInited {};
+                        |    std::mutex sInitLock {};
+                        |""".trimMargin())
+                    } else {
+                        append("    bool sInited = false;\n")
+                    }
+                    append("""
+                        |
+                        |    jclass sClazz = nullptr;
+                        |
+                    """.trimMargin())
                     buildConstructorIdDeclare()
                     buildMethodIdDeclare()
                     buildFieldIdDeclare()
 
+                    append("""
+                        |   }; // endof struct ClassInitState
+                        |
+                        |   template <typename T = void>
+                        |   static ClassInitState& getClassInitState() {
+                        |       static ClassInitState classInitState;
+                        |       return classInitState;
+                        |   }
+                        |
+                        |
+                    """.trimMargin())
+
                     append("};\n")
                     append(mNamespaceHelper.endNamespace())
-                    append("\n")
+                    append("\n\n")
 
+                    if (mEnv.configurations.headerOnlyProxy) {
+                        append("\n\n")
+                        generateSourceContent(true)
+                    }
                 }.let { content ->
                     out.write(content.toByteArray(Charsets.UTF_8))
                 }
@@ -237,55 +258,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     try {
                         log("write native proxy file [$mSourceName]")
                         buildString {
-                            append(Constants.AUTO_GENERATE_NOTICE)
-
-                            append("""
-                        |#include "$mHeaderName"
-                        |
-                        |""".trimMargin())
-
-                            if (!mEnv.configurations.errorLoggerFunction.isNullOrBlank()) {
-                                append("""
-                           |
-                           |// external logger function passed by ${Configurations.ERROR_LOGGER_FUNCTION}
-                           |void ${mEnv.configurations.errorLoggerFunction}(JNIEnv* env, const char* error);
-                           |
-                           |""".trimMargin())
-                            }
-
-                            append("""
-                        |
-                        |${mNamespaceHelper.beginNamespace()}
-                        |
-                        |jclass ${cppClassName}::sClazz = nullptr;
-                        |
-                        |""".trimMargin())
-
-                            if (mEnv.configurations.threadSafe) {
-                                append("""
-                            |// thread safe init
-                            |std::mutex $cppClassName::sInitLock;
-                            |std::atomic_bool $cppClassName::sInited;
-                            |
-                            |""".trimMargin())
-                            }
-
-                            buildNativeInitClass()
-
-                            mConstructors.forEach { r ->
-                                append("jmethodID ${cppClassName}::${getConstructorName(r.index)};\n")
-                            }
-                            append("\n")
-                            mMethods.forEach { r ->
-                                append("jmethodID ${cppClassName}::${getMethodName(r.method, r.index)};\n")
-                            }
-                            append("\n")
-                            mFields.forEachIndexed { index, f ->
-                                append("jfieldID ${cppClassName}::${getFieldName(f, index)};\n")
-                            }
-                            append("\n")
-                            append(mNamespaceHelper.endNamespace())
-                            append("\n")
+                            generateSourceContent(false)
                         }.let { content ->
                             out.write(content.toByteArray(Charsets.UTF_8))
                         }
@@ -293,6 +266,35 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         warn("generate header file $mHeaderName failed!")
                     }
                 }
+    }
+
+    private fun StringBuilder.generateSourceContent(headerOnly: Boolean) {
+        if (!headerOnly) {
+            append(Constants.AUTO_GENERATE_NOTICE)
+
+            append("""
+                |#include "$mHeaderName"
+                |
+                |""".trimMargin())
+        }
+
+        if (!mEnv.configurations.errorLoggerFunction.isNullOrBlank()) {
+            append("""
+                   |
+                   |// external logger function passed by ${Configurations.ERROR_LOGGER_FUNCTION}
+                   |void ${mEnv.configurations.errorLoggerFunction}(JNIEnv* env, const char* error);
+                   |
+                   |""".trimMargin())
+        }
+
+        append(mNamespaceHelper.beginNamespace())
+        append("\n\n")
+
+        buildNativeInitClass(headerOnly)
+
+        append("\n")
+        append(mNamespaceHelper.endNamespace())
+        append("\n")
     }
 
     private fun StringBuilder.buildConstantsIdDeclare() {
@@ -304,14 +306,14 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private fun StringBuilder.buildConstructorIdDeclare() {
         mConstructors.forEach { r ->
-            append("    static jmethodID ${getConstructorName(r.index)};\n")
+            append("    jmethodID ${getConstructorName(r.index)} = nullptr;\n")
         }
         append('\n')
     }
 
     private fun StringBuilder.buildMethodIdDeclare() {
         mMethods.forEach { r ->
-            append("    static jmethodID ${getMethodName(r.method, r.index)};\n")
+            append("    jmethodID ${getMethodName(r.method, r.index)} = nullptr;\n")
         }
         append('\n')
     }
@@ -322,7 +324,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 warn("you are trying to add getter/setter to a compile-time constant "
                         + mClassName + "." + field.simpleName.toString())
             }
-            append("    static jfieldID ${getFieldName(field, index)};\n")
+            append("    jfieldID ${getFieldName(field, index)} = nullptr;\n")
         }
         append('\n')
     }
@@ -337,7 +339,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
                 |    static $cppClassName newInstance${r.resolvedPostFix}(JNIEnv* env${param}) noexcept {
                 |       assertInited(env);
-                |       return ${cppClassName}(env, env->NewObject(sClazz, ${getConstructorName(r.index)}${getJniMethodParamVal(r.method)}));
+                |       return ${cppClassName}(env, env->NewObject(${getClassState(getClazz())}, ${getClassState(getConstructorName(r.index))}${getJniMethodParamVal(r.method)}));
                 |    } 
                 |    
                 |""".trimMargin())
@@ -382,8 +384,8 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             }
 
             val static = if (isStatic) "Static" else ""
-            val classOrObj = if (isStatic) "sClazz" else "mJavaObjectReference"
-            append("${env}->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getMethodName(m, r.index)}${getJniMethodParamVal(m)})")
+            val classOrObj = if (isStatic) getClassState(getClazz()) else "mJavaObjectReference"
+            append("${env}->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getClassState(getMethodName(m, r.index))}${getJniMethodParamVal(m)})")
             if (returnTypeNeedCast(returnType)) {
                 append(")")
             }
@@ -406,7 +408,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
             val static = if (isStatic) "Static" else ""
             val staticMod = if (isStatic) "static " else ""
-            val classOrObj = if (isStatic) "sClazz" else "mJavaObjectReference"
+            val classOrObj = if (isStatic) getClassState(getClazz()) else "mJavaObjectReference"
             val assertInit = if (isStatic) "assertInited(env);" else ""
             val jniEnv = if (isStatic) "env" else "mJniEnv"
             val const = if (isStatic) "" else "const "
@@ -425,7 +427,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     append("reinterpret_cast<${returnType}>(")
                 }
 
-                append("${jniEnv}->Get${static}${typeForJniCall}Field(${classOrObj}, $fieldId)")
+                append("${jniEnv}->Get${static}${typeForJniCall}Field(${classOrObj}, ${getClassState(fieldId)})")
 
                 if (returnTypeNeedCast(returnType)) {
                     append(")")
@@ -449,7 +451,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     |    $comment
                     |    ${staticMod}void set${camelCaseName}(${param}) ${const}{
                     |        $assertInit
-                    |        ${jniEnv}->Set${static}${typeForJniCall}Field(${classOrObj}, ${fieldId}, ${f.simpleName});
+                    |        ${jniEnv}->Set${static}${typeForJniCall}Field(${classOrObj}, ${getClassState(fieldId)}, ${f.simpleName});
                     |    }
                     |
                     |""".trimMargin())
@@ -458,9 +460,10 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         }
     }
 
-    private fun StringBuilder.buildNativeInitClass() {
+    private fun StringBuilder.buildNativeInitClass(headerOnly: Boolean) {
+        val prefix = if(headerOnly) "/*static*/ inline" else "/*static*/"
         append("""
-            |/*static*/ bool $cppClassName::initClazz(JNIEnv* env) {
+            |${prefix} bool $cppClassName::initClazz(JNIEnv* env) {
             |#define JENNY_CHECK_NULL(val)                      \
             |       do {                                        \
             |           if ((val) == nullptr) {                 \
@@ -485,17 +488,18 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
         if (mEnv.configurations.threadSafe) {
             append("""
-                |    if (!sInited) {
-                |        std::lock_guard<std::mutex> lg(sInitLock);
+                |    auto& state = getClassInitState();
+                |    if (!state.sInited) {
+                |        std::lock_guard<std::mutex> lg(state.sInitLock);
                 |""".trimMargin())
         }
         append("""
-                |        if (!sInited) {
+                |        if (!state.sInited) {
                 |            auto clazz = env->FindClass(FULL_CLASS_NAME);
                 |            JENNY_CHECK_NULL(clazz);
-                |            sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+                |            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
                 |            env->DeleteLocalRef(clazz);
-                |            JENNY_CHECK_NULL(sClazz);
+                |            JENNY_CHECK_NULL(state.sClazz);
                 |
                 |""".trimMargin())
 
@@ -504,7 +508,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         buildFieldIdInit()
 
         append("""
-                |            sInited = true;
+                |            state.sInited = true;
                 |        }
                 |""".trimMargin())
         if (mEnv.configurations.threadSafe) {
@@ -520,13 +524,14 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
         if (mEnv.configurations.threadSafe) {
             append("""
-                |/*static*/ void $cppClassName::releaseClazz(JNIEnv* env) {
-                |    if (sInited) {
-                |        std::lock_guard<std::mutex> lg(sInitLock);
-                |        if (sInited) {
-                |            env->DeleteGlobalRef(sClazz);
-                |            sClazz = nullptr;
-                |            sInited = false;
+                |${prefix} void $cppClassName::releaseClazz(JNIEnv* env) {
+                |    auto& state = getClassInitState();
+                |    if (state.sInited) {
+                |        std::lock_guard<std::mutex> lg(state.sInitLock);
+                |        if (state.sInited) {
+                |            env->DeleteGlobalRef(state.sClazz);
+                |            state.sClazz = nullptr;
+                |            state.sInited = false;
                 |        }
                 |    }
                 |}
@@ -535,9 +540,10 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         } else {
             append("""
                 |/*static*/ void $cppClassName::releaseClazz(JNIEnv* env) {
-                |    if (sInited) {
-                |        env->DeleteGlobalRef(sClazz);
-                |        sInited = false;
+                |    auto& state = getClassInitState();
+                |    if (state.sInited) {
+                |        env->DeleteGlobalRef(state.sClazz);
+                |        state.sInited = false;
                 |    }
                 |}
                 |
@@ -548,11 +554,11 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     private fun StringBuilder.buildConstructorIdInit() {
         mConstructors.forEach { r ->
             val c = r.method
-            val name = getConstructorName(r.index)
+            val name = "state.${getConstructorName(r.index)}"
             val signature = mHelper.getBinaryMethodSignature(c)
 
             append("""
-            |            $name = env->GetMethodID(sClazz, "<init>", "$signature");
+            |            $name = env->GetMethodID(state.sClazz, "<init>", "$signature");
             |            JENNY_CHECK_NULL(${name});
             |
             |""".trimMargin())
@@ -563,13 +569,13 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     private fun StringBuilder.buildMethodIdInit() {
         mMethods.forEach { r ->
             val m = r.method
-            val name = getMethodName(m, r.index)
+            val name = "state.${getMethodName(m, r.index)}"
             val static = if (m.modifiers.contains(Modifier.STATIC)) "Static" else ""
             val methodName = m.simpleName
             val signature = mHelper.getBinaryMethodSignature(m)
 
             append("""
-            |            $name = env->Get${static}MethodID(sClazz, "$methodName", "$signature");
+            |            $name = env->Get${static}MethodID(state.sClazz, "$methodName", "$signature");
             |            JENNY_CHECK_NULL(${name});
             |
             |""".trimMargin())
@@ -579,13 +585,13 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private fun StringBuilder.buildFieldIdInit() {
         mFields.forEachIndexed { index, f ->
-            val name = getFieldName(f, index)
+            val name = "state.${getFieldName(f, index)}"
             val static = if (f.modifiers.contains(Modifier.STATIC)) "Static" else ""
             val fieldName = f.simpleName
             val signature = mHelper.getBinaryTypeSignature(f.asType())
 
             append("""
-            |            $name = env->Get${static}FieldID(sClazz, "$fieldName", "$signature");
+            |            $name = env->Get${static}FieldID(state.sClazz, "$fieldName", "$signature");
             |            JENNY_CHECK_NULL(${name});
             |
             |""".trimMargin())
@@ -650,11 +656,23 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private fun returnTypeNeedCast(returnType: String): Boolean {
         return when (returnType) {
-            "jclass", "jstring", "jarray", "jobjectArray", "jbooleanArray", "jbyteArray", "jcharArray", "jshortArray", "jintArray", "jlongArray", "jfloatArray", "jdoubleArray", "jthrowable", "jweak" -> true
+            "jclass", "jstring", "jarray", "jobjectArray",
+            "jbooleanArray", "jbyteArray", "jcharArray",
+            "jshortArray", "jintArray", "jlongArray",
+            "jfloatArray", "jdoubleArray",
+            "jthrowable", "jweak" -> true
             else ->
-                //primitive type or jobject or void
+                // primitive type or jobject or void
                 false
         }
+    }
+
+    private fun getClassState(what: String): String {
+        return "getClassInitState().$what"
+    }
+
+    private fun getClazz(): String {
+        return "sClazz"
     }
 
     private fun getConstructorName(index: Int): String {

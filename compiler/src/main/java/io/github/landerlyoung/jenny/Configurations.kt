@@ -15,10 +15,12 @@ package io.github.landerlyoung.jenny
 data class Configurations(
         val threadSafe: Boolean = true,
         val errorLoggerFunction: String?,
-        val outputDirectory: String?
+        val outputDirectory: String?,
+        val headerOnlyProxy: Boolean = false
 ) {
     companion object {
         private const val PREFIX = "jenny."
+
         val THREAD_SAFE = PREFIX + Configurations::threadSafe.name
 
         /**
@@ -29,10 +31,20 @@ data class Configurations(
 
         val OUTPUT_DIRECTORY = PREFIX + Configurations::outputDirectory.name
 
+        val HEADER_ONLY_PROXY = PREFIX + Configurations::headerOnlyProxy.name
+
+        val ALL_OPTIONS = setOf(
+                THREAD_SAFE,
+                ERROR_LOGGER_FUNCTION,
+                OUTPUT_DIRECTORY,
+                HEADER_ONLY_PROXY
+        )
+
         fun fromOptions(options: Map<String, String>) = Configurations(
                 options[THREAD_SAFE] != false.toString(),
                 options[ERROR_LOGGER_FUNCTION],
-                options[OUTPUT_DIRECTORY]
+                options[OUTPUT_DIRECTORY],
+                options[HEADER_ONLY_PROXY] == true.toString()
         )
     }
 }

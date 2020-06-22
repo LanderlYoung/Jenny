@@ -120,7 +120,7 @@ class JennyAnnotationProcessor : AbstractProcessor() {
     }
 
     override fun getSupportedOptions(): Set<String> {
-        return SUPPORTED_OPTIONS
+        return Configurations.ALL_OPTIONS
     }
 
     companion object {
@@ -131,12 +131,6 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                 NativeMethodProxy::class.java.name,
                 NativeProxy::class.java.name,
                 NativeProxyForClasses::class.java.name
-        )
-
-        private val SUPPORTED_OPTIONS: Set<String> = setOf(
-                Configurations.THREAD_SAFE,
-                Configurations.ERROR_LOGGER_FUNCTION,
-                Configurations.OUTPUT_DIRECTORY
         )
     }
 }
