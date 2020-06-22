@@ -17,7 +17,6 @@ namespace NativeDrawable {
 // DO NOT modify
 static constexpr auto FULL_CLASS_NAME = u8"io/github/landerlyoung/jennysampleapp/NativeDrawable";
 
-static constexpr jlong nativeHandle = 0;
 
 /*
  * Class:     io.github.landerlyoung.jennysampleapp.NativeDrawable

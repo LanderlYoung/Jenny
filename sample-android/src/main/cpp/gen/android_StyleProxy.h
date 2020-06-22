@@ -21,9 +21,6 @@ public:
 
 
 private:
-    // thread safe init
-    static std::atomic_bool sInited;
-    static std::mutex sInitLock;
 
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
@@ -87,68 +84,148 @@ public:
     // method: public static android.graphics.Paint.Style[] values()
     static jobjectArray values(JNIEnv* env) {
         assertInited(env);
-        return reinterpret_cast<jobjectArray>(env->CallStaticObjectMethod(sClazz, sMethod_values_0));
+        return reinterpret_cast<jobjectArray>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_values_0));
     }
 
     // method: public static android.graphics.Paint.Style valueOf(java.lang.String name)
     static jobject valueOf(JNIEnv* env, jstring name) {
         assertInited(env);
-        return env->CallStaticObjectMethod(sClazz, sMethod_valueOf_0, name);
+        return env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_0, name);
     }
 
 
     // field: public static final android.graphics.Paint.Style FILL
     static jobject getFILL(JNIEnv* env) {
        assertInited(env);
-       return env->GetStaticObjectField(sClazz, sField_FILL_0);
+       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_0);
 
     }
 
     // field: public static final android.graphics.Paint.Style FILL
     static void setFILL(JNIEnv* env, jobject FILL) {
         assertInited(env);
-        env->SetStaticObjectField(sClazz, sField_FILL_0, FILL);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_0, FILL);
     }
 
 
     // field: public static final android.graphics.Paint.Style STROKE
     static jobject getSTROKE(JNIEnv* env) {
        assertInited(env);
-       return env->GetStaticObjectField(sClazz, sField_STROKE_1);
+       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_STROKE_1);
 
     }
 
     // field: public static final android.graphics.Paint.Style STROKE
     static void setSTROKE(JNIEnv* env, jobject STROKE) {
         assertInited(env);
-        env->SetStaticObjectField(sClazz, sField_STROKE_1, STROKE);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_STROKE_1, STROKE);
     }
 
 
     // field: public static final android.graphics.Paint.Style FILL_AND_STROKE
     static jobject getFILL_AND_STROKE(JNIEnv* env) {
        assertInited(env);
-       return env->GetStaticObjectField(sClazz, sField_FILL_AND_STROKE_2);
+       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_AND_STROKE_2);
 
     }
 
     // field: public static final android.graphics.Paint.Style FILL_AND_STROKE
     static void setFILL_AND_STROKE(JNIEnv* env, jobject FILL_AND_STROKE) {
         assertInited(env);
-        env->SetStaticObjectField(sClazz, sField_FILL_AND_STROKE_2, FILL_AND_STROKE);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_AND_STROKE_2, FILL_AND_STROKE);
     }
 
 
 
 private:
-    static jclass sClazz;
+    struct ClassInitState {
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
 
-    static jmethodID sMethod_values_0;
-    static jmethodID sMethod_valueOf_0;
+    jclass sClazz = nullptr;
 
-    static jfieldID sField_FILL_0;
-    static jfieldID sField_STROKE_1;
-    static jfieldID sField_FILL_AND_STROKE_2;
+    jmethodID sMethod_values_0 = nullptr;
+    jmethodID sMethod_valueOf_0 = nullptr;
+
+    jfieldID sField_FILL_0 = nullptr;
+    jfieldID sField_STROKE_1 = nullptr;
+    jfieldID sField_FILL_AND_STROKE_2 = nullptr;
+
+   }; // endof struct ClassInitState
+
+   template <typename T = void>
+   static ClassInitState& getClassInitState() {
+       static ClassInitState classInitState;
+       return classInitState;
+   }
 
 };
+} // endof namespace android
+
+
+
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+namespace android {
+
+/*static*/ inline bool StyleProxy::initClazz(JNIEnv* env) {
+#define JENNY_CHECK_NULL(val)                      \
+       do {                                        \
+           if ((val) == nullptr) {                 \
+               jennySampleErrorLog(env, "can't init StyleProxy::" #val); \
+               return false;                       \
+           }                                       \
+       } while(false)
+
+    auto& state = getClassInitState();
+    if (!state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (!state.sInited) {
+            auto clazz = env->FindClass(FULL_CLASS_NAME);
+            JENNY_CHECK_NULL(clazz);
+            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+            env->DeleteLocalRef(clazz);
+            JENNY_CHECK_NULL(state.sClazz);
+
+
+            state.sMethod_values_0 = env->GetStaticMethodID(state.sClazz, "values", "()[Landroid/graphics/Paint$Style;");
+            JENNY_CHECK_NULL(state.sMethod_values_0);
+
+            state.sMethod_valueOf_0 = env->GetStaticMethodID(state.sClazz, "valueOf", "(Ljava/lang/String;)Landroid/graphics/Paint$Style;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_0);
+
+
+            state.sField_FILL_0 = env->GetStaticFieldID(state.sClazz, "FILL", "Landroid/graphics/Paint$Style;");
+            JENNY_CHECK_NULL(state.sField_FILL_0);
+
+            state.sField_STROKE_1 = env->GetStaticFieldID(state.sClazz, "STROKE", "Landroid/graphics/Paint$Style;");
+            JENNY_CHECK_NULL(state.sField_STROKE_1);
+
+            state.sField_FILL_AND_STROKE_2 = env->GetStaticFieldID(state.sClazz, "FILL_AND_STROKE", "Landroid/graphics/Paint$Style;");
+            JENNY_CHECK_NULL(state.sField_FILL_AND_STROKE_2);
+
+
+            state.sInited = true;
+        }
+    }
+#undef JENNY_CHECK_NULL
+   return true;
+}
+
+/*static*/ inline void StyleProxy::releaseClazz(JNIEnv* env) {
+    auto& state = getClassInitState();
+    if (state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (state.sInited) {
+            env->DeleteGlobalRef(state.sClazz);
+            state.sClazz = nullptr;
+            state.sInited = false;
+        }
+    }
+}
+
+
 } // endof namespace android

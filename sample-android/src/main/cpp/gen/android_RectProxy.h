@@ -21,9 +21,6 @@ public:
 
 
 private:
-    // thread safe init
-    static std::atomic_bool sInited;
-    static std::mutex sInitLock;
 
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
@@ -86,312 +83,503 @@ public:
     // construct: public Rect()
     static RectProxy newInstance(JNIEnv* env) noexcept {
        assertInited(env);
-       return RectProxy(env, env->NewObject(sClazz, sConstruct_0));
+       return RectProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0));
     } 
     
     // construct: public Rect(int left, int top, int right, int bottom)
     static RectProxy newInstance(JNIEnv* env, jint left, jint top, jint right, jint bottom) noexcept {
        assertInited(env);
-       return RectProxy(env, env->NewObject(sClazz, sConstruct_1, left, top, right, bottom));
+       return RectProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_1, left, top, right, bottom));
     } 
     
     // construct: public Rect(android.graphics.Rect arg0)
     static RectProxy newInstance(JNIEnv* env, jobject arg0) noexcept {
        assertInited(env);
-       return RectProxy(env, env->NewObject(sClazz, sConstruct_2, arg0));
+       return RectProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_2, arg0));
     } 
     
 
     // method: public boolean equals(java.lang.Object o)
     jboolean equals(jobject o) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_equals_0, o);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_equals_0, o);
     }
 
     // method: public int hashCode()
     jint hashCode() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_hashCode_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_hashCode_0);
     }
 
     // method: public java.lang.String toString()
     jstring toString() const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toString_0));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_toString_0));
     }
 
     // method: public java.lang.String toShortString()
     jstring toShortString() const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toShortString_0));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_toShortString_0));
     }
 
     // method: public java.lang.String flattenToString()
     jstring flattenToString() const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_flattenToString_0));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_flattenToString_0));
     }
 
     // method: public static android.graphics.Rect unflattenFromString(java.lang.String arg0)
     static jobject unflattenFromString(JNIEnv* env, jstring arg0) {
         assertInited(env);
-        return env->CallStaticObjectMethod(sClazz, sMethod_unflattenFromString_0, arg0);
+        return env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_unflattenFromString_0, arg0);
     }
 
     // method: public boolean isEmpty()
     jboolean isEmpty() const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_isEmpty_0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_isEmpty_0);
     }
 
     // method: public int width()
     jint width() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_width_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_width_0);
     }
 
     // method: public int height()
     jint height() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_height_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_height_0);
     }
 
     // method: public int centerX()
     jint centerX() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_centerX_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_centerX_0);
     }
 
     // method: public int centerY()
     jint centerY() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_centerY_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_centerY_0);
     }
 
     // method: public float exactCenterX()
     jfloat exactCenterX() const {
-        return mJniEnv->CallFloatMethod(mJavaObjectReference, sMethod_exactCenterX_0);
+        return mJniEnv->CallFloatMethod(mJavaObjectReference, getClassInitState().sMethod_exactCenterX_0);
     }
 
     // method: public float exactCenterY()
     jfloat exactCenterY() const {
-        return mJniEnv->CallFloatMethod(mJavaObjectReference, sMethod_exactCenterY_0);
+        return mJniEnv->CallFloatMethod(mJavaObjectReference, getClassInitState().sMethod_exactCenterY_0);
     }
 
     // method: public void setEmpty()
     void setEmpty() const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_setEmpty_0);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_setEmpty_0);
     }
 
     // method: public void set(int left, int top, int right, int bottom)
     void set(jint left, jint top, jint right, jint bottom) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_set_0, left, top, right, bottom);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_set_0, left, top, right, bottom);
     }
 
     // method: public void set(android.graphics.Rect arg0)
     void set(jobject arg0) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_set_1, arg0);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_set_1, arg0);
     }
 
     // method: public void offset(int dx, int dy)
     void offset(jint dx, jint dy) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_offset_0, dx, dy);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_offset_0, dx, dy);
     }
 
     // method: public void offsetTo(int newLeft, int newTop)
     void offsetTo(jint newLeft, jint newTop) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_offsetTo_0, newLeft, newTop);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_offsetTo_0, newLeft, newTop);
     }
 
     // method: public void inset(int dx, int dy)
     void inset(jint dx, jint dy) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_inset_0, dx, dy);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_inset_0, dx, dy);
     }
 
     // method: public boolean contains(int x, int y)
     jboolean contains(jint x, jint y) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contains_0, x, y);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_contains_0, x, y);
     }
 
     // method: public boolean contains(int left, int top, int right, int bottom)
     jboolean contains(jint left, jint top, jint right, jint bottom) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contains_1, left, top, right, bottom);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_contains_1, left, top, right, bottom);
     }
 
     // method: public boolean contains(android.graphics.Rect arg0)
     jboolean contains(jobject arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contains_2, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_contains_2, arg0);
     }
 
     // method: public boolean intersect(int left, int top, int right, int bottom)
     jboolean intersect(jint left, jint top, jint right, jint bottom) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_intersect_0, left, top, right, bottom);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_intersect_0, left, top, right, bottom);
     }
 
     // method: public boolean intersect(android.graphics.Rect arg0)
     jboolean intersect(jobject arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_intersect_1, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_intersect_1, arg0);
     }
 
     // method: public boolean setIntersect(android.graphics.Rect arg0, android.graphics.Rect arg1)
     jboolean setIntersect(jobject arg0, jobject arg1) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_setIntersect_0, arg0, arg1);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_setIntersect_0, arg0, arg1);
     }
 
     // method: public boolean intersects(int left, int top, int right, int bottom)
     jboolean intersects(jint left, jint top, jint right, jint bottom) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_intersects_0, left, top, right, bottom);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_intersects_0, left, top, right, bottom);
     }
 
     // method: public static boolean intersects(android.graphics.Rect arg0, android.graphics.Rect arg1)
     static jboolean intersects(JNIEnv* env, jobject arg0, jobject arg1) {
         assertInited(env);
-        return env->CallStaticBooleanMethod(sClazz, sMethod_intersects_1, arg0, arg1);
+        return env->CallStaticBooleanMethod(getClassInitState().sClazz, getClassInitState().sMethod_intersects_1, arg0, arg1);
     }
 
     // method: public void union(int left, int top, int right, int bottom)
     void union__IIII(jint left, jint top, jint right, jint bottom) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_union_0, left, top, right, bottom);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_union_0, left, top, right, bottom);
     }
 
     // method: public void union(android.graphics.Rect arg0)
     void union__Landroid_graphics_Rect_2(jobject arg0) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_union_1, arg0);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_union_1, arg0);
     }
 
     // method: public void union(int x, int y)
     void union__II(jint x, jint y) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_union_2, x, y);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_union_2, x, y);
     }
 
     // method: public void sort()
     void sort() const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_sort_0);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_sort_0);
     }
 
     // method: public int describeContents()
     jint describeContents() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_describeContents_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_describeContents_0);
     }
 
     // method: public void writeToParcel(android.os.Parcel out, int flags)
     void writeToParcel(jobject out, jint flags) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_writeToParcel_0, out, flags);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_writeToParcel_0, out, flags);
     }
 
     // method: public void readFromParcel(android.os.Parcel arg0)
     void readFromParcel(jobject arg0) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_readFromParcel_0, arg0);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_readFromParcel_0, arg0);
     }
 
 
     // field: public static final android.os.Parcelable.Creator<android.graphics.Rect> CREATOR
     static jobject getCREATOR(JNIEnv* env) {
        assertInited(env);
-       return env->GetStaticObjectField(sClazz, sField_CREATOR_0);
+       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_CREATOR_0);
 
     }
 
     // field: public static final android.os.Parcelable.Creator<android.graphics.Rect> CREATOR
     static void setCREATOR(JNIEnv* env, jobject CREATOR) {
         assertInited(env);
-        env->SetStaticObjectField(sClazz, sField_CREATOR_0, CREATOR);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_CREATOR_0, CREATOR);
     }
 
 
     // field: public int bottom
     jint getBottom() const {
        
-       return mJniEnv->GetIntField(mJavaObjectReference, sField_bottom_1);
+       return mJniEnv->GetIntField(mJavaObjectReference, getClassInitState().sField_bottom_1);
 
     }
 
     // field: public int bottom
     void setBottom(jint bottom) const {
         
-        mJniEnv->SetIntField(mJavaObjectReference, sField_bottom_1, bottom);
+        mJniEnv->SetIntField(mJavaObjectReference, getClassInitState().sField_bottom_1, bottom);
     }
 
 
     // field: public int left
     jint getLeft() const {
        
-       return mJniEnv->GetIntField(mJavaObjectReference, sField_left_2);
+       return mJniEnv->GetIntField(mJavaObjectReference, getClassInitState().sField_left_2);
 
     }
 
     // field: public int left
     void setLeft(jint left) const {
         
-        mJniEnv->SetIntField(mJavaObjectReference, sField_left_2, left);
+        mJniEnv->SetIntField(mJavaObjectReference, getClassInitState().sField_left_2, left);
     }
 
 
     // field: public int right
     jint getRight() const {
        
-       return mJniEnv->GetIntField(mJavaObjectReference, sField_right_3);
+       return mJniEnv->GetIntField(mJavaObjectReference, getClassInitState().sField_right_3);
 
     }
 
     // field: public int right
     void setRight(jint right) const {
         
-        mJniEnv->SetIntField(mJavaObjectReference, sField_right_3, right);
+        mJniEnv->SetIntField(mJavaObjectReference, getClassInitState().sField_right_3, right);
     }
 
 
     // field: public int top
     jint getTop() const {
        
-       return mJniEnv->GetIntField(mJavaObjectReference, sField_top_4);
+       return mJniEnv->GetIntField(mJavaObjectReference, getClassInitState().sField_top_4);
 
     }
 
     // field: public int top
     void setTop(jint top) const {
         
-        mJniEnv->SetIntField(mJavaObjectReference, sField_top_4, top);
+        mJniEnv->SetIntField(mJavaObjectReference, getClassInitState().sField_top_4, top);
     }
 
 
 
 private:
-    static jclass sClazz;
-    static jmethodID sConstruct_0;
-    static jmethodID sConstruct_1;
-    static jmethodID sConstruct_2;
+    struct ClassInitState {
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
 
-    static jmethodID sMethod_equals_0;
-    static jmethodID sMethod_hashCode_0;
-    static jmethodID sMethod_toString_0;
-    static jmethodID sMethod_toShortString_0;
-    static jmethodID sMethod_flattenToString_0;
-    static jmethodID sMethod_unflattenFromString_0;
-    static jmethodID sMethod_isEmpty_0;
-    static jmethodID sMethod_width_0;
-    static jmethodID sMethod_height_0;
-    static jmethodID sMethod_centerX_0;
-    static jmethodID sMethod_centerY_0;
-    static jmethodID sMethod_exactCenterX_0;
-    static jmethodID sMethod_exactCenterY_0;
-    static jmethodID sMethod_setEmpty_0;
-    static jmethodID sMethod_set_0;
-    static jmethodID sMethod_set_1;
-    static jmethodID sMethod_offset_0;
-    static jmethodID sMethod_offsetTo_0;
-    static jmethodID sMethod_inset_0;
-    static jmethodID sMethod_contains_0;
-    static jmethodID sMethod_contains_1;
-    static jmethodID sMethod_contains_2;
-    static jmethodID sMethod_intersect_0;
-    static jmethodID sMethod_intersect_1;
-    static jmethodID sMethod_setIntersect_0;
-    static jmethodID sMethod_intersects_0;
-    static jmethodID sMethod_intersects_1;
-    static jmethodID sMethod_union_0;
-    static jmethodID sMethod_union_1;
-    static jmethodID sMethod_union_2;
-    static jmethodID sMethod_sort_0;
-    static jmethodID sMethod_describeContents_0;
-    static jmethodID sMethod_writeToParcel_0;
-    static jmethodID sMethod_readFromParcel_0;
+    jclass sClazz = nullptr;
+    jmethodID sConstruct_0 = nullptr;
+    jmethodID sConstruct_1 = nullptr;
+    jmethodID sConstruct_2 = nullptr;
 
-    static jfieldID sField_CREATOR_0;
-    static jfieldID sField_bottom_1;
-    static jfieldID sField_left_2;
-    static jfieldID sField_right_3;
-    static jfieldID sField_top_4;
+    jmethodID sMethod_equals_0 = nullptr;
+    jmethodID sMethod_hashCode_0 = nullptr;
+    jmethodID sMethod_toString_0 = nullptr;
+    jmethodID sMethod_toShortString_0 = nullptr;
+    jmethodID sMethod_flattenToString_0 = nullptr;
+    jmethodID sMethod_unflattenFromString_0 = nullptr;
+    jmethodID sMethod_isEmpty_0 = nullptr;
+    jmethodID sMethod_width_0 = nullptr;
+    jmethodID sMethod_height_0 = nullptr;
+    jmethodID sMethod_centerX_0 = nullptr;
+    jmethodID sMethod_centerY_0 = nullptr;
+    jmethodID sMethod_exactCenterX_0 = nullptr;
+    jmethodID sMethod_exactCenterY_0 = nullptr;
+    jmethodID sMethod_setEmpty_0 = nullptr;
+    jmethodID sMethod_set_0 = nullptr;
+    jmethodID sMethod_set_1 = nullptr;
+    jmethodID sMethod_offset_0 = nullptr;
+    jmethodID sMethod_offsetTo_0 = nullptr;
+    jmethodID sMethod_inset_0 = nullptr;
+    jmethodID sMethod_contains_0 = nullptr;
+    jmethodID sMethod_contains_1 = nullptr;
+    jmethodID sMethod_contains_2 = nullptr;
+    jmethodID sMethod_intersect_0 = nullptr;
+    jmethodID sMethod_intersect_1 = nullptr;
+    jmethodID sMethod_setIntersect_0 = nullptr;
+    jmethodID sMethod_intersects_0 = nullptr;
+    jmethodID sMethod_intersects_1 = nullptr;
+    jmethodID sMethod_union_0 = nullptr;
+    jmethodID sMethod_union_1 = nullptr;
+    jmethodID sMethod_union_2 = nullptr;
+    jmethodID sMethod_sort_0 = nullptr;
+    jmethodID sMethod_describeContents_0 = nullptr;
+    jmethodID sMethod_writeToParcel_0 = nullptr;
+    jmethodID sMethod_readFromParcel_0 = nullptr;
+
+    jfieldID sField_CREATOR_0 = nullptr;
+    jfieldID sField_bottom_1 = nullptr;
+    jfieldID sField_left_2 = nullptr;
+    jfieldID sField_right_3 = nullptr;
+    jfieldID sField_top_4 = nullptr;
+
+   }; // endof struct ClassInitState
+
+   template <typename T = void>
+   static ClassInitState& getClassInitState() {
+       static ClassInitState classInitState;
+       return classInitState;
+   }
 
 };
+} // endof namespace android
+
+
+
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+namespace android {
+
+/*static*/ inline bool RectProxy::initClazz(JNIEnv* env) {
+#define JENNY_CHECK_NULL(val)                      \
+       do {                                        \
+           if ((val) == nullptr) {                 \
+               jennySampleErrorLog(env, "can't init RectProxy::" #val); \
+               return false;                       \
+           }                                       \
+       } while(false)
+
+    auto& state = getClassInitState();
+    if (!state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (!state.sInited) {
+            auto clazz = env->FindClass(FULL_CLASS_NAME);
+            JENNY_CHECK_NULL(clazz);
+            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+            env->DeleteLocalRef(clazz);
+            JENNY_CHECK_NULL(state.sClazz);
+
+            state.sConstruct_0 = env->GetMethodID(state.sClazz, "<init>", "()V");
+            JENNY_CHECK_NULL(state.sConstruct_0);
+
+            state.sConstruct_1 = env->GetMethodID(state.sClazz, "<init>", "(IIII)V");
+            JENNY_CHECK_NULL(state.sConstruct_1);
+
+            state.sConstruct_2 = env->GetMethodID(state.sClazz, "<init>", "(Landroid/graphics/Rect;)V");
+            JENNY_CHECK_NULL(state.sConstruct_2);
+
+
+            state.sMethod_equals_0 = env->GetMethodID(state.sClazz, "equals", "(Ljava/lang/Object;)Z");
+            JENNY_CHECK_NULL(state.sMethod_equals_0);
+
+            state.sMethod_hashCode_0 = env->GetMethodID(state.sClazz, "hashCode", "()I");
+            JENNY_CHECK_NULL(state.sMethod_hashCode_0);
+
+            state.sMethod_toString_0 = env->GetMethodID(state.sClazz, "toString", "()Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_toString_0);
+
+            state.sMethod_toShortString_0 = env->GetMethodID(state.sClazz, "toShortString", "()Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_toShortString_0);
+
+            state.sMethod_flattenToString_0 = env->GetMethodID(state.sClazz, "flattenToString", "()Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_flattenToString_0);
+
+            state.sMethod_unflattenFromString_0 = env->GetStaticMethodID(state.sClazz, "unflattenFromString", "(Ljava/lang/String;)Landroid/graphics/Rect;");
+            JENNY_CHECK_NULL(state.sMethod_unflattenFromString_0);
+
+            state.sMethod_isEmpty_0 = env->GetMethodID(state.sClazz, "isEmpty", "()Z");
+            JENNY_CHECK_NULL(state.sMethod_isEmpty_0);
+
+            state.sMethod_width_0 = env->GetMethodID(state.sClazz, "width", "()I");
+            JENNY_CHECK_NULL(state.sMethod_width_0);
+
+            state.sMethod_height_0 = env->GetMethodID(state.sClazz, "height", "()I");
+            JENNY_CHECK_NULL(state.sMethod_height_0);
+
+            state.sMethod_centerX_0 = env->GetMethodID(state.sClazz, "centerX", "()I");
+            JENNY_CHECK_NULL(state.sMethod_centerX_0);
+
+            state.sMethod_centerY_0 = env->GetMethodID(state.sClazz, "centerY", "()I");
+            JENNY_CHECK_NULL(state.sMethod_centerY_0);
+
+            state.sMethod_exactCenterX_0 = env->GetMethodID(state.sClazz, "exactCenterX", "()F");
+            JENNY_CHECK_NULL(state.sMethod_exactCenterX_0);
+
+            state.sMethod_exactCenterY_0 = env->GetMethodID(state.sClazz, "exactCenterY", "()F");
+            JENNY_CHECK_NULL(state.sMethod_exactCenterY_0);
+
+            state.sMethod_setEmpty_0 = env->GetMethodID(state.sClazz, "setEmpty", "()V");
+            JENNY_CHECK_NULL(state.sMethod_setEmpty_0);
+
+            state.sMethod_set_0 = env->GetMethodID(state.sClazz, "set", "(IIII)V");
+            JENNY_CHECK_NULL(state.sMethod_set_0);
+
+            state.sMethod_set_1 = env->GetMethodID(state.sClazz, "set", "(Landroid/graphics/Rect;)V");
+            JENNY_CHECK_NULL(state.sMethod_set_1);
+
+            state.sMethod_offset_0 = env->GetMethodID(state.sClazz, "offset", "(II)V");
+            JENNY_CHECK_NULL(state.sMethod_offset_0);
+
+            state.sMethod_offsetTo_0 = env->GetMethodID(state.sClazz, "offsetTo", "(II)V");
+            JENNY_CHECK_NULL(state.sMethod_offsetTo_0);
+
+            state.sMethod_inset_0 = env->GetMethodID(state.sClazz, "inset", "(II)V");
+            JENNY_CHECK_NULL(state.sMethod_inset_0);
+
+            state.sMethod_contains_0 = env->GetMethodID(state.sClazz, "contains", "(II)Z");
+            JENNY_CHECK_NULL(state.sMethod_contains_0);
+
+            state.sMethod_contains_1 = env->GetMethodID(state.sClazz, "contains", "(IIII)Z");
+            JENNY_CHECK_NULL(state.sMethod_contains_1);
+
+            state.sMethod_contains_2 = env->GetMethodID(state.sClazz, "contains", "(Landroid/graphics/Rect;)Z");
+            JENNY_CHECK_NULL(state.sMethod_contains_2);
+
+            state.sMethod_intersect_0 = env->GetMethodID(state.sClazz, "intersect", "(IIII)Z");
+            JENNY_CHECK_NULL(state.sMethod_intersect_0);
+
+            state.sMethod_intersect_1 = env->GetMethodID(state.sClazz, "intersect", "(Landroid/graphics/Rect;)Z");
+            JENNY_CHECK_NULL(state.sMethod_intersect_1);
+
+            state.sMethod_setIntersect_0 = env->GetMethodID(state.sClazz, "setIntersect", "(Landroid/graphics/Rect;Landroid/graphics/Rect;)Z");
+            JENNY_CHECK_NULL(state.sMethod_setIntersect_0);
+
+            state.sMethod_intersects_0 = env->GetMethodID(state.sClazz, "intersects", "(IIII)Z");
+            JENNY_CHECK_NULL(state.sMethod_intersects_0);
+
+            state.sMethod_intersects_1 = env->GetStaticMethodID(state.sClazz, "intersects", "(Landroid/graphics/Rect;Landroid/graphics/Rect;)Z");
+            JENNY_CHECK_NULL(state.sMethod_intersects_1);
+
+            state.sMethod_union_0 = env->GetMethodID(state.sClazz, "union", "(IIII)V");
+            JENNY_CHECK_NULL(state.sMethod_union_0);
+
+            state.sMethod_union_1 = env->GetMethodID(state.sClazz, "union", "(Landroid/graphics/Rect;)V");
+            JENNY_CHECK_NULL(state.sMethod_union_1);
+
+            state.sMethod_union_2 = env->GetMethodID(state.sClazz, "union", "(II)V");
+            JENNY_CHECK_NULL(state.sMethod_union_2);
+
+            state.sMethod_sort_0 = env->GetMethodID(state.sClazz, "sort", "()V");
+            JENNY_CHECK_NULL(state.sMethod_sort_0);
+
+            state.sMethod_describeContents_0 = env->GetMethodID(state.sClazz, "describeContents", "()I");
+            JENNY_CHECK_NULL(state.sMethod_describeContents_0);
+
+            state.sMethod_writeToParcel_0 = env->GetMethodID(state.sClazz, "writeToParcel", "(Landroid/os/Parcel;I)V");
+            JENNY_CHECK_NULL(state.sMethod_writeToParcel_0);
+
+            state.sMethod_readFromParcel_0 = env->GetMethodID(state.sClazz, "readFromParcel", "(Landroid/os/Parcel;)V");
+            JENNY_CHECK_NULL(state.sMethod_readFromParcel_0);
+
+
+            state.sField_CREATOR_0 = env->GetStaticFieldID(state.sClazz, "CREATOR", "Landroid/os/Parcelable$Creator;");
+            JENNY_CHECK_NULL(state.sField_CREATOR_0);
+
+            state.sField_bottom_1 = env->GetFieldID(state.sClazz, "bottom", "I");
+            JENNY_CHECK_NULL(state.sField_bottom_1);
+
+            state.sField_left_2 = env->GetFieldID(state.sClazz, "left", "I");
+            JENNY_CHECK_NULL(state.sField_left_2);
+
+            state.sField_right_3 = env->GetFieldID(state.sClazz, "right", "I");
+            JENNY_CHECK_NULL(state.sField_right_3);
+
+            state.sField_top_4 = env->GetFieldID(state.sClazz, "top", "I");
+            JENNY_CHECK_NULL(state.sField_top_4);
+
+
+            state.sInited = true;
+        }
+    }
+#undef JENNY_CHECK_NULL
+   return true;
+}
+
+/*static*/ inline void RectProxy::releaseClazz(JNIEnv* env) {
+    auto& state = getClassInitState();
+    if (state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (state.sInited) {
+            env->DeleteGlobalRef(state.sClazz);
+            state.sClazz = nullptr;
+            state.sInited = false;
+        }
+    }
+}
+
+
 } // endof namespace android

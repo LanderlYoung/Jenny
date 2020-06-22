@@ -21,9 +21,6 @@ public:
 
 
 private:
-    // thread safe init
-    static std::atomic_bool sInited;
-    static std::mutex sInitLock;
 
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
@@ -86,67 +83,153 @@ public:
     // construct: private Graphics()
     static GraphicsProxy newInstance(JNIEnv* env) noexcept {
        assertInited(env);
-       return GraphicsProxy(env, env->NewObject(sClazz, sConstruct_0));
+       return GraphicsProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0));
     } 
     
 
     // method: public static final android.graphics.Paint newPaint()
     static jobject newPaint(JNIEnv* env) {
         assertInited(env);
-        return env->CallStaticObjectMethod(sClazz, sMethod_newPaint_0);
+        return env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_newPaint_0);
     }
 
     // method: public static final void paintSetStyle(android.graphics.Paint paint, android.graphics.Paint.Style style)
     static void paintSetStyle(JNIEnv* env, jobject paint, jobject style) {
         assertInited(env);
-        env->CallStaticVoidMethod(sClazz, sMethod_paintSetStyle_0, paint, style);
+        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_paintSetStyle_0, paint, style);
     }
 
     // method: public static final void drawableCircle(android.graphics.Canvas canvas, float x, float y, float r, android.graphics.Paint paint)
     static void drawableCircle(JNIEnv* env, jobject canvas, jfloat x, jfloat y, jfloat r, jobject paint) {
         assertInited(env);
-        env->CallStaticVoidMethod(sClazz, sMethod_drawableCircle_0, canvas, x, y, r, paint);
+        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_drawableCircle_0, canvas, x, y, r, paint);
     }
 
     // method: public static final android.graphics.Rect drawableGetBounds(android.graphics.drawable.Drawable drawable)
     static jobject drawableGetBounds(JNIEnv* env, jobject drawable) {
         assertInited(env);
-        return env->CallStaticObjectMethod(sClazz, sMethod_drawableGetBounds_0, drawable);
+        return env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_drawableGetBounds_0, drawable);
     }
 
     // method: public static final void setColor(android.graphics.Paint paint, int color)
     static void setColor(JNIEnv* env, jobject paint, jint color) {
         assertInited(env);
-        env->CallStaticVoidMethod(sClazz, sMethod_setColor_0, paint, color);
+        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_setColor_0, paint, color);
     }
 
 
     // field: public static final io.github.landerlyoung.jennysampleapp.Graphics INSTANCE
     static jobject getINSTANCE(JNIEnv* env) {
        assertInited(env);
-       return env->GetStaticObjectField(sClazz, sField_INSTANCE_0);
+       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_INSTANCE_0);
 
     }
 
     // field: public static final io.github.landerlyoung.jennysampleapp.Graphics INSTANCE
     static void setINSTANCE(JNIEnv* env, jobject INSTANCE) {
         assertInited(env);
-        env->SetStaticObjectField(sClazz, sField_INSTANCE_0, INSTANCE);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_INSTANCE_0, INSTANCE);
     }
 
 
 
 private:
-    static jclass sClazz;
-    static jmethodID sConstruct_0;
+    struct ClassInitState {
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
 
-    static jmethodID sMethod_newPaint_0;
-    static jmethodID sMethod_paintSetStyle_0;
-    static jmethodID sMethod_drawableCircle_0;
-    static jmethodID sMethod_drawableGetBounds_0;
-    static jmethodID sMethod_setColor_0;
+    jclass sClazz = nullptr;
+    jmethodID sConstruct_0 = nullptr;
 
-    static jfieldID sField_INSTANCE_0;
+    jmethodID sMethod_newPaint_0 = nullptr;
+    jmethodID sMethod_paintSetStyle_0 = nullptr;
+    jmethodID sMethod_drawableCircle_0 = nullptr;
+    jmethodID sMethod_drawableGetBounds_0 = nullptr;
+    jmethodID sMethod_setColor_0 = nullptr;
+
+    jfieldID sField_INSTANCE_0 = nullptr;
+
+   }; // endof struct ClassInitState
+
+   template <typename T = void>
+   static ClassInitState& getClassInitState() {
+       static ClassInitState classInitState;
+       return classInitState;
+   }
 
 };
+} // endof namespace jenny
+
+
+
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+namespace jenny {
+
+/*static*/ inline bool GraphicsProxy::initClazz(JNIEnv* env) {
+#define JENNY_CHECK_NULL(val)                      \
+       do {                                        \
+           if ((val) == nullptr) {                 \
+               jennySampleErrorLog(env, "can't init GraphicsProxy::" #val); \
+               return false;                       \
+           }                                       \
+       } while(false)
+
+    auto& state = getClassInitState();
+    if (!state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (!state.sInited) {
+            auto clazz = env->FindClass(FULL_CLASS_NAME);
+            JENNY_CHECK_NULL(clazz);
+            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+            env->DeleteLocalRef(clazz);
+            JENNY_CHECK_NULL(state.sClazz);
+
+            state.sConstruct_0 = env->GetMethodID(state.sClazz, "<init>", "()V");
+            JENNY_CHECK_NULL(state.sConstruct_0);
+
+
+            state.sMethod_newPaint_0 = env->GetStaticMethodID(state.sClazz, "newPaint", "()Landroid/graphics/Paint;");
+            JENNY_CHECK_NULL(state.sMethod_newPaint_0);
+
+            state.sMethod_paintSetStyle_0 = env->GetStaticMethodID(state.sClazz, "paintSetStyle", "(Landroid/graphics/Paint;Landroid/graphics/Paint$Style;)V");
+            JENNY_CHECK_NULL(state.sMethod_paintSetStyle_0);
+
+            state.sMethod_drawableCircle_0 = env->GetStaticMethodID(state.sClazz, "drawableCircle", "(Landroid/graphics/Canvas;FFFLandroid/graphics/Paint;)V");
+            JENNY_CHECK_NULL(state.sMethod_drawableCircle_0);
+
+            state.sMethod_drawableGetBounds_0 = env->GetStaticMethodID(state.sClazz, "drawableGetBounds", "(Landroid/graphics/drawable/Drawable;)Landroid/graphics/Rect;");
+            JENNY_CHECK_NULL(state.sMethod_drawableGetBounds_0);
+
+            state.sMethod_setColor_0 = env->GetStaticMethodID(state.sClazz, "setColor", "(Landroid/graphics/Paint;I)V");
+            JENNY_CHECK_NULL(state.sMethod_setColor_0);
+
+
+            state.sField_INSTANCE_0 = env->GetStaticFieldID(state.sClazz, "INSTANCE", "Lio/github/landerlyoung/jennysampleapp/Graphics;");
+            JENNY_CHECK_NULL(state.sField_INSTANCE_0);
+
+
+            state.sInited = true;
+        }
+    }
+#undef JENNY_CHECK_NULL
+   return true;
+}
+
+/*static*/ inline void GraphicsProxy::releaseClazz(JNIEnv* env) {
+    auto& state = getClassInitState();
+    if (state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (state.sInited) {
+            env->DeleteGlobalRef(state.sClazz);
+            state.sClazz = nullptr;
+            state.sInited = false;
+        }
+    }
+}
+
+
 } // endof namespace jenny

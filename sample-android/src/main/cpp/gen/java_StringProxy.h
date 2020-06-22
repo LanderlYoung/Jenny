@@ -21,9 +21,6 @@ public:
 
 
 private:
-    // thread safe init
-    static std::atomic_bool sInited;
-    static std::mutex sInitLock;
 
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
@@ -86,547 +83,861 @@ public:
     // construct: public String()
     static StringProxy newInstance(JNIEnv* env) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_0));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0));
     } 
     
     // construct: public String(java.lang.String arg0)
     static StringProxy newInstance(JNIEnv* env, jstring arg0) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_1, arg0));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_1, arg0));
     } 
     
     // construct: public String(char[] value)
     static StringProxy newInstance(JNIEnv* env, jcharArray value) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_2, value));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_2, value));
     } 
     
     // construct: public String(char[] value, int offset, int count)
     static StringProxy newInstance(JNIEnv* env, jcharArray value, jint offset, jint count) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_3, value, offset, count));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_3, value, offset, count));
     } 
     
     // construct: public String(int[] codePoints, int offset, int count)
     static StringProxy newInstance(JNIEnv* env, jintArray codePoints, jint offset, jint count) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_4, codePoints, offset, count));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_4, codePoints, offset, count));
     } 
     
     // construct: public String(byte[] ascii, int hibyte, int offset, int count)
     static StringProxy newInstance(JNIEnv* env, jbyteArray ascii, jint hibyte, jint offset, jint count) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_5, ascii, hibyte, offset, count));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_5, ascii, hibyte, offset, count));
     } 
     
     // construct: public String(byte[] ascii, int hibyte)
     static StringProxy newInstance(JNIEnv* env, jbyteArray ascii, jint hibyte) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_6, ascii, hibyte));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_6, ascii, hibyte));
     } 
     
     // construct: public String(byte[] arg0, int arg1, int arg2, java.lang.String arg3)
     static StringProxy newInstance(JNIEnv* env, jbyteArray arg0, jint arg1, jint arg2, jstring arg3) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_7, arg0, arg1, arg2, arg3));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_7, arg0, arg1, arg2, arg3));
     } 
     
     // construct: public String(byte[] arg0, int arg1, int arg2, java.nio.charset.Charset arg3)
     static StringProxy newInstance(JNIEnv* env, jbyteArray arg0, jint arg1, jint arg2, jobject arg3) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_8, arg0, arg1, arg2, arg3));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_8, arg0, arg1, arg2, arg3));
     } 
     
     // construct: public String(byte[] arg0, java.lang.String arg1)
     static StringProxy newInstance(JNIEnv* env, jbyteArray arg0, jstring arg1) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_9, arg0, arg1));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_9, arg0, arg1));
     } 
     
     // construct: public String(byte[] arg0, java.nio.charset.Charset arg1)
     static StringProxy newInstance(JNIEnv* env, jbyteArray arg0, jobject arg1) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_10, arg0, arg1));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_10, arg0, arg1));
     } 
     
     // construct: public String(byte[] bytes, int offset, int length)
     static StringProxy newInstance(JNIEnv* env, jbyteArray bytes, jint offset, jint length) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_11, bytes, offset, length));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_11, bytes, offset, length));
     } 
     
     // construct: public String(byte[] bytes)
     static StringProxy newInstance(JNIEnv* env, jbyteArray bytes) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_12, bytes));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_12, bytes));
     } 
     
     // construct: public String(java.lang.StringBuffer arg0)
     static StringProxy newInstance__Ljava_lang_StringBuffer_2(JNIEnv* env, jobject arg0) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_13, arg0));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_13, arg0));
     } 
     
     // construct: public String(java.lang.StringBuilder arg0)
     static StringProxy newInstance__Ljava_lang_StringBuilder_2(JNIEnv* env, jobject arg0) noexcept {
        assertInited(env);
-       return StringProxy(env, env->NewObject(sClazz, sConstruct_14, arg0));
+       return StringProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_14, arg0));
     } 
     
 
     // method: public int length()
     jint length() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_length_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_length_0);
     }
 
     // method: public boolean isEmpty()
     jboolean isEmpty() const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_isEmpty_0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_isEmpty_0);
     }
 
     // method: public char charAt(int arg0)
     jchar charAt(jint arg0) const {
-        return mJniEnv->CallCharMethod(mJavaObjectReference, sMethod_charAt_0, arg0);
+        return mJniEnv->CallCharMethod(mJavaObjectReference, getClassInitState().sMethod_charAt_0, arg0);
     }
 
     // method: public int codePointAt(int index)
     jint codePointAt(jint index) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_codePointAt_0, index);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_codePointAt_0, index);
     }
 
     // method: public int codePointBefore(int index)
     jint codePointBefore(jint index) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_codePointBefore_0, index);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_codePointBefore_0, index);
     }
 
     // method: public int codePointCount(int beginIndex, int endIndex)
     jint codePointCount(jint beginIndex, jint endIndex) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_codePointCount_0, beginIndex, endIndex);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_codePointCount_0, beginIndex, endIndex);
     }
 
     // method: public int offsetByCodePoints(int index, int codePointOffset)
     jint offsetByCodePoints(jint index, jint codePointOffset) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_offsetByCodePoints_0, index, codePointOffset);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_offsetByCodePoints_0, index, codePointOffset);
     }
 
     // method: public void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin)
     void getChars(jint srcBegin, jint srcEnd, jcharArray dst, jint dstBegin) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_getChars_0, srcBegin, srcEnd, dst, dstBegin);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_getChars_0, srcBegin, srcEnd, dst, dstBegin);
     }
 
     // method: public void getBytes(int srcBegin, int srcEnd, byte[] dst, int dstBegin)
     void getBytes(jint srcBegin, jint srcEnd, jbyteArray dst, jint dstBegin) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_getBytes_0, srcBegin, srcEnd, dst, dstBegin);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_getBytes_0, srcBegin, srcEnd, dst, dstBegin);
     }
 
     // method: public byte[] getBytes(java.lang.String arg0)
     jbyteArray getBytes(jstring arg0) const {
-        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getBytes_1, arg0));
+        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_getBytes_1, arg0));
     }
 
     // method: public byte[] getBytes(java.nio.charset.Charset arg0)
     jbyteArray getBytes(jobject arg0) const {
-        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getBytes_2, arg0));
+        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_getBytes_2, arg0));
     }
 
     // method: public byte[] getBytes()
     jbyteArray getBytes() const {
-        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getBytes_3));
+        return reinterpret_cast<jbyteArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_getBytes_3));
     }
 
     // method: public boolean equals(java.lang.Object arg0)
     jboolean equals(jobject arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_equals_0, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_equals_0, arg0);
     }
 
     // method: public boolean contentEquals(java.lang.StringBuffer arg0)
     jboolean contentEquals__Ljava_lang_StringBuffer_2(jobject arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contentEquals_0, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_contentEquals_0, arg0);
     }
 
     // method: public boolean contentEquals(java.lang.CharSequence arg0)
     jboolean contentEquals__Ljava_lang_CharSequence_2(jobject arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contentEquals_1, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_contentEquals_1, arg0);
     }
 
     // method: public boolean equalsIgnoreCase(java.lang.String arg0)
     jboolean equalsIgnoreCase(jstring arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_equalsIgnoreCase_0, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_equalsIgnoreCase_0, arg0);
     }
 
     // method: public int compareTo(java.lang.String arg0)
     jint compareTo(jstring arg0) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_compareTo_0, arg0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_compareTo_0, arg0);
     }
 
     // method: public int compareToIgnoreCase(java.lang.String arg0)
     jint compareToIgnoreCase(jstring arg0) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_compareToIgnoreCase_0, arg0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_compareToIgnoreCase_0, arg0);
     }
 
     // method: public boolean regionMatches(int arg0, java.lang.String arg1, int arg2, int arg3)
     jboolean regionMatches(jint arg0, jstring arg1, jint arg2, jint arg3) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_regionMatches_0, arg0, arg1, arg2, arg3);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_regionMatches_0, arg0, arg1, arg2, arg3);
     }
 
     // method: public boolean regionMatches(boolean arg0, int arg1, java.lang.String arg2, int arg3, int arg4)
     jboolean regionMatches(jboolean arg0, jint arg1, jstring arg2, jint arg3, jint arg4) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_regionMatches_1, arg0, arg1, arg2, arg3, arg4);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_regionMatches_1, arg0, arg1, arg2, arg3, arg4);
     }
 
     // method: public boolean startsWith(java.lang.String arg0, int arg1)
     jboolean startsWith(jstring arg0, jint arg1) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_startsWith_0, arg0, arg1);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_startsWith_0, arg0, arg1);
     }
 
     // method: public boolean startsWith(java.lang.String arg0)
     jboolean startsWith(jstring arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_startsWith_1, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_startsWith_1, arg0);
     }
 
     // method: public boolean endsWith(java.lang.String arg0)
     jboolean endsWith(jstring arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_endsWith_0, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_endsWith_0, arg0);
     }
 
     // method: public int hashCode()
     jint hashCode() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_hashCode_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_hashCode_0);
     }
 
     // method: public int indexOf(int ch)
     jint indexOf(jint ch) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_indexOf_0, ch);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_indexOf_0, ch);
     }
 
     // method: public int indexOf(int ch, int fromIndex)
     jint indexOf(jint ch, jint fromIndex) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_indexOf_1, ch, fromIndex);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_indexOf_1, ch, fromIndex);
     }
 
     // method: public int indexOf(java.lang.String arg0)
     jint indexOf(jstring arg0) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_indexOf_2, arg0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_indexOf_2, arg0);
     }
 
     // method: public int indexOf(java.lang.String arg0, int arg1)
     jint indexOf(jstring arg0, jint arg1) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_indexOf_3, arg0, arg1);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_indexOf_3, arg0, arg1);
     }
 
     // method: public int lastIndexOf(int ch)
     jint lastIndexOf(jint ch) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_lastIndexOf_0, ch);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_lastIndexOf_0, ch);
     }
 
     // method: public int lastIndexOf(int ch, int fromIndex)
     jint lastIndexOf(jint ch, jint fromIndex) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_lastIndexOf_1, ch, fromIndex);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_lastIndexOf_1, ch, fromIndex);
     }
 
     // method: public int lastIndexOf(java.lang.String arg0)
     jint lastIndexOf(jstring arg0) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_lastIndexOf_2, arg0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_lastIndexOf_2, arg0);
     }
 
     // method: public int lastIndexOf(java.lang.String arg0, int arg1)
     jint lastIndexOf(jstring arg0, jint arg1) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_lastIndexOf_3, arg0, arg1);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_lastIndexOf_3, arg0, arg1);
     }
 
     // method: public java.lang.String substring(int beginIndex)
     jstring substring(jint beginIndex) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_substring_0, beginIndex));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_substring_0, beginIndex));
     }
 
     // method: public java.lang.String substring(int beginIndex, int endIndex)
     jstring substring(jint beginIndex, jint endIndex) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_substring_1, beginIndex, endIndex));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_substring_1, beginIndex, endIndex));
     }
 
     // method: public java.lang.CharSequence subSequence(int beginIndex, int endIndex)
     jobject subSequence(jint beginIndex, jint endIndex) const {
-        return mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_subSequence_0, beginIndex, endIndex);
+        return mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_subSequence_0, beginIndex, endIndex);
     }
 
     // method: public java.lang.String concat(java.lang.String arg0)
     jstring concat(jstring arg0) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_concat_0, arg0));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_concat_0, arg0));
     }
 
     // method: public java.lang.String replace(char oldChar, char newChar)
     jstring replace(jchar oldChar, jchar newChar) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replace_0, oldChar, newChar));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_replace_0, oldChar, newChar));
     }
 
     // method: public java.lang.String replace(java.lang.CharSequence arg0, java.lang.CharSequence arg1)
     jstring replace(jobject arg0, jobject arg1) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replace_1, arg0, arg1));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_replace_1, arg0, arg1));
     }
 
     // method: public boolean matches(java.lang.String arg0)
     jboolean matches(jstring arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_matches_0, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_matches_0, arg0);
     }
 
     // method: public boolean contains(java.lang.CharSequence arg0)
     jboolean contains(jobject arg0) const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_contains_0, arg0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_contains_0, arg0);
     }
 
     // method: public java.lang.String replaceFirst(java.lang.String arg0, java.lang.String arg1)
     jstring replaceFirst(jstring arg0, jstring arg1) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replaceFirst_0, arg0, arg1));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_replaceFirst_0, arg0, arg1));
     }
 
     // method: public java.lang.String replaceAll(java.lang.String arg0, java.lang.String arg1)
     jstring replaceAll(jstring arg0, jstring arg1) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_replaceAll_0, arg0, arg1));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_replaceAll_0, arg0, arg1));
     }
 
     // method: public java.lang.String[] split(java.lang.String arg0, int arg1)
     jobjectArray split(jstring arg0, jint arg1) const {
-        return reinterpret_cast<jobjectArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_split_0, arg0, arg1));
+        return reinterpret_cast<jobjectArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_split_0, arg0, arg1));
     }
 
     // method: public java.lang.String[] split(java.lang.String arg0)
     jobjectArray split(jstring arg0) const {
-        return reinterpret_cast<jobjectArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_split_1, arg0));
+        return reinterpret_cast<jobjectArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_split_1, arg0));
     }
 
     // method: public static java.lang.String join(java.lang.CharSequence arg0, java.lang.CharSequence[] arg1)
     static jstring join(JNIEnv* env, jobject arg0, jobjectArray arg1) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_join_0, arg0, arg1));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_join_0, arg0, arg1));
     }
 
     // method: public static java.lang.String join(java.lang.CharSequence arg0, java.lang.Iterable<? extends java.lang.CharSequence> arg1)
     static jstring join(JNIEnv* env, jobject arg0, jobject arg1) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_join_1, arg0, arg1));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_join_1, arg0, arg1));
     }
 
     // method: public java.lang.String toLowerCase(java.util.Locale arg0)
     jstring toLowerCase(jobject arg0) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toLowerCase_0, arg0));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_toLowerCase_0, arg0));
     }
 
     // method: public java.lang.String toLowerCase()
     jstring toLowerCase() const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toLowerCase_1));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_toLowerCase_1));
     }
 
     // method: public java.lang.String toUpperCase(java.util.Locale arg0)
     jstring toUpperCase(jobject arg0) const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toUpperCase_0, arg0));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_toUpperCase_0, arg0));
     }
 
     // method: public java.lang.String toUpperCase()
     jstring toUpperCase() const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toUpperCase_1));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_toUpperCase_1));
     }
 
     // method: public java.lang.String trim()
     jstring trim() const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_trim_0));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_trim_0));
     }
 
     // method: public java.lang.String toString()
     jstring toString() const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toString_0));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_toString_0));
     }
 
     // method: public char[] toCharArray()
     jcharArray toCharArray() const {
-        return reinterpret_cast<jcharArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_toCharArray_0));
+        return reinterpret_cast<jcharArray>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_toCharArray_0));
     }
 
     // method: public static java.lang.String format(java.lang.String arg0, java.lang.Object[] arg1)
     static jstring format(JNIEnv* env, jstring arg0, jobjectArray arg1) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_format_0, arg0, arg1));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_format_0, arg0, arg1));
     }
 
     // method: public static java.lang.String format(java.util.Locale arg0, java.lang.String arg1, java.lang.Object[] arg2)
     static jstring format(JNIEnv* env, jobject arg0, jstring arg1, jobjectArray arg2) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_format_1, arg0, arg1, arg2));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_format_1, arg0, arg1, arg2));
     }
 
     // method: public static java.lang.String valueOf(java.lang.Object arg0)
     static jstring valueOf(JNIEnv* env, jobject arg0) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_0, arg0));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_0, arg0));
     }
 
     // method: public static java.lang.String valueOf(char[] data)
     static jstring valueOf(JNIEnv* env, jcharArray data) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_1, data));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_1, data));
     }
 
     // method: public static java.lang.String valueOf(char[] data, int offset, int count)
     static jstring valueOf(JNIEnv* env, jcharArray data, jint offset, jint count) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_2, data, offset, count));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_2, data, offset, count));
     }
 
     // method: public static java.lang.String valueOf(boolean b)
     static jstring valueOf(JNIEnv* env, jboolean b) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_3, b));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_3, b));
     }
 
     // method: public static java.lang.String valueOf(char c)
     static jstring valueOf(JNIEnv* env, jchar c) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_4, c));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_4, c));
     }
 
     // method: public static java.lang.String valueOf(int i)
     static jstring valueOf(JNIEnv* env, jint i) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_5, i));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_5, i));
     }
 
     // method: public static java.lang.String valueOf(long l)
     static jstring valueOf(JNIEnv* env, jlong l) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_6, l));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_6, l));
     }
 
     // method: public static java.lang.String valueOf(float f)
     static jstring valueOf(JNIEnv* env, jfloat f) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_7, f));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_7, f));
     }
 
     // method: public static java.lang.String valueOf(double d)
     static jstring valueOf(JNIEnv* env, jdouble d) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_valueOf_8, d));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_8, d));
     }
 
     // method: public static java.lang.String copyValueOf(char[] data, int offset, int count)
     static jstring copyValueOf(JNIEnv* env, jcharArray data, jint offset, jint count) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_copyValueOf_0, data, offset, count));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_copyValueOf_0, data, offset, count));
     }
 
     // method: public static java.lang.String copyValueOf(char[] data)
     static jstring copyValueOf(JNIEnv* env, jcharArray data) {
         assertInited(env);
-        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(sClazz, sMethod_copyValueOf_1, data));
+        return reinterpret_cast<jstring>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_copyValueOf_1, data));
     }
 
     // method: public java.lang.String intern()
     jstring intern() const {
-        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_intern_0));
+        return reinterpret_cast<jstring>(mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_intern_0));
     }
 
 
     // field: public static final java.util.Comparator<java.lang.String> CASE_INSENSITIVE_ORDER
     static jobject getCASE_INSENSITIVE_ORDER(JNIEnv* env) {
        assertInited(env);
-       return env->GetStaticObjectField(sClazz, sField_CASE_INSENSITIVE_ORDER_0);
+       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_CASE_INSENSITIVE_ORDER_0);
 
     }
 
     // field: public static final java.util.Comparator<java.lang.String> CASE_INSENSITIVE_ORDER
     static void setCASE_INSENSITIVE_ORDER(JNIEnv* env, jobject CASE_INSENSITIVE_ORDER) {
         assertInited(env);
-        env->SetStaticObjectField(sClazz, sField_CASE_INSENSITIVE_ORDER_0, CASE_INSENSITIVE_ORDER);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_CASE_INSENSITIVE_ORDER_0, CASE_INSENSITIVE_ORDER);
     }
 
 
 
 private:
-    static jclass sClazz;
-    static jmethodID sConstruct_0;
-    static jmethodID sConstruct_1;
-    static jmethodID sConstruct_2;
-    static jmethodID sConstruct_3;
-    static jmethodID sConstruct_4;
-    static jmethodID sConstruct_5;
-    static jmethodID sConstruct_6;
-    static jmethodID sConstruct_7;
-    static jmethodID sConstruct_8;
-    static jmethodID sConstruct_9;
-    static jmethodID sConstruct_10;
-    static jmethodID sConstruct_11;
-    static jmethodID sConstruct_12;
-    static jmethodID sConstruct_13;
-    static jmethodID sConstruct_14;
+    struct ClassInitState {
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
 
-    static jmethodID sMethod_length_0;
-    static jmethodID sMethod_isEmpty_0;
-    static jmethodID sMethod_charAt_0;
-    static jmethodID sMethod_codePointAt_0;
-    static jmethodID sMethod_codePointBefore_0;
-    static jmethodID sMethod_codePointCount_0;
-    static jmethodID sMethod_offsetByCodePoints_0;
-    static jmethodID sMethod_getChars_0;
-    static jmethodID sMethod_getBytes_0;
-    static jmethodID sMethod_getBytes_1;
-    static jmethodID sMethod_getBytes_2;
-    static jmethodID sMethod_getBytes_3;
-    static jmethodID sMethod_equals_0;
-    static jmethodID sMethod_contentEquals_0;
-    static jmethodID sMethod_contentEquals_1;
-    static jmethodID sMethod_equalsIgnoreCase_0;
-    static jmethodID sMethod_compareTo_0;
-    static jmethodID sMethod_compareToIgnoreCase_0;
-    static jmethodID sMethod_regionMatches_0;
-    static jmethodID sMethod_regionMatches_1;
-    static jmethodID sMethod_startsWith_0;
-    static jmethodID sMethod_startsWith_1;
-    static jmethodID sMethod_endsWith_0;
-    static jmethodID sMethod_hashCode_0;
-    static jmethodID sMethod_indexOf_0;
-    static jmethodID sMethod_indexOf_1;
-    static jmethodID sMethod_indexOf_2;
-    static jmethodID sMethod_indexOf_3;
-    static jmethodID sMethod_lastIndexOf_0;
-    static jmethodID sMethod_lastIndexOf_1;
-    static jmethodID sMethod_lastIndexOf_2;
-    static jmethodID sMethod_lastIndexOf_3;
-    static jmethodID sMethod_substring_0;
-    static jmethodID sMethod_substring_1;
-    static jmethodID sMethod_subSequence_0;
-    static jmethodID sMethod_concat_0;
-    static jmethodID sMethod_replace_0;
-    static jmethodID sMethod_replace_1;
-    static jmethodID sMethod_matches_0;
-    static jmethodID sMethod_contains_0;
-    static jmethodID sMethod_replaceFirst_0;
-    static jmethodID sMethod_replaceAll_0;
-    static jmethodID sMethod_split_0;
-    static jmethodID sMethod_split_1;
-    static jmethodID sMethod_join_0;
-    static jmethodID sMethod_join_1;
-    static jmethodID sMethod_toLowerCase_0;
-    static jmethodID sMethod_toLowerCase_1;
-    static jmethodID sMethod_toUpperCase_0;
-    static jmethodID sMethod_toUpperCase_1;
-    static jmethodID sMethod_trim_0;
-    static jmethodID sMethod_toString_0;
-    static jmethodID sMethod_toCharArray_0;
-    static jmethodID sMethod_format_0;
-    static jmethodID sMethod_format_1;
-    static jmethodID sMethod_valueOf_0;
-    static jmethodID sMethod_valueOf_1;
-    static jmethodID sMethod_valueOf_2;
-    static jmethodID sMethod_valueOf_3;
-    static jmethodID sMethod_valueOf_4;
-    static jmethodID sMethod_valueOf_5;
-    static jmethodID sMethod_valueOf_6;
-    static jmethodID sMethod_valueOf_7;
-    static jmethodID sMethod_valueOf_8;
-    static jmethodID sMethod_copyValueOf_0;
-    static jmethodID sMethod_copyValueOf_1;
-    static jmethodID sMethod_intern_0;
+    jclass sClazz = nullptr;
+    jmethodID sConstruct_0 = nullptr;
+    jmethodID sConstruct_1 = nullptr;
+    jmethodID sConstruct_2 = nullptr;
+    jmethodID sConstruct_3 = nullptr;
+    jmethodID sConstruct_4 = nullptr;
+    jmethodID sConstruct_5 = nullptr;
+    jmethodID sConstruct_6 = nullptr;
+    jmethodID sConstruct_7 = nullptr;
+    jmethodID sConstruct_8 = nullptr;
+    jmethodID sConstruct_9 = nullptr;
+    jmethodID sConstruct_10 = nullptr;
+    jmethodID sConstruct_11 = nullptr;
+    jmethodID sConstruct_12 = nullptr;
+    jmethodID sConstruct_13 = nullptr;
+    jmethodID sConstruct_14 = nullptr;
 
-    static jfieldID sField_CASE_INSENSITIVE_ORDER_0;
+    jmethodID sMethod_length_0 = nullptr;
+    jmethodID sMethod_isEmpty_0 = nullptr;
+    jmethodID sMethod_charAt_0 = nullptr;
+    jmethodID sMethod_codePointAt_0 = nullptr;
+    jmethodID sMethod_codePointBefore_0 = nullptr;
+    jmethodID sMethod_codePointCount_0 = nullptr;
+    jmethodID sMethod_offsetByCodePoints_0 = nullptr;
+    jmethodID sMethod_getChars_0 = nullptr;
+    jmethodID sMethod_getBytes_0 = nullptr;
+    jmethodID sMethod_getBytes_1 = nullptr;
+    jmethodID sMethod_getBytes_2 = nullptr;
+    jmethodID sMethod_getBytes_3 = nullptr;
+    jmethodID sMethod_equals_0 = nullptr;
+    jmethodID sMethod_contentEquals_0 = nullptr;
+    jmethodID sMethod_contentEquals_1 = nullptr;
+    jmethodID sMethod_equalsIgnoreCase_0 = nullptr;
+    jmethodID sMethod_compareTo_0 = nullptr;
+    jmethodID sMethod_compareToIgnoreCase_0 = nullptr;
+    jmethodID sMethod_regionMatches_0 = nullptr;
+    jmethodID sMethod_regionMatches_1 = nullptr;
+    jmethodID sMethod_startsWith_0 = nullptr;
+    jmethodID sMethod_startsWith_1 = nullptr;
+    jmethodID sMethod_endsWith_0 = nullptr;
+    jmethodID sMethod_hashCode_0 = nullptr;
+    jmethodID sMethod_indexOf_0 = nullptr;
+    jmethodID sMethod_indexOf_1 = nullptr;
+    jmethodID sMethod_indexOf_2 = nullptr;
+    jmethodID sMethod_indexOf_3 = nullptr;
+    jmethodID sMethod_lastIndexOf_0 = nullptr;
+    jmethodID sMethod_lastIndexOf_1 = nullptr;
+    jmethodID sMethod_lastIndexOf_2 = nullptr;
+    jmethodID sMethod_lastIndexOf_3 = nullptr;
+    jmethodID sMethod_substring_0 = nullptr;
+    jmethodID sMethod_substring_1 = nullptr;
+    jmethodID sMethod_subSequence_0 = nullptr;
+    jmethodID sMethod_concat_0 = nullptr;
+    jmethodID sMethod_replace_0 = nullptr;
+    jmethodID sMethod_replace_1 = nullptr;
+    jmethodID sMethod_matches_0 = nullptr;
+    jmethodID sMethod_contains_0 = nullptr;
+    jmethodID sMethod_replaceFirst_0 = nullptr;
+    jmethodID sMethod_replaceAll_0 = nullptr;
+    jmethodID sMethod_split_0 = nullptr;
+    jmethodID sMethod_split_1 = nullptr;
+    jmethodID sMethod_join_0 = nullptr;
+    jmethodID sMethod_join_1 = nullptr;
+    jmethodID sMethod_toLowerCase_0 = nullptr;
+    jmethodID sMethod_toLowerCase_1 = nullptr;
+    jmethodID sMethod_toUpperCase_0 = nullptr;
+    jmethodID sMethod_toUpperCase_1 = nullptr;
+    jmethodID sMethod_trim_0 = nullptr;
+    jmethodID sMethod_toString_0 = nullptr;
+    jmethodID sMethod_toCharArray_0 = nullptr;
+    jmethodID sMethod_format_0 = nullptr;
+    jmethodID sMethod_format_1 = nullptr;
+    jmethodID sMethod_valueOf_0 = nullptr;
+    jmethodID sMethod_valueOf_1 = nullptr;
+    jmethodID sMethod_valueOf_2 = nullptr;
+    jmethodID sMethod_valueOf_3 = nullptr;
+    jmethodID sMethod_valueOf_4 = nullptr;
+    jmethodID sMethod_valueOf_5 = nullptr;
+    jmethodID sMethod_valueOf_6 = nullptr;
+    jmethodID sMethod_valueOf_7 = nullptr;
+    jmethodID sMethod_valueOf_8 = nullptr;
+    jmethodID sMethod_copyValueOf_0 = nullptr;
+    jmethodID sMethod_copyValueOf_1 = nullptr;
+    jmethodID sMethod_intern_0 = nullptr;
+
+    jfieldID sField_CASE_INSENSITIVE_ORDER_0 = nullptr;
+
+   }; // endof struct ClassInitState
+
+   template <typename T = void>
+   static ClassInitState& getClassInitState() {
+       static ClassInitState classInitState;
+       return classInitState;
+   }
 
 };
+} // endof namespace java
+
+
+
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+namespace java {
+
+/*static*/ inline bool StringProxy::initClazz(JNIEnv* env) {
+#define JENNY_CHECK_NULL(val)                      \
+       do {                                        \
+           if ((val) == nullptr) {                 \
+               jennySampleErrorLog(env, "can't init StringProxy::" #val); \
+               return false;                       \
+           }                                       \
+       } while(false)
+
+    auto& state = getClassInitState();
+    if (!state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (!state.sInited) {
+            auto clazz = env->FindClass(FULL_CLASS_NAME);
+            JENNY_CHECK_NULL(clazz);
+            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+            env->DeleteLocalRef(clazz);
+            JENNY_CHECK_NULL(state.sClazz);
+
+            state.sConstruct_0 = env->GetMethodID(state.sClazz, "<init>", "()V");
+            JENNY_CHECK_NULL(state.sConstruct_0);
+
+            state.sConstruct_1 = env->GetMethodID(state.sClazz, "<init>", "(Ljava/lang/String;)V");
+            JENNY_CHECK_NULL(state.sConstruct_1);
+
+            state.sConstruct_2 = env->GetMethodID(state.sClazz, "<init>", "([C)V");
+            JENNY_CHECK_NULL(state.sConstruct_2);
+
+            state.sConstruct_3 = env->GetMethodID(state.sClazz, "<init>", "([CII)V");
+            JENNY_CHECK_NULL(state.sConstruct_3);
+
+            state.sConstruct_4 = env->GetMethodID(state.sClazz, "<init>", "([III)V");
+            JENNY_CHECK_NULL(state.sConstruct_4);
+
+            state.sConstruct_5 = env->GetMethodID(state.sClazz, "<init>", "([BIII)V");
+            JENNY_CHECK_NULL(state.sConstruct_5);
+
+            state.sConstruct_6 = env->GetMethodID(state.sClazz, "<init>", "([BI)V");
+            JENNY_CHECK_NULL(state.sConstruct_6);
+
+            state.sConstruct_7 = env->GetMethodID(state.sClazz, "<init>", "([BIILjava/lang/String;)V");
+            JENNY_CHECK_NULL(state.sConstruct_7);
+
+            state.sConstruct_8 = env->GetMethodID(state.sClazz, "<init>", "([BIILjava/nio/charset/Charset;)V");
+            JENNY_CHECK_NULL(state.sConstruct_8);
+
+            state.sConstruct_9 = env->GetMethodID(state.sClazz, "<init>", "([BLjava/lang/String;)V");
+            JENNY_CHECK_NULL(state.sConstruct_9);
+
+            state.sConstruct_10 = env->GetMethodID(state.sClazz, "<init>", "([BLjava/nio/charset/Charset;)V");
+            JENNY_CHECK_NULL(state.sConstruct_10);
+
+            state.sConstruct_11 = env->GetMethodID(state.sClazz, "<init>", "([BII)V");
+            JENNY_CHECK_NULL(state.sConstruct_11);
+
+            state.sConstruct_12 = env->GetMethodID(state.sClazz, "<init>", "([B)V");
+            JENNY_CHECK_NULL(state.sConstruct_12);
+
+            state.sConstruct_13 = env->GetMethodID(state.sClazz, "<init>", "(Ljava/lang/StringBuffer;)V");
+            JENNY_CHECK_NULL(state.sConstruct_13);
+
+            state.sConstruct_14 = env->GetMethodID(state.sClazz, "<init>", "(Ljava/lang/StringBuilder;)V");
+            JENNY_CHECK_NULL(state.sConstruct_14);
+
+
+            state.sMethod_length_0 = env->GetMethodID(state.sClazz, "length", "()I");
+            JENNY_CHECK_NULL(state.sMethod_length_0);
+
+            state.sMethod_isEmpty_0 = env->GetMethodID(state.sClazz, "isEmpty", "()Z");
+            JENNY_CHECK_NULL(state.sMethod_isEmpty_0);
+
+            state.sMethod_charAt_0 = env->GetMethodID(state.sClazz, "charAt", "(I)C");
+            JENNY_CHECK_NULL(state.sMethod_charAt_0);
+
+            state.sMethod_codePointAt_0 = env->GetMethodID(state.sClazz, "codePointAt", "(I)I");
+            JENNY_CHECK_NULL(state.sMethod_codePointAt_0);
+
+            state.sMethod_codePointBefore_0 = env->GetMethodID(state.sClazz, "codePointBefore", "(I)I");
+            JENNY_CHECK_NULL(state.sMethod_codePointBefore_0);
+
+            state.sMethod_codePointCount_0 = env->GetMethodID(state.sClazz, "codePointCount", "(II)I");
+            JENNY_CHECK_NULL(state.sMethod_codePointCount_0);
+
+            state.sMethod_offsetByCodePoints_0 = env->GetMethodID(state.sClazz, "offsetByCodePoints", "(II)I");
+            JENNY_CHECK_NULL(state.sMethod_offsetByCodePoints_0);
+
+            state.sMethod_getChars_0 = env->GetMethodID(state.sClazz, "getChars", "(II[CI)V");
+            JENNY_CHECK_NULL(state.sMethod_getChars_0);
+
+            state.sMethod_getBytes_0 = env->GetMethodID(state.sClazz, "getBytes", "(II[BI)V");
+            JENNY_CHECK_NULL(state.sMethod_getBytes_0);
+
+            state.sMethod_getBytes_1 = env->GetMethodID(state.sClazz, "getBytes", "(Ljava/lang/String;)[B");
+            JENNY_CHECK_NULL(state.sMethod_getBytes_1);
+
+            state.sMethod_getBytes_2 = env->GetMethodID(state.sClazz, "getBytes", "(Ljava/nio/charset/Charset;)[B");
+            JENNY_CHECK_NULL(state.sMethod_getBytes_2);
+
+            state.sMethod_getBytes_3 = env->GetMethodID(state.sClazz, "getBytes", "()[B");
+            JENNY_CHECK_NULL(state.sMethod_getBytes_3);
+
+            state.sMethod_equals_0 = env->GetMethodID(state.sClazz, "equals", "(Ljava/lang/Object;)Z");
+            JENNY_CHECK_NULL(state.sMethod_equals_0);
+
+            state.sMethod_contentEquals_0 = env->GetMethodID(state.sClazz, "contentEquals", "(Ljava/lang/StringBuffer;)Z");
+            JENNY_CHECK_NULL(state.sMethod_contentEquals_0);
+
+            state.sMethod_contentEquals_1 = env->GetMethodID(state.sClazz, "contentEquals", "(Ljava/lang/CharSequence;)Z");
+            JENNY_CHECK_NULL(state.sMethod_contentEquals_1);
+
+            state.sMethod_equalsIgnoreCase_0 = env->GetMethodID(state.sClazz, "equalsIgnoreCase", "(Ljava/lang/String;)Z");
+            JENNY_CHECK_NULL(state.sMethod_equalsIgnoreCase_0);
+
+            state.sMethod_compareTo_0 = env->GetMethodID(state.sClazz, "compareTo", "(Ljava/lang/String;)I");
+            JENNY_CHECK_NULL(state.sMethod_compareTo_0);
+
+            state.sMethod_compareToIgnoreCase_0 = env->GetMethodID(state.sClazz, "compareToIgnoreCase", "(Ljava/lang/String;)I");
+            JENNY_CHECK_NULL(state.sMethod_compareToIgnoreCase_0);
+
+            state.sMethod_regionMatches_0 = env->GetMethodID(state.sClazz, "regionMatches", "(ILjava/lang/String;II)Z");
+            JENNY_CHECK_NULL(state.sMethod_regionMatches_0);
+
+            state.sMethod_regionMatches_1 = env->GetMethodID(state.sClazz, "regionMatches", "(ZILjava/lang/String;II)Z");
+            JENNY_CHECK_NULL(state.sMethod_regionMatches_1);
+
+            state.sMethod_startsWith_0 = env->GetMethodID(state.sClazz, "startsWith", "(Ljava/lang/String;I)Z");
+            JENNY_CHECK_NULL(state.sMethod_startsWith_0);
+
+            state.sMethod_startsWith_1 = env->GetMethodID(state.sClazz, "startsWith", "(Ljava/lang/String;)Z");
+            JENNY_CHECK_NULL(state.sMethod_startsWith_1);
+
+            state.sMethod_endsWith_0 = env->GetMethodID(state.sClazz, "endsWith", "(Ljava/lang/String;)Z");
+            JENNY_CHECK_NULL(state.sMethod_endsWith_0);
+
+            state.sMethod_hashCode_0 = env->GetMethodID(state.sClazz, "hashCode", "()I");
+            JENNY_CHECK_NULL(state.sMethod_hashCode_0);
+
+            state.sMethod_indexOf_0 = env->GetMethodID(state.sClazz, "indexOf", "(I)I");
+            JENNY_CHECK_NULL(state.sMethod_indexOf_0);
+
+            state.sMethod_indexOf_1 = env->GetMethodID(state.sClazz, "indexOf", "(II)I");
+            JENNY_CHECK_NULL(state.sMethod_indexOf_1);
+
+            state.sMethod_indexOf_2 = env->GetMethodID(state.sClazz, "indexOf", "(Ljava/lang/String;)I");
+            JENNY_CHECK_NULL(state.sMethod_indexOf_2);
+
+            state.sMethod_indexOf_3 = env->GetMethodID(state.sClazz, "indexOf", "(Ljava/lang/String;I)I");
+            JENNY_CHECK_NULL(state.sMethod_indexOf_3);
+
+            state.sMethod_lastIndexOf_0 = env->GetMethodID(state.sClazz, "lastIndexOf", "(I)I");
+            JENNY_CHECK_NULL(state.sMethod_lastIndexOf_0);
+
+            state.sMethod_lastIndexOf_1 = env->GetMethodID(state.sClazz, "lastIndexOf", "(II)I");
+            JENNY_CHECK_NULL(state.sMethod_lastIndexOf_1);
+
+            state.sMethod_lastIndexOf_2 = env->GetMethodID(state.sClazz, "lastIndexOf", "(Ljava/lang/String;)I");
+            JENNY_CHECK_NULL(state.sMethod_lastIndexOf_2);
+
+            state.sMethod_lastIndexOf_3 = env->GetMethodID(state.sClazz, "lastIndexOf", "(Ljava/lang/String;I)I");
+            JENNY_CHECK_NULL(state.sMethod_lastIndexOf_3);
+
+            state.sMethod_substring_0 = env->GetMethodID(state.sClazz, "substring", "(I)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_substring_0);
+
+            state.sMethod_substring_1 = env->GetMethodID(state.sClazz, "substring", "(II)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_substring_1);
+
+            state.sMethod_subSequence_0 = env->GetMethodID(state.sClazz, "subSequence", "(II)Ljava/lang/CharSequence;");
+            JENNY_CHECK_NULL(state.sMethod_subSequence_0);
+
+            state.sMethod_concat_0 = env->GetMethodID(state.sClazz, "concat", "(Ljava/lang/String;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_concat_0);
+
+            state.sMethod_replace_0 = env->GetMethodID(state.sClazz, "replace", "(CC)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_replace_0);
+
+            state.sMethod_replace_1 = env->GetMethodID(state.sClazz, "replace", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_replace_1);
+
+            state.sMethod_matches_0 = env->GetMethodID(state.sClazz, "matches", "(Ljava/lang/String;)Z");
+            JENNY_CHECK_NULL(state.sMethod_matches_0);
+
+            state.sMethod_contains_0 = env->GetMethodID(state.sClazz, "contains", "(Ljava/lang/CharSequence;)Z");
+            JENNY_CHECK_NULL(state.sMethod_contains_0);
+
+            state.sMethod_replaceFirst_0 = env->GetMethodID(state.sClazz, "replaceFirst", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_replaceFirst_0);
+
+            state.sMethod_replaceAll_0 = env->GetMethodID(state.sClazz, "replaceAll", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_replaceAll_0);
+
+            state.sMethod_split_0 = env->GetMethodID(state.sClazz, "split", "(Ljava/lang/String;I)[Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_split_0);
+
+            state.sMethod_split_1 = env->GetMethodID(state.sClazz, "split", "(Ljava/lang/String;)[Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_split_1);
+
+            state.sMethod_join_0 = env->GetStaticMethodID(state.sClazz, "join", "(Ljava/lang/CharSequence;[Ljava/lang/CharSequence;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_join_0);
+
+            state.sMethod_join_1 = env->GetStaticMethodID(state.sClazz, "join", "(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_join_1);
+
+            state.sMethod_toLowerCase_0 = env->GetMethodID(state.sClazz, "toLowerCase", "(Ljava/util/Locale;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_toLowerCase_0);
+
+            state.sMethod_toLowerCase_1 = env->GetMethodID(state.sClazz, "toLowerCase", "()Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_toLowerCase_1);
+
+            state.sMethod_toUpperCase_0 = env->GetMethodID(state.sClazz, "toUpperCase", "(Ljava/util/Locale;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_toUpperCase_0);
+
+            state.sMethod_toUpperCase_1 = env->GetMethodID(state.sClazz, "toUpperCase", "()Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_toUpperCase_1);
+
+            state.sMethod_trim_0 = env->GetMethodID(state.sClazz, "trim", "()Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_trim_0);
+
+            state.sMethod_toString_0 = env->GetMethodID(state.sClazz, "toString", "()Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_toString_0);
+
+            state.sMethod_toCharArray_0 = env->GetMethodID(state.sClazz, "toCharArray", "()[C");
+            JENNY_CHECK_NULL(state.sMethod_toCharArray_0);
+
+            state.sMethod_format_0 = env->GetStaticMethodID(state.sClazz, "format", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_format_0);
+
+            state.sMethod_format_1 = env->GetStaticMethodID(state.sClazz, "format", "(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_format_1);
+
+            state.sMethod_valueOf_0 = env->GetStaticMethodID(state.sClazz, "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_0);
+
+            state.sMethod_valueOf_1 = env->GetStaticMethodID(state.sClazz, "valueOf", "([C)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_1);
+
+            state.sMethod_valueOf_2 = env->GetStaticMethodID(state.sClazz, "valueOf", "([CII)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_2);
+
+            state.sMethod_valueOf_3 = env->GetStaticMethodID(state.sClazz, "valueOf", "(Z)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_3);
+
+            state.sMethod_valueOf_4 = env->GetStaticMethodID(state.sClazz, "valueOf", "(C)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_4);
+
+            state.sMethod_valueOf_5 = env->GetStaticMethodID(state.sClazz, "valueOf", "(I)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_5);
+
+            state.sMethod_valueOf_6 = env->GetStaticMethodID(state.sClazz, "valueOf", "(J)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_6);
+
+            state.sMethod_valueOf_7 = env->GetStaticMethodID(state.sClazz, "valueOf", "(F)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_7);
+
+            state.sMethod_valueOf_8 = env->GetStaticMethodID(state.sClazz, "valueOf", "(D)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_valueOf_8);
+
+            state.sMethod_copyValueOf_0 = env->GetStaticMethodID(state.sClazz, "copyValueOf", "([CII)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_copyValueOf_0);
+
+            state.sMethod_copyValueOf_1 = env->GetStaticMethodID(state.sClazz, "copyValueOf", "([C)Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_copyValueOf_1);
+
+            state.sMethod_intern_0 = env->GetMethodID(state.sClazz, "intern", "()Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sMethod_intern_0);
+
+
+            state.sField_CASE_INSENSITIVE_ORDER_0 = env->GetStaticFieldID(state.sClazz, "CASE_INSENSITIVE_ORDER", "Ljava/util/Comparator;");
+            JENNY_CHECK_NULL(state.sField_CASE_INSENSITIVE_ORDER_0);
+
+
+            state.sInited = true;
+        }
+    }
+#undef JENNY_CHECK_NULL
+   return true;
+}
+
+/*static*/ inline void StringProxy::releaseClazz(JNIEnv* env) {
+    auto& state = getClassInitState();
+    if (state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (state.sInited) {
+            env->DeleteGlobalRef(state.sClazz);
+            state.sClazz = nullptr;
+            state.sInited = false;
+        }
+    }
+}
+
+
 } // endof namespace java

@@ -19,13 +19,9 @@ public:
     static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/Callback";
 
     static constexpr jint COMPILE_CONSTANT_INT = 15;
-    static constexpr jint ANOTHER_COMPILE_CONSTANT_INT = 16;
 
 
 private:
-    // thread safe init
-    static std::atomic_bool sInited;
-    static std::mutex sInitLock;
 
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
@@ -88,175 +84,288 @@ public:
     // construct: public Callback()
     static CallbackProxy newInstance(JNIEnv* env) noexcept {
        assertInited(env);
-       return CallbackProxy(env, env->NewObject(sClazz, sConstruct_0));
+       return CallbackProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0));
     } 
     
     // construct: public Callback(int a)
     static CallbackProxy newInstance(JNIEnv* env, jint a) noexcept {
        assertInited(env);
-       return CallbackProxy(env, env->NewObject(sClazz, sConstruct_1, a));
+       return CallbackProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_1, a));
     } 
     
     // construct: public Callback(java.util.HashMap<?,?> sth)
     static CallbackProxy newInstance(JNIEnv* env, jobject sth) noexcept {
        assertInited(env);
-       return CallbackProxy(env, env->NewObject(sClazz, sConstruct_2, sth));
+       return CallbackProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_2, sth));
     } 
     
 
     // method:  void onJobDone(boolean success, java.lang.String result)
     void onJobDone(jboolean success, jstring result) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_onJobDone_0, success, result);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_onJobDone_0, success, result);
     }
 
     // method:  void onJobProgress(long progress)
     void onJobProgress(jlong progress) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_onJobProgress_0, progress);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_onJobProgress_0, progress);
     }
 
     // method: public void onJobStart()
     void onJobStart() const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_0);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_onJobStart_0);
     }
 
     // method:  void onJobStart(io.github.landerlyoung.jennysampleapp.Callback.NestedClass overrloadedMethod)
     void onJobStart(jobject overrloadedMethod) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_onJobStart_1, overrloadedMethod);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_onJobStart_1, overrloadedMethod);
     }
 
     // method: public static void newInstnace()
     static void newInstnace(JNIEnv* env) {
         assertInited(env);
-        env->CallStaticVoidMethod(sClazz, sMethod_newInstnace_0);
+        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_newInstnace_0);
     }
 
 
     // field: protected java.lang.Object lock
     jobject getLock() const {
        
-       return mJniEnv->GetObjectField(mJavaObjectReference, sField_lock_0);
+       return mJniEnv->GetObjectField(mJavaObjectReference, getClassInitState().sField_lock_0);
 
     }
 
     // field: protected java.lang.Object lock
     void setLock(jobject lock) const {
         
-        mJniEnv->SetObjectField(mJavaObjectReference, sField_lock_0, lock);
+        mJniEnv->SetObjectField(mJavaObjectReference, getClassInitState().sField_lock_0, lock);
     }
 
 
     // field: public static final long COMPILE_NON_CONSTANT_INT
     static jlong getCOMPILE_NON_CONSTANT_INT(JNIEnv* env) {
        assertInited(env);
-       return env->GetStaticLongField(sClazz, sField_COMPILE_NON_CONSTANT_INT_1);
+       return env->GetStaticLongField(getClassInitState().sClazz, getClassInitState().sField_COMPILE_NON_CONSTANT_INT_1);
 
     }
 
     // field: public static final long COMPILE_NON_CONSTANT_INT
     static void setCOMPILE_NON_CONSTANT_INT(JNIEnv* env, jlong COMPILE_NON_CONSTANT_INT) {
         assertInited(env);
-        env->SetStaticLongField(sClazz, sField_COMPILE_NON_CONSTANT_INT_1, COMPILE_NON_CONSTANT_INT);
+        env->SetStaticLongField(getClassInitState().sClazz, getClassInitState().sField_COMPILE_NON_CONSTANT_INT_1, COMPILE_NON_CONSTANT_INT);
     }
 
 
     // field: public final int ANOTHER_COMPILE_CONSTANT_INT
     void setANOTHER_COMPILE_CONSTANT_INT(jint ANOTHER_COMPILE_CONSTANT_INT) const {
         
-        mJniEnv->SetIntField(mJavaObjectReference, sField_ANOTHER_COMPILE_CONSTANT_INT_2, ANOTHER_COMPILE_CONSTANT_INT);
+        mJniEnv->SetIntField(mJavaObjectReference, getClassInitState().sField_ANOTHER_COMPILE_CONSTANT_INT_2, ANOTHER_COMPILE_CONSTANT_INT);
     }
 
 
     // field: public int count
     jint getCount() const {
        
-       return mJniEnv->GetIntField(mJavaObjectReference, sField_count_3);
+       return mJniEnv->GetIntField(mJavaObjectReference, getClassInitState().sField_count_3);
 
     }
 
     // field: public int count
     void setCount(jint count) const {
         
-        mJniEnv->SetIntField(mJavaObjectReference, sField_count_3, count);
+        mJniEnv->SetIntField(mJavaObjectReference, getClassInitState().sField_count_3, count);
     }
 
 
     // field: public static int staticCount
     static jint getStaticCount(JNIEnv* env) {
        assertInited(env);
-       return env->GetStaticIntField(sClazz, sField_staticCount_4);
+       return env->GetStaticIntField(getClassInitState().sClazz, getClassInitState().sField_staticCount_4);
 
     }
 
     // field: public static int staticCount
     static void setStaticCount(JNIEnv* env, jint staticCount) {
         assertInited(env);
-        env->SetStaticIntField(sClazz, sField_staticCount_4, staticCount);
+        env->SetStaticIntField(getClassInitState().sClazz, getClassInitState().sField_staticCount_4, staticCount);
     }
 
 
     // field: public java.lang.String name
     jstring getName() const {
        
-       return reinterpret_cast<jstring>(mJniEnv->GetObjectField(mJavaObjectReference, sField_name_5));
+       return reinterpret_cast<jstring>(mJniEnv->GetObjectField(mJavaObjectReference, getClassInitState().sField_name_5));
 
     }
 
     // field: public java.lang.String name
     void setName(jstring name) const {
         
-        mJniEnv->SetObjectField(mJavaObjectReference, sField_name_5, name);
+        mJniEnv->SetObjectField(mJavaObjectReference, getClassInitState().sField_name_5, name);
     }
 
 
     // field: public static java.lang.String staticName
     static jstring getStaticName(JNIEnv* env) {
        assertInited(env);
-       return reinterpret_cast<jstring>(env->GetStaticObjectField(sClazz, sField_staticName_6));
+       return reinterpret_cast<jstring>(env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_staticName_6));
 
     }
 
     // field: public static java.lang.String staticName
     static void setStaticName(JNIEnv* env, jstring staticName) {
         assertInited(env);
-        env->SetStaticObjectField(sClazz, sField_staticName_6, staticName);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_staticName_6, staticName);
     }
 
 
     // field: public static java.util.List<java.lang.String> aStaticField
     static jobject getAStaticField(JNIEnv* env) {
        assertInited(env);
-       return env->GetStaticObjectField(sClazz, sField_aStaticField_7);
+       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_aStaticField_7);
 
     }
 
     // field: public static java.util.List<java.lang.String> aStaticField
     static void setAStaticField(JNIEnv* env, jobject aStaticField) {
         assertInited(env);
-        env->SetStaticObjectField(sClazz, sField_aStaticField_7, aStaticField);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_aStaticField_7, aStaticField);
     }
 
 
 
 private:
-    static jclass sClazz;
-    static jmethodID sConstruct_0;
-    static jmethodID sConstruct_1;
-    static jmethodID sConstruct_2;
+    struct ClassInitState {
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
 
-    static jmethodID sMethod_onJobDone_0;
-    static jmethodID sMethod_onJobProgress_0;
-    static jmethodID sMethod_onJobStart_0;
-    static jmethodID sMethod_onJobStart_1;
-    static jmethodID sMethod_newInstnace_0;
+    jclass sClazz = nullptr;
+    jmethodID sConstruct_0 = nullptr;
+    jmethodID sConstruct_1 = nullptr;
+    jmethodID sConstruct_2 = nullptr;
 
-    static jfieldID sField_lock_0;
-    static jfieldID sField_COMPILE_NON_CONSTANT_INT_1;
-    static jfieldID sField_ANOTHER_COMPILE_CONSTANT_INT_2;
-    static jfieldID sField_count_3;
-    static jfieldID sField_staticCount_4;
-    static jfieldID sField_name_5;
-    static jfieldID sField_staticName_6;
-    static jfieldID sField_aStaticField_7;
+    jmethodID sMethod_onJobDone_0 = nullptr;
+    jmethodID sMethod_onJobProgress_0 = nullptr;
+    jmethodID sMethod_onJobStart_0 = nullptr;
+    jmethodID sMethod_onJobStart_1 = nullptr;
+    jmethodID sMethod_newInstnace_0 = nullptr;
+
+    jfieldID sField_lock_0 = nullptr;
+    jfieldID sField_COMPILE_NON_CONSTANT_INT_1 = nullptr;
+    jfieldID sField_ANOTHER_COMPILE_CONSTANT_INT_2 = nullptr;
+    jfieldID sField_count_3 = nullptr;
+    jfieldID sField_staticCount_4 = nullptr;
+    jfieldID sField_name_5 = nullptr;
+    jfieldID sField_staticName_6 = nullptr;
+    jfieldID sField_aStaticField_7 = nullptr;
+
+   }; // endof struct ClassInitState
+
+   template <typename T = void>
+   static ClassInitState& getClassInitState() {
+       static ClassInitState classInitState;
+       return classInitState;
+   }
 
 };
+
+
+
+
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
+
+/*static*/ inline bool CallbackProxy::initClazz(JNIEnv* env) {
+#define JENNY_CHECK_NULL(val)                      \
+       do {                                        \
+           if ((val) == nullptr) {                 \
+               jennySampleErrorLog(env, "can't init CallbackProxy::" #val); \
+               return false;                       \
+           }                                       \
+       } while(false)
+
+    auto& state = getClassInitState();
+    if (!state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (!state.sInited) {
+            auto clazz = env->FindClass(FULL_CLASS_NAME);
+            JENNY_CHECK_NULL(clazz);
+            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+            env->DeleteLocalRef(clazz);
+            JENNY_CHECK_NULL(state.sClazz);
+
+            state.sConstruct_0 = env->GetMethodID(state.sClazz, "<init>", "()V");
+            JENNY_CHECK_NULL(state.sConstruct_0);
+
+            state.sConstruct_1 = env->GetMethodID(state.sClazz, "<init>", "(I)V");
+            JENNY_CHECK_NULL(state.sConstruct_1);
+
+            state.sConstruct_2 = env->GetMethodID(state.sClazz, "<init>", "(Ljava/util/HashMap;)V");
+            JENNY_CHECK_NULL(state.sConstruct_2);
+
+
+            state.sMethod_onJobDone_0 = env->GetMethodID(state.sClazz, "onJobDone", "(ZLjava/lang/String;)V");
+            JENNY_CHECK_NULL(state.sMethod_onJobDone_0);
+
+            state.sMethod_onJobProgress_0 = env->GetMethodID(state.sClazz, "onJobProgress", "(J)V");
+            JENNY_CHECK_NULL(state.sMethod_onJobProgress_0);
+
+            state.sMethod_onJobStart_0 = env->GetMethodID(state.sClazz, "onJobStart", "()V");
+            JENNY_CHECK_NULL(state.sMethod_onJobStart_0);
+
+            state.sMethod_onJobStart_1 = env->GetMethodID(state.sClazz, "onJobStart", "(Lio/github/landerlyoung/jennysampleapp/Callback$NestedClass;)V");
+            JENNY_CHECK_NULL(state.sMethod_onJobStart_1);
+
+            state.sMethod_newInstnace_0 = env->GetStaticMethodID(state.sClazz, "newInstnace", "()V");
+            JENNY_CHECK_NULL(state.sMethod_newInstnace_0);
+
+
+            state.sField_lock_0 = env->GetFieldID(state.sClazz, "lock", "Ljava/lang/Object;");
+            JENNY_CHECK_NULL(state.sField_lock_0);
+
+            state.sField_COMPILE_NON_CONSTANT_INT_1 = env->GetStaticFieldID(state.sClazz, "COMPILE_NON_CONSTANT_INT", "J");
+            JENNY_CHECK_NULL(state.sField_COMPILE_NON_CONSTANT_INT_1);
+
+            state.sField_ANOTHER_COMPILE_CONSTANT_INT_2 = env->GetFieldID(state.sClazz, "ANOTHER_COMPILE_CONSTANT_INT", "I");
+            JENNY_CHECK_NULL(state.sField_ANOTHER_COMPILE_CONSTANT_INT_2);
+
+            state.sField_count_3 = env->GetFieldID(state.sClazz, "count", "I");
+            JENNY_CHECK_NULL(state.sField_count_3);
+
+            state.sField_staticCount_4 = env->GetStaticFieldID(state.sClazz, "staticCount", "I");
+            JENNY_CHECK_NULL(state.sField_staticCount_4);
+
+            state.sField_name_5 = env->GetFieldID(state.sClazz, "name", "Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sField_name_5);
+
+            state.sField_staticName_6 = env->GetStaticFieldID(state.sClazz, "staticName", "Ljava/lang/String;");
+            JENNY_CHECK_NULL(state.sField_staticName_6);
+
+            state.sField_aStaticField_7 = env->GetStaticFieldID(state.sClazz, "aStaticField", "Ljava/util/List;");
+            JENNY_CHECK_NULL(state.sField_aStaticField_7);
+
+
+            state.sInited = true;
+        }
+    }
+#undef JENNY_CHECK_NULL
+   return true;
+}
+
+/*static*/ inline void CallbackProxy::releaseClazz(JNIEnv* env) {
+    auto& state = getClassInitState();
+    if (state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (state.sInited) {
+            env->DeleteGlobalRef(state.sClazz);
+            state.sClazz = nullptr;
+            state.sInited = false;
+        }
+    }
+}
+
+
 

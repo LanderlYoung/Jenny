@@ -21,9 +21,6 @@ public:
 
 
 private:
-    // thread safe init
-    static std::atomic_bool sInited;
-    static std::mutex sInitLock;
 
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
@@ -86,23 +83,94 @@ public:
     // construct: public NestedClass()
     static NestedClassProxy newInstance(JNIEnv* env, jobject enclosingClass) noexcept {
        assertInited(env);
-       return NestedClassProxy(env, env->NewObject(sClazz, sConstruct_0, enclosingClass));
+       return NestedClassProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0, enclosingClass));
     } 
     
 
     // method: public void hello()
     void hello(jobject enclosingClass) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_hello_0, enclosingClass);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_hello_0, enclosingClass);
     }
 
 
 
 private:
-    static jclass sClazz;
-    static jmethodID sConstruct_0;
+    struct ClassInitState {
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
 
-    static jmethodID sMethod_hello_0;
+    jclass sClazz = nullptr;
+    jmethodID sConstruct_0 = nullptr;
 
+    jmethodID sMethod_hello_0 = nullptr;
+
+
+   }; // endof struct ClassInitState
+
+   template <typename T = void>
+   static ClassInitState& getClassInitState() {
+       static ClassInitState classInitState;
+       return classInitState;
+   }
 
 };
+
+
+
+
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
+
+/*static*/ inline bool NestedClassProxy::initClazz(JNIEnv* env) {
+#define JENNY_CHECK_NULL(val)                      \
+       do {                                        \
+           if ((val) == nullptr) {                 \
+               jennySampleErrorLog(env, "can't init NestedClassProxy::" #val); \
+               return false;                       \
+           }                                       \
+       } while(false)
+
+    auto& state = getClassInitState();
+    if (!state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (!state.sInited) {
+            auto clazz = env->FindClass(FULL_CLASS_NAME);
+            JENNY_CHECK_NULL(clazz);
+            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+            env->DeleteLocalRef(clazz);
+            JENNY_CHECK_NULL(state.sClazz);
+
+            state.sConstruct_0 = env->GetMethodID(state.sClazz, "<init>", "(Lio/github/landerlyoung/jennysampleapp/Callback;)V");
+            JENNY_CHECK_NULL(state.sConstruct_0);
+
+
+            state.sMethod_hello_0 = env->GetMethodID(state.sClazz, "hello", "()V");
+            JENNY_CHECK_NULL(state.sMethod_hello_0);
+
+
+
+            state.sInited = true;
+        }
+    }
+#undef JENNY_CHECK_NULL
+   return true;
+}
+
+/*static*/ inline void NestedClassProxy::releaseClazz(JNIEnv* env) {
+    auto& state = getClassInitState();
+    if (state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (state.sInited) {
+            env->DeleteGlobalRef(state.sClazz);
+            state.sClazz = nullptr;
+            state.sInited = false;
+        }
+    }
+}
+
+
 

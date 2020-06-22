@@ -21,9 +21,6 @@ public:
 
 
 private:
-    // thread safe init
-    static std::atomic_bool sInited;
-    static std::mutex sInitLock;
 
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
@@ -86,71 +83,166 @@ public:
     // construct: public Generic()
     static GenericProxy newInstance(JNIEnv* env) noexcept {
        assertInited(env);
-       return GenericProxy(env, env->NewObject(sClazz, sConstruct_0));
+       return GenericProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0));
     } 
     
 
     // method: public final T getAndRet(T t)
     jobject getAndRet(jobject t) const {
-        return mJniEnv->CallObjectMethod(mJavaObjectReference, sMethod_getAndRet_0, t);
+        return mJniEnv->CallObjectMethod(mJavaObjectReference, getClassInitState().sMethod_getAndRet_0, t);
     }
 
     // method: public final void genericParam(R r)
     void genericParam__Ljava_lang_Object_2(jobject r) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_genericParam_0, r);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_genericParam_0, r);
     }
 
     // method: public final void genericParam(io.github.landerlyoung.jennysampleapp.Generic<java.lang.Runnable> t)
     void genericParam__Lio_github_landerlyoung_jennysampleapp_Generic_2(jobject t) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_genericParam_1, t);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_genericParam_1, t);
     }
 
     // method: public final void genericParamMultiUpperBounds(R r)
     void genericParamMultiUpperBounds(jobject r) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_genericParamMultiUpperBounds_0, r);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_genericParamMultiUpperBounds_0, r);
     }
 
     // method: public final void genericParam2(io.github.landerlyoung.jennysampleapp.Generic<java.util.concurrent.FutureTask<java.lang.Object>> t)
     void genericParam2(jobject t) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_genericParam2_0, t);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_genericParam2_0, t);
     }
 
     // method: public final void genericParam3(io.github.landerlyoung.jennysampleapp.Generic<R> t)
     void genericParam3(jobject t) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_genericParam3_0, t);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_genericParam3_0, t);
     }
 
     // method: public final void genericParam4(java.util.Collection<? extends java.lang.Runnable> t)
     void genericParam4(jobject t) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_genericParam4_0, t);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_genericParam4_0, t);
     }
 
     // method: public final void array(int[] ia)
     void array(jintArray ia) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_array_0, ia);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_array_0, ia);
     }
 
     // method: public final void array(int[][] ia)
     void array(jobjectArray ia) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_array_1, ia);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_array_1, ia);
     }
 
 
 
 private:
-    static jclass sClazz;
-    static jmethodID sConstruct_0;
+    struct ClassInitState {
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
 
-    static jmethodID sMethod_getAndRet_0;
-    static jmethodID sMethod_genericParam_0;
-    static jmethodID sMethod_genericParam_1;
-    static jmethodID sMethod_genericParamMultiUpperBounds_0;
-    static jmethodID sMethod_genericParam2_0;
-    static jmethodID sMethod_genericParam3_0;
-    static jmethodID sMethod_genericParam4_0;
-    static jmethodID sMethod_array_0;
-    static jmethodID sMethod_array_1;
+    jclass sClazz = nullptr;
+    jmethodID sConstruct_0 = nullptr;
 
+    jmethodID sMethod_getAndRet_0 = nullptr;
+    jmethodID sMethod_genericParam_0 = nullptr;
+    jmethodID sMethod_genericParam_1 = nullptr;
+    jmethodID sMethod_genericParamMultiUpperBounds_0 = nullptr;
+    jmethodID sMethod_genericParam2_0 = nullptr;
+    jmethodID sMethod_genericParam3_0 = nullptr;
+    jmethodID sMethod_genericParam4_0 = nullptr;
+    jmethodID sMethod_array_0 = nullptr;
+    jmethodID sMethod_array_1 = nullptr;
+
+
+   }; // endof struct ClassInitState
+
+   template <typename T = void>
+   static ClassInitState& getClassInitState() {
+       static ClassInitState classInitState;
+       return classInitState;
+   }
 
 };
+
+
+
+
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
+
+/*static*/ inline bool GenericProxy::initClazz(JNIEnv* env) {
+#define JENNY_CHECK_NULL(val)                      \
+       do {                                        \
+           if ((val) == nullptr) {                 \
+               jennySampleErrorLog(env, "can't init GenericProxy::" #val); \
+               return false;                       \
+           }                                       \
+       } while(false)
+
+    auto& state = getClassInitState();
+    if (!state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (!state.sInited) {
+            auto clazz = env->FindClass(FULL_CLASS_NAME);
+            JENNY_CHECK_NULL(clazz);
+            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+            env->DeleteLocalRef(clazz);
+            JENNY_CHECK_NULL(state.sClazz);
+
+            state.sConstruct_0 = env->GetMethodID(state.sClazz, "<init>", "()V");
+            JENNY_CHECK_NULL(state.sConstruct_0);
+
+
+            state.sMethod_getAndRet_0 = env->GetMethodID(state.sClazz, "getAndRet", "(Ljava/lang/Runnable;)Ljava/lang/Runnable;");
+            JENNY_CHECK_NULL(state.sMethod_getAndRet_0);
+
+            state.sMethod_genericParam_0 = env->GetMethodID(state.sClazz, "genericParam", "(Ljava/lang/Object;)V");
+            JENNY_CHECK_NULL(state.sMethod_genericParam_0);
+
+            state.sMethod_genericParam_1 = env->GetMethodID(state.sClazz, "genericParam", "(Lio/github/landerlyoung/jennysampleapp/Generic;)V");
+            JENNY_CHECK_NULL(state.sMethod_genericParam_1);
+
+            state.sMethod_genericParamMultiUpperBounds_0 = env->GetMethodID(state.sClazz, "genericParamMultiUpperBounds", "(Ljava/lang/Runnable;)V");
+            JENNY_CHECK_NULL(state.sMethod_genericParamMultiUpperBounds_0);
+
+            state.sMethod_genericParam2_0 = env->GetMethodID(state.sClazz, "genericParam2", "(Lio/github/landerlyoung/jennysampleapp/Generic;)V");
+            JENNY_CHECK_NULL(state.sMethod_genericParam2_0);
+
+            state.sMethod_genericParam3_0 = env->GetMethodID(state.sClazz, "genericParam3", "(Lio/github/landerlyoung/jennysampleapp/Generic;)V");
+            JENNY_CHECK_NULL(state.sMethod_genericParam3_0);
+
+            state.sMethod_genericParam4_0 = env->GetMethodID(state.sClazz, "genericParam4", "(Ljava/util/Collection;)V");
+            JENNY_CHECK_NULL(state.sMethod_genericParam4_0);
+
+            state.sMethod_array_0 = env->GetMethodID(state.sClazz, "array", "([I)V");
+            JENNY_CHECK_NULL(state.sMethod_array_0);
+
+            state.sMethod_array_1 = env->GetMethodID(state.sClazz, "array", "([[I)V");
+            JENNY_CHECK_NULL(state.sMethod_array_1);
+
+
+
+            state.sInited = true;
+        }
+    }
+#undef JENNY_CHECK_NULL
+   return true;
+}
+
+/*static*/ inline void GenericProxy::releaseClazz(JNIEnv* env) {
+    auto& state = getClassInitState();
+    if (state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (state.sInited) {
+            env->DeleteGlobalRef(state.sClazz);
+            state.sClazz = nullptr;
+            state.sInited = false;
+        }
+    }
+}
+
+
 

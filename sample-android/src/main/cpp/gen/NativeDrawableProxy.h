@@ -18,13 +18,9 @@ class NativeDrawableProxy {
 public:
     static constexpr auto FULL_CLASS_NAME = "io/github/landerlyoung/jennysampleapp/NativeDrawable";
 
-    static constexpr jlong nativeHandle = 0;
 
 
 private:
-    // thread safe init
-    static std::atomic_bool sInited;
-    static std::mutex sInitLock;
 
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
@@ -89,17 +85,85 @@ public:
     // field: private final long nativeHandle
     jlong getNativeHandle() const {
        
-       return mJniEnv->GetLongField(mJavaObjectReference, sField_nativeHandle_0);
+       return mJniEnv->GetLongField(mJavaObjectReference, getClassInitState().sField_nativeHandle_0);
 
     }
 
 
 
 private:
-    static jclass sClazz;
+    struct ClassInitState {
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
+
+    jclass sClazz = nullptr;
 
 
-    static jfieldID sField_nativeHandle_0;
+    jfieldID sField_nativeHandle_0 = nullptr;
+
+   }; // endof struct ClassInitState
+
+   template <typename T = void>
+   static ClassInitState& getClassInitState() {
+       static ClassInitState classInitState;
+       return classInitState;
+   }
 
 };
+
+
+
+
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+
+
+/*static*/ inline bool NativeDrawableProxy::initClazz(JNIEnv* env) {
+#define JENNY_CHECK_NULL(val)                      \
+       do {                                        \
+           if ((val) == nullptr) {                 \
+               jennySampleErrorLog(env, "can't init NativeDrawableProxy::" #val); \
+               return false;                       \
+           }                                       \
+       } while(false)
+
+    auto& state = getClassInitState();
+    if (!state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (!state.sInited) {
+            auto clazz = env->FindClass(FULL_CLASS_NAME);
+            JENNY_CHECK_NULL(clazz);
+            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+            env->DeleteLocalRef(clazz);
+            JENNY_CHECK_NULL(state.sClazz);
+
+
+
+            state.sField_nativeHandle_0 = env->GetFieldID(state.sClazz, "nativeHandle", "J");
+            JENNY_CHECK_NULL(state.sField_nativeHandle_0);
+
+
+            state.sInited = true;
+        }
+    }
+#undef JENNY_CHECK_NULL
+   return true;
+}
+
+/*static*/ inline void NativeDrawableProxy::releaseClazz(JNIEnv* env) {
+    auto& state = getClassInitState();
+    if (state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (state.sInited) {
+            env->DeleteGlobalRef(state.sClazz);
+            state.sClazz = nullptr;
+            state.sInited = false;
+        }
+    }
+}
+
+
 

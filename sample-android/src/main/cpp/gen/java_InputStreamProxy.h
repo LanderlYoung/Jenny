@@ -21,9 +21,6 @@ public:
 
 
 private:
-    // thread safe init
-    static std::atomic_bool sInited;
-    static std::mutex sInitLock;
 
     JNIEnv* mJniEnv;
     jobject mJavaObjectReference;
@@ -86,71 +83,166 @@ public:
     // construct: public InputStream()
     static InputStreamProxy newInstance(JNIEnv* env) noexcept {
        assertInited(env);
-       return InputStreamProxy(env, env->NewObject(sClazz, sConstruct_0));
+       return InputStreamProxy(env, env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0));
     } 
     
 
     // method: public abstract int read()
     jint read() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_read_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_read_0);
     }
 
     // method: public int read(byte[] b)
     jint read(jbyteArray b) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_read_1, b);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_read_1, b);
     }
 
     // method: public int read(byte[] b, int off, int len)
     jint read(jbyteArray b, jint off, jint len) const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_read_2, b, off, len);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_read_2, b, off, len);
     }
 
     // method: public long skip(long n)
     jlong skip(jlong n) const {
-        return mJniEnv->CallLongMethod(mJavaObjectReference, sMethod_skip_0, n);
+        return mJniEnv->CallLongMethod(mJavaObjectReference, getClassInitState().sMethod_skip_0, n);
     }
 
     // method: public int available()
     jint available() const {
-        return mJniEnv->CallIntMethod(mJavaObjectReference, sMethod_available_0);
+        return mJniEnv->CallIntMethod(mJavaObjectReference, getClassInitState().sMethod_available_0);
     }
 
     // method: public void close()
     void close() const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_close_0);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_close_0);
     }
 
     // method: public synchronized void mark(int readlimit)
     void mark(jint readlimit) const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_mark_0, readlimit);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_mark_0, readlimit);
     }
 
     // method: public synchronized void reset()
     void reset() const {
-        mJniEnv->CallVoidMethod(mJavaObjectReference, sMethod_reset_0);
+        mJniEnv->CallVoidMethod(mJavaObjectReference, getClassInitState().sMethod_reset_0);
     }
 
     // method: public boolean markSupported()
     jboolean markSupported() const {
-        return mJniEnv->CallBooleanMethod(mJavaObjectReference, sMethod_markSupported_0);
+        return mJniEnv->CallBooleanMethod(mJavaObjectReference, getClassInitState().sMethod_markSupported_0);
     }
 
 
 
 private:
-    static jclass sClazz;
-    static jmethodID sConstruct_0;
+    struct ClassInitState {
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
 
-    static jmethodID sMethod_read_0;
-    static jmethodID sMethod_read_1;
-    static jmethodID sMethod_read_2;
-    static jmethodID sMethod_skip_0;
-    static jmethodID sMethod_available_0;
-    static jmethodID sMethod_close_0;
-    static jmethodID sMethod_mark_0;
-    static jmethodID sMethod_reset_0;
-    static jmethodID sMethod_markSupported_0;
+    jclass sClazz = nullptr;
+    jmethodID sConstruct_0 = nullptr;
 
+    jmethodID sMethod_read_0 = nullptr;
+    jmethodID sMethod_read_1 = nullptr;
+    jmethodID sMethod_read_2 = nullptr;
+    jmethodID sMethod_skip_0 = nullptr;
+    jmethodID sMethod_available_0 = nullptr;
+    jmethodID sMethod_close_0 = nullptr;
+    jmethodID sMethod_mark_0 = nullptr;
+    jmethodID sMethod_reset_0 = nullptr;
+    jmethodID sMethod_markSupported_0 = nullptr;
+
+
+   }; // endof struct ClassInitState
+
+   template <typename T = void>
+   static ClassInitState& getClassInitState() {
+       static ClassInitState classInitState;
+       return classInitState;
+   }
 
 };
+} // endof namespace java
+
+
+
+
+// external logger function passed by jenny.errorLoggerFunction
+void jennySampleErrorLog(JNIEnv* env, const char* error);
+
+namespace java {
+
+/*static*/ inline bool InputStreamProxy::initClazz(JNIEnv* env) {
+#define JENNY_CHECK_NULL(val)                      \
+       do {                                        \
+           if ((val) == nullptr) {                 \
+               jennySampleErrorLog(env, "can't init InputStreamProxy::" #val); \
+               return false;                       \
+           }                                       \
+       } while(false)
+
+    auto& state = getClassInitState();
+    if (!state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (!state.sInited) {
+            auto clazz = env->FindClass(FULL_CLASS_NAME);
+            JENNY_CHECK_NULL(clazz);
+            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+            env->DeleteLocalRef(clazz);
+            JENNY_CHECK_NULL(state.sClazz);
+
+            state.sConstruct_0 = env->GetMethodID(state.sClazz, "<init>", "()V");
+            JENNY_CHECK_NULL(state.sConstruct_0);
+
+
+            state.sMethod_read_0 = env->GetMethodID(state.sClazz, "read", "()I");
+            JENNY_CHECK_NULL(state.sMethod_read_0);
+
+            state.sMethod_read_1 = env->GetMethodID(state.sClazz, "read", "([B)I");
+            JENNY_CHECK_NULL(state.sMethod_read_1);
+
+            state.sMethod_read_2 = env->GetMethodID(state.sClazz, "read", "([BII)I");
+            JENNY_CHECK_NULL(state.sMethod_read_2);
+
+            state.sMethod_skip_0 = env->GetMethodID(state.sClazz, "skip", "(J)J");
+            JENNY_CHECK_NULL(state.sMethod_skip_0);
+
+            state.sMethod_available_0 = env->GetMethodID(state.sClazz, "available", "()I");
+            JENNY_CHECK_NULL(state.sMethod_available_0);
+
+            state.sMethod_close_0 = env->GetMethodID(state.sClazz, "close", "()V");
+            JENNY_CHECK_NULL(state.sMethod_close_0);
+
+            state.sMethod_mark_0 = env->GetMethodID(state.sClazz, "mark", "(I)V");
+            JENNY_CHECK_NULL(state.sMethod_mark_0);
+
+            state.sMethod_reset_0 = env->GetMethodID(state.sClazz, "reset", "()V");
+            JENNY_CHECK_NULL(state.sMethod_reset_0);
+
+            state.sMethod_markSupported_0 = env->GetMethodID(state.sClazz, "markSupported", "()Z");
+            JENNY_CHECK_NULL(state.sMethod_markSupported_0);
+
+
+
+            state.sInited = true;
+        }
+    }
+#undef JENNY_CHECK_NULL
+   return true;
+}
+
+/*static*/ inline void InputStreamProxy::releaseClazz(JNIEnv* env) {
+    auto& state = getClassInitState();
+    if (state.sInited) {
+        std::lock_guard<std::mutex> lg(state.sInitLock);
+        if (state.sInited) {
+            env->DeleteGlobalRef(state.sClazz);
+            state.sClazz = nullptr;
+            state.sInited = false;
+        }
+    }
+}
+
+
 } // endof namespace java

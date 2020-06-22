@@ -9,6 +9,7 @@
 #include "gen/jenny_GraphicsProxy.h"
 #include "gen/android_StyleProxy.h"
 #include "gen/android_RectProxy.h"
+#include "gen/GenericProxy.h"
 
 class State {
 private:
@@ -39,6 +40,7 @@ public:
 jlong NativeDrawable::nativeInit(JNIEnv *env, jobject thiz) {
     using jenny::GraphicsProxy;
     using android::StyleProxy;
+    GenericProxy::initClazz(env);
 
     android::StyleProxy fillType(env, android::StyleProxy::getFILL(env));
     auto paint = GraphicsProxy::newPaint(env);
