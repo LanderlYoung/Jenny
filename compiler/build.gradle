@@ -4,6 +4,14 @@ apply plugin: 'kotlin'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+sourceSets {
+    main {
+        resources {
+            srcDirs += rootProject.file("cpp")
+        }
+    }
+}
+
 dependencies {
     implementation project(':annotation')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"

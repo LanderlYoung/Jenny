@@ -15,18 +15,15 @@
  */
 package io.github.landerlyoung.jennysampleapp;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
-
 import io.github.landerlyoung.jenny.NativeClass;
 import io.github.landerlyoung.jenny.NativeCode;
 import io.github.landerlyoung.jenny.NativeProxyForClasses;
+import java.util.HashMap;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -35,21 +32,8 @@ import io.github.landerlyoung.jenny.NativeProxyForClasses;
  * Life with Passion, Code with Creativity.
  */
 @NativeClass(/*namespace = "io::github::landerlyoung"*/)
-@NativeProxyForClasses(
-        namespace = "java", classes = {
-        InputStream.class, String.class, URL.class, URLConnection.class,
-})
-public class ComputeIntensiveClass {
 
-    @NativeProxyForClasses(
-            namespace = "test::java::lang", classes = {
-            File.class, InputStream.class,
-            String.class, URL.class, URLConnection.class,
-            Collections.class, ReentrantLock.class,
-            AtomicInteger.class, Thread.class
-    })
-    private class Test {
-    }
+public class ComputeIntensiveClass {
 
     static {
         System.loadLibrary("hello-jenny");
@@ -90,6 +74,11 @@ public class ComputeIntensiveClass {
     public static native void testOverload(int i);
 
     // showcase for native proxy
+    @NativeProxyForClasses(
+            namespace = "java::okhttp", classes = {
+            OkHttpClient.class, Request.class, Request.Builder.class,
+            Call.class, Response.class, ResponseBody.class
+    })
     public static native String httpGet(String url);
 
     public native int computeThenCallback(Callback listener);

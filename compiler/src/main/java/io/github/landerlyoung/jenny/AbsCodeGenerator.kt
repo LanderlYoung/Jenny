@@ -60,7 +60,7 @@ abstract class AbsCodeGenerator(protected val mEnv: Environment, protected val m
         mSimpleClassName = mClazz.simpleName.toString()
     }
 
-    abstract fun doGenerate()
+    abstract fun doGenerate(): CppClass
 
     fun log(msg: String) {
         mEnv.messager.printMessage(Diagnostic.Kind.NOTE, LOG_PREFIX + msg + "\n")

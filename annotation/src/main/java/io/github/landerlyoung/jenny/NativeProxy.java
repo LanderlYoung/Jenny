@@ -42,13 +42,13 @@ public @interface NativeProxy {
      * @return should jenny generate native glue code for all methods
      * inside this class/interface.
      */
-    boolean allMethods() default true;
+    boolean allMethods() default false;
 
     /**
      * @return should jenny generate native glue code for all fields
      * inside this class/interface.
      */
-    boolean allFields() default true;
+    boolean allFields() default false;
 
     /**
      * @return C++ namespace for generated class

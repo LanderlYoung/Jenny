@@ -16,23 +16,24 @@
 package io.github.landerlyoung.jennysampleapp;
 
 import android.annotation.SuppressLint;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView mTextView;
     private NativeDrawable mNativeDrawable;
+
+    private static final Executor EXECUTOR = Executors.newSingleThreadExecutor();
 
     @Override
     @SuppressLint("SetTextI18n")
@@ -98,10 +99,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
-            final String json = ComputeIntensiveClass.httpGet("https://jsonplaceholder.typicode.com/todos/1");
-            runOnUiThread(() -> toast("http get\n" + json));
-        });
+        EXECUTOR.execute(this::testNativeHttpGet);
+    }
+
+    private void testNativeHttpGet() {
+        final String json = ComputeIntensiveClass
+                .httpGet("https://jsonplaceholder.typicode.com/todos/1");
+        runOnUiThread(() -> toast("http got\n" + json));
     }
 
     @Override

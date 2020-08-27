@@ -42,12 +42,11 @@ jlong NativeDrawable::nativeInit(JNIEnv *env, jobject thiz) {
     using android::StyleProxy;
     GenericProxy::initClazz(env);
 
-    android::StyleProxy fillType(env, android::StyleProxy::getFILL(env));
+    auto fillType = android::StyleProxy::getFILL(env);
     auto paint = GraphicsProxy::newPaint(env);
-    GraphicsProxy::paintSetStyle(env, paint, *fillType);
+    GraphicsProxy::paintSetStyle(env, paint, fillType);
 
     auto paintGlobal = env->NewGlobalRef(paint);
-    fillType.deleteLocalRef();
 
     return reinterpret_cast<jlong>(new State(paintGlobal));
 }
@@ -58,7 +57,7 @@ jlong NativeDrawable::nativeInit(JNIEnv *env, jobject thiz) {
  * Signature: ()V
  */
 void NativeDrawable::onClick(JNIEnv *env, jobject thiz) {
-    State *state = reinterpret_cast<State *>(NativeDrawableProxy(env, thiz).getNativeHandle());
+    State* state = reinterpret_cast<State*>(NativeDrawableProxy::getNativeHandle(env, thiz));
     state->change();
 }
 
@@ -70,20 +69,19 @@ void NativeDrawable::onClick(JNIEnv *env, jobject thiz) {
 void NativeDrawable::draw(JNIEnv *env, jobject thiz, jobject _canvas) {
     using namespace android;
     using jenny::GraphicsProxy;
-    State *state = reinterpret_cast<State *>(NativeDrawableProxy(env, thiz).getNativeHandle());
+    State* state = reinterpret_cast<State*>(NativeDrawableProxy::getNativeHandle(env, thiz));
 
-    RectProxy bounds(env, GraphicsProxy::drawableGetBounds(env, thiz));
+    auto bounds = GraphicsProxy::drawableGetBounds(env, thiz);
 
     GraphicsProxy::setColor(env, state->paint, state->color());
     GraphicsProxy::drawableCircle(
-            env, _canvas,
-            bounds.exactCenterX(),
-            bounds.exactCenterY(),
-            std::min(bounds.exactCenterX(), bounds.exactCenterY()) * 0.7f,
-            state->paint
+        env, _canvas,
+        RectProxy::exactCenterX(env, bounds),
+        RectProxy::exactCenterY(env, bounds),
+        std::min(RectProxy::exactCenterX(env, bounds),
+                 RectProxy::exactCenterY(env, bounds)) * 0.7f,
+        state->paint
     );
-
-    bounds.deleteLocalRef();
 }
 
 /*
@@ -92,7 +90,7 @@ void NativeDrawable::draw(JNIEnv *env, jobject thiz, jobject _canvas) {
  * Signature: ()V
  */
 void NativeDrawable::release(JNIEnv *env, jobject thiz) {
-    State *state = reinterpret_cast<State *>(NativeDrawableProxy(env, thiz).getNativeHandle());
+    State* state = reinterpret_cast<State*>(NativeDrawableProxy::getNativeHandle(env, thiz));
     env->DeleteGlobalRef(state->paint);
     delete state;
 }

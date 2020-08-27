@@ -5,6 +5,7 @@
  * or contact author landerlyoung@gmail.com.
  */
 #include "NestedNativeClass.h"
+#include <jnihelper.h>
 
 /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass_00024NestedNativeClass

@@ -3,13 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     ndkVersion "21.3.6528147"
 
     defaultConfig {
         applicationId "com.young.jennysampleapp"
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -40,6 +40,17 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
+
+    // make sure java compile is executed before ndk compile
+    // because we rely on Jenny generating cpp code
+
+    // for library project
+    // libraryVariants.all { variant ->
+    applicationVariants.all { variant ->
+        variant.externalNativeBuildProviders*.configure { ndkBuild ->
+            ndkBuild.dependsOn variant.javaCompileProvider.name
+        }
+    }
 }
 
 kapt {
@@ -48,7 +59,9 @@ kapt {
         // arg("jenny.threadSafe", "false")
         arg("jenny.errorLoggerFunction", "jennySampleErrorLog")
         // arg("jenny.outputDirectory", project.buildDir.absolutePath+"/test")
-         arg("jenny.headerOnlyProxy", "true")
+        arg("jenny.headerOnlyProxy", "true")
+        arg("jenny.useJniHelper", "true")
+        // arg("jenny.fusionProxyHeaderName", "JennyFisonProxy.h")
     }
 }
 
@@ -60,14 +73,16 @@ dependencies {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:1.3.0"
+    implementation "androidx.core:core-ktx:1.3.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+    // noinspection GradleDependency
+    implementation 'com.squareup.okhttp3:okhttp:3.14.7'
     testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
     androidTestImplementation 'androidx.annotation:annotation:1.1.0'
 }
 
@@ -76,7 +91,6 @@ task copyGeneratedCpp {
         copy {
             // copy proxy
             from new File(project.buildDir, "generated/source/kapt/debug/jenny/proxy")
-            exclude 'test_*'
             into project.file('src/main/cpp/gen')
         }
         copy {

@@ -1,3 +1,6 @@
+# explicitely ignore
+sample-android/src/main/cpp/gen
+
 #gradle
 .gradle
 build

@@ -54,11 +54,12 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
 
     private val cppClassName: String = mSimpleClassName
 
-    override fun doGenerate() {
+    override fun doGenerate(): CppClass {
         if (init() && mMethods.isNotEmpty()) {
             generateHeader()
             generateSource()
         }
+        return CppClass(cppClassName, mNamespaceHelper.namespaceNotation, mHeaderName)
     }
 
     private fun init(): Boolean {

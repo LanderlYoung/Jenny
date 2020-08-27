@@ -7,17 +7,15 @@
 #include <CallbackProxy.h>
 #include <NestedClassProxy.h>
 #include "ComputeIntensiveClass.h"
-#include "gen/java_InputStreamProxy.h"
-#include "gen/java_StringProxy.h"
-#include "gen/java_URLConnectionProxy.h"
-#include "gen/java_URLProxy.h"
+
+#include "gen/jenny_fusion_proxies.h"
 
 /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
  * Method:    public int addInNative(int a, int b)
  * Signature: (II)I
  */
-jint ComputeIntensiveClass::addInNative(JNIEnv *env, jobject thiz, jint a, jint b) {
+jint ComputeIntensiveClass::addInNative(JNIEnv* env, jobject thiz, jint a, jint b) {
     jint c = a + b;
     return c;
 }
@@ -100,37 +98,30 @@ void ComputeIntensiveClass::testOverload__I(JNIEnv *env, jclass clazz, jint i) {
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
 jstring JNICALL ComputeIntensiveClass::httpGet(JNIEnv *env, jclass clazz, jstring _url) {
-    using namespace java;
-    auto url = URLProxy::newInstance(env, _url);
-    URLConnectionProxy urlConn(env, url.openConnection());
-    InputStreamProxy input(env, urlConn.getInputStream());
+    using namespace java::okhttp;
 
-    jbyteArray buffer = env->NewByteArray(1024);
-    jint len = input.read(buffer);
-    input.close();
+    OkHttpClientProxy client = OkHttpClientProxy::newInstance();
+    BuilderProxy builder = BuilderProxy::newInstance().url(_url);
+    RequestProxy request = builder.build();
+    CallProxy call = client.newCall(request.getThis());
+    ResponseProxy response = call.execute();
+    ResponseBodyProxy body = response.body();
+    return body.string();
 
-    jstring ret = reinterpret_cast<jstring>(*StringProxy::newInstance(env, buffer, 0, len));
-
-    url.deleteLocalRef();
-    urlConn.deleteLocalRef();
-    input.deleteLocalRef();
-    env->DeleteLocalRef(buffer);
-    return ret;
 
     /*
      * equivalent java code to {@link ComputeIntensiveClass#httpGet(String)}
 
-     private String httpGet(String url) throws IOException {
-        URL u = new URL(url);
-        URLConnection conn = u.openConnection();
-        InputStream input = conn.getInputStream();
+        String run(String url) throws IOException {
+         OkHttpClient client = new OkHttpClient();
+          Request request = new Request.Builder()
+              .url(url)
+              .build();
 
-        byte[] buffer = new byte[1024];
-        int len = input.read(buffer);
-        input.close();
+          Response response = client.newCall(request).execute();
+          return response.body().string();
+        }
 
-        return new String(buffer, 0, len);
-    }
      */
 }
 
@@ -140,34 +131,33 @@ jstring JNICALL ComputeIntensiveClass::httpGet(JNIEnv *env, jclass clazz, jstrin
  * Signature: (Lio/github/landerlyoung/jennysampleapp/Callback;)I
  */
 jint ComputeIntensiveClass::computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
-    CallbackProxy callback(env, listener);
-    callback.onJobStart();
-    callback.getName();
+    CallbackProxy::onJobStart(env, listener);
 
-    jstring name = (CallbackProxy(env, listener)).getName();
+    auto name = CallbackProxy::getName(env, listener);
+
 
     auto newInstance = CallbackProxy::newInstance(env);
-    callback.setLock(*newInstance);
-    callback.onJobProgress(20);
+    CallbackProxy::setLock(env, listener, newInstance);
+    CallbackProxy::onJobProgress(env, listener, 20);
 
     auto nestedClass = NestedClassProxy::newInstance(env, listener);
-    callback.setLock(*nestedClass);
-    callback.onJobProgress(50);
+    CallbackProxy::setLock(env,  newInstance, nestedClass);
+    CallbackProxy::onJobProgress(env, listener, 50);
 
     CallbackProxy::setAStaticField(env, nullptr);
 
-    callback.setCount(100);
-    callback.setLock(listener);
-    callback.onJobProgress(100);
+    CallbackProxy::setCount(env, listener, 100);
+    CallbackProxy::setLock(env, listener, listener);
+    CallbackProxy::onJobProgress(env, listener, 100);
 
     jstring str = env->NewStringUTF("Yes, callback from jni");
-    callback.onJobDone(JNI_TRUE, str);
+    CallbackProxy::onJobDone(env, listener, JNI_TRUE, str);
 
     env->DeleteLocalRef(name);
     env->DeleteLocalRef(str);
 
-    newInstance.deleteLocalRef();
-    nestedClass.deleteLocalRef();
+    env->DeleteLocalRef(newInstance);
+    env->DeleteLocalRef(nestedClass);
     return 0;
 }
 

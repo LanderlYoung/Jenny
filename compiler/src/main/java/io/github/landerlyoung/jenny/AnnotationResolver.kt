@@ -27,5 +27,7 @@ import java.lang.reflect.Proxy
 object AnnotationResolver {
     @Suppress("UNCHECKED_CAST")
     fun <T : Annotation> getDefaultImplementation(annotation: Class<T>): T =
-            Proxy.newProxyInstance(annotation.classLoader, arrayOf<Class<*>>(annotation)) { _, method, _ -> method.defaultValue } as T
+            Proxy.newProxyInstance(annotation.classLoader, arrayOf<Class<*>>(annotation)) { _, method, _ ->
+                method.defaultValue
+            } as T
 }

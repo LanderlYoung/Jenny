@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
  */
 @Repeatable(NativeProxyForClasses.RepeatContainer.class)
 @Retention(RetentionPolicy.CLASS)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface NativeProxyForClasses {
     /**
      * @return class generate proxy code for.

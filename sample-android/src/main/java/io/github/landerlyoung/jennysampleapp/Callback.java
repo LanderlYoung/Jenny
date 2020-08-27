@@ -65,7 +65,7 @@ public class Callback {
 
     }
 
-    @NativeProxy
+    @NativeProxy(allMethods = true)
     public class NestedClass {
         public void hello() {
             int a = COMPILE_CONSTANT_INT;
