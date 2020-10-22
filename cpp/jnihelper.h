@@ -43,6 +43,12 @@ class Env {
    */
   static void attachJvm(JavaVM* jvm);
 
+  static void attachJvm(JNIEnv* env) {
+    JavaVM *jvm;
+    env->GetJavaVM(&jvm);
+    attachJvm(jvm);
+  }
+
  public:
   Env() : _env(attachCurrentThreadIfNeed()) {}
 
@@ -501,6 +507,7 @@ inline Env::StaticState* Env::staticState() {
 }
 
 inline void Env::attachJvm(JavaVM* jvm) {
+  assert(jvm);
   auto state = staticState();
   state->_jvm = jvm;
 }
@@ -542,6 +549,8 @@ namespace internal {
 
 // UnitTest
 inline void jniHelperUnitTest(JNIEnv* env_) {
+  Env::attachJvm(env_);
+
   Env env;
   assert(env.get() == env_);
 
