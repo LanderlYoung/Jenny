@@ -96,7 +96,7 @@ class LocalRef {
   LocalRef& operator=(LocalRef other) noexcept {
     swap(other);
     return *this;
-  };
+  }
 
   void swap(LocalRef<JniPointer>& other) noexcept {
     std::swap(_value, other._value);
