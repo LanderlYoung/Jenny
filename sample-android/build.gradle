@@ -18,6 +18,18 @@ android {
                 cppFlags "-std=c++11 -fvisibility=hidden"
             }
         }
+
+        /* for Android Java project
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += [
+                        "jenny.useJniHelper": "true"
+                ]
+            }
+        }
+
+        */
     }
 
     externalNativeBuild {

@@ -245,7 +245,10 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
     }
 
     private fun StringBuilder.buildMethodBodyWithReturnStatement(m: ExecutableElement) {
-        append(" {\n")
+        append(""" {
+            |    // TODO(jenny): generated method stub.
+            |
+        """.trimMargin())
         val a = m.getAnnotation(NativeCode::class.java)
         if (a != null) {
             for (line in a.value) {
