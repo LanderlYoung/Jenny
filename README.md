@@ -25,14 +25,13 @@ Jenny comes with two main part:
 **Glue** stands for c++ code to implement Java native method. (Glue java and C++.)
 **Proxy** stands for c++ class to provide calls to java from c++. (c++ side proxy for the java class.)
 
-And there is an extra bonus ['jnihelper.h'](cpp/jnihelper.h) that uses C++ RAII technology to simplify JNI APIs. When opt-in (with `'jenny.useJniHelper'=true`), the generated proxy class will also add methods using `jnihelper`, which makes life even happier!
+And there is an extra bonus -- ['jnihelper.h'](cpp/jnihelper.h) that uses C++ RAII technology to simplify JNI APIs. When opt-in (with `'jenny.useJniHelper'=true`), the generated proxy class will also add methods using `jnihelper`, which makes life even happier!
 
----
+## Why Jenny?
 
-**Table Of Content:**
-[TOC]
+When writing JNI code, people usually come across APIs where java method/field/type signatures are required, some of them like `JNIEnv::RegisterNatives`, `JNIEnv::FindClass`, `JNIEnv::GetMethodID`, etc. It is very hard to hand-craft those signatures correctly and efficiently, so programmers often waste much time writing those boilerplate.
 
----
+Jenny is now your JNI code maid, who takes care of all those boilerplate so you can be even more productive.
 
 ## At a glance
 
@@ -47,6 +46,7 @@ Java class.
 ```java
 @NativeClass
 public class NativeTest {
+    public static final int RUNTIME_TYPE_MAIN = 1;
     public native int add(int a, int b);
     public native void cpp_magic(String s, byte[] data);
 }
@@ -59,6 +59,7 @@ The generated Glue code.
 
 namespace NativeTest {
 static constexpr auto FULL_CLASS_NAME = u8"io/github/landerlyoung/jennysampleapp/NativeTest";
+static constexpr jint RUNTIME_TYPE_MAIN = 1;
 
 jint JNICALL add(JNIEnv* env, jobject thiz, jint a, jint b);
 void JNICALL cpp_magic(JNIEnv* env, jobject thiz, jstring s, jbyteArray data);
@@ -84,10 +85,10 @@ Jenny generate:
 
 1. constant defines
 2. JNI register function
-3. native method declare
+3. native method declare with the same name as java methods
 4. native method implementation stubs
 
-You just need to fill the stub with real code.
+You just need to fill the stubs with real code.
 
 ### Proxy
 
@@ -106,7 +107,7 @@ jstring func(jstring _url) {
     return body.string().release();
 }
 ```
-And here the equivlent java code.
+And here is the equivlent java code.
 
 ```java
 String run(String url) throws IOException {
@@ -120,8 +121,9 @@ String run(String url) throws IOException {
 }
 ```
 
-If you are femiliar with JNI, yuo'd be surprised! The C++ code using Jenny just as clean as the Java code. Without Jenny it would be nightmare.
+If you are femiliar with JNI, yuo'd be surprised! The C++ code using Jenny just as clean as the Java code. Without Jenny it would be a nightmare.
 
+And here is another real world comparesion **with vs without jenny**. [🔗🔗🔗](https://gist.github.com/LanderlYoung/1a203f519ba5f91b38c1d81534d63664)
 
 And also, here is another example without `jnihelper`.
 
@@ -139,14 +141,17 @@ void NativeDrawable::draw(JNIEnv *env, jobject thiz, jobject _canvas) {
         state->paint
     );
 }
-
 ```
 
 ## How to
 
 ### Use in gradle
 
-Jenny is publish at [jcenter][BT].
+Jenny comes with two component
+1. the annotation library
+2. the annotation-processor
+
+[![Download][BT_B]][BT] 👈👈👈 click here for latest version on jcenter.
 
 ```groovy
 
@@ -191,19 +196,19 @@ Also, you can tell Jenny to generate code for libray classes by using the `@Nati
 Jenny annotation processor arguments:
 
 | name | default value | meaning |
-| :-: | :-: | :-: | 
-| `jenny.threadSafe` | `true` | 
-| `jenny.errorLoggerFunction` | `null` | 
-| `jenny.outputDirectory` | `null` |
-| `jenny.fusionProxyHeaderName` | `"jenny_fusion_proxies.h"` |
-| `jenny.headerOnlyProxy` | `true` |
-| `jenny.useJniHelper` | `false` |
+| :-: | :-: | :- | 
+| `jenny.threadSafe` | `true` | The proxy class supports lazy init, this flag controls if the lazy init is thread safe or not. |
+| `jenny.errorLoggerFunction` | `null` | When proxy failed to find some method/class/field use the given function to do log before abort. The function must be a C++ function on top namespace with signature as `void(const char*)` |
+| `jenny.outputDirectory` | `null` | By default, Jenny generate filed to apt dst dir, use this argument to control where the generated files are. |
+| `jenny.fusionProxyHeaderName` | `"jenny_fusion_proxies.h"` | The `fusionProxyHeader` is a header file that include all generated proxy files and give you a `jenny::initAllProxies` function to init all proxies at once, this flag changes the file name. |
+| `jenny.headerOnlyProxy` | `true` | The generated proxy file use header only fasion or not. |
+| `jenny.useJniHelper` | `false` | Turn on/off jnihelper |
 
 And also, there are some config in Jenny's annotations, please read the doc.
 
 ## FAQ
 
-#### How to passing arguments to annotation processor
+#### 1. How to passing arguments to annotation processor
 
 1. For kotlin project, it simple
 
@@ -233,3 +238,10 @@ compileJava {
     ]
 }
 ```
+
+
+#### 2. My JNI code crash saying some class not found while the are really there?!
+
+When using JNI with multi thread in C++, please be noticed the `pure` native thread (that is create in C++ then attached to jvm) has it class loader as the boot class loader, so on such thread you can only see java standard library classes. For more info, please refer to [here](https://developer.android.com/training/articles/perf-jni#native-libraries).
+
+To solve this problem, please init proxy classes on the `JNI_OnLoad` callback, and thete is a `jenny_fusion_proxies.h` may by helpful.
