@@ -32,7 +32,6 @@ import okhttp3.ResponseBody;
  * Life with Passion, Code with Creativity.
  */
 @NativeClass(/*namespace = "io::github::landerlyoung"*/)
-
 public class ComputeIntensiveClass {
 
     static {
@@ -90,8 +89,15 @@ public class ComputeIntensiveClass {
 
     }
 
+    @NativeProxyForClasses(
+            namespace = "java::lang", classes = {
+            RuntimeException.class
+    })
+    private int dummy;
+
     @NativeClass(dynamicRegisterJniMethods = false)
     public static class NestedNativeClass {
+
         public static final int CONST = 0;
 
         public native HashMap<String, String> one(String param);

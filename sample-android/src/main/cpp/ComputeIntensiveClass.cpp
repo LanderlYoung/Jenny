@@ -127,12 +127,86 @@ jstring JNICALL ComputeIntensiveClass::httpGet(JNIEnv *env, jclass clazz, jstrin
      */
 }
 
+static void testJNIHelper(JNIEnv* env) {
+    using namespace jenny;
+    Env jenv;
+    assert(jenv.get() == env);
+
+    {
+        LocalRef<jstring> str = toJavaString("hello");
+        assert(str);
+        LocalRef<jstring> str_copy = str;
+        assert(str_copy);
+
+        LocalRef<jstring> str_notOwn(str.get(), false);
+        assert(str_notOwn);
+
+        assert(jenv->IsSameObject(str.get(), str_copy.get()));
+        assert(jenv->IsSameObject(str.get(), str_notOwn.get()));
+
+        LocalRef<jstring> move = std::move(str);
+        assert(move);
+        assert(!str);
+        move = toJavaString("world");
+        assert(!jenv->IsSameObject(move.get(), str_copy.get()));
+        assert(move);
+        assert(!str_copy);
+    }
+
+    {
+        LocalRef<jstring> str = toJavaString("hello");
+        GlobalRef<jstring> glb(str);
+        assert(jenv->IsSameObject(glb.get(), str.get()));
+        GlobalRef<jstring> glb_copy = glb;
+        assert(glb_copy);
+
+
+        assert(jenv->IsSameObject(glb.get(), glb_copy.get()));
+
+        GlobalRef<jstring> glb_move = std::move(glb);
+        assert(glb_move);
+        assert(!glb);
+        glb_move = GlobalRef<jstring>(toJavaString("world"));
+        assert(!jenv->IsSameObject(glb_move.get(), glb_copy.get()));
+        assert(glb_move);
+        assert(!glb_copy);
+    }
+
+    {
+        std::string h = "hello";
+        LocalRef<jstring> str = toJavaString(h.c_str());
+        assert(h == fromJavaString(str));
+        StringHolder sh(str);
+        assert(sh.view() == h);
+    }
+
+    {
+        auto runtimeException = java::lang::RuntimeExceptionProxy::newInstance();
+
+        TryCatch tryCatch0;
+        {
+            TryCatch tryCatch;
+            jenv->Throw(static_cast<jthrowable>(runtimeException.getThis(false).get()));
+            assert(tryCatch.hasCaught());
+            assert(tryCatch.exception());
+        }
+        assert(!tryCatch0.hasCaught());
+
+        {
+            TryCatch tryCatch;
+            jenv->Throw(static_cast<jthrowable>(runtimeException.getThis(false).get()));
+            tryCatch.rethrow();
+        }
+        assert(tryCatch0.hasCaught());
+    }
+}
+
 /*
  * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
  * Method:    public int computeThenCallback(io.github.landerlyoung.jennysampleapp.Callback listener)
  * Signature: (Lio/github/landerlyoung/jennysampleapp/Callback;)I
  */
-jint ComputeIntensiveClass::computeThenCallback(JNIEnv *env, jobject thiz, jobject listener) {
+jint ComputeIntensiveClass::computeThenCallback(JNIEnv* env, jobject thiz, jobject listener) {
     CallbackProxy::onJobStart(env, listener);
 
     auto name = CallbackProxy::getName(env, listener);
@@ -143,7 +217,7 @@ jint ComputeIntensiveClass::computeThenCallback(JNIEnv *env, jobject thiz, jobje
     CallbackProxy::onJobProgress(env, listener, 20);
 
     auto nestedClass = NestedClassProxy::newInstance(env, listener);
-    CallbackProxy::setLock(env,  newInstance, nestedClass);
+    CallbackProxy::setLock(env, newInstance, nestedClass);
     CallbackProxy::onJobProgress(env, listener, 50);
 
     CallbackProxy::setAStaticField(env, nullptr);
@@ -151,6 +225,8 @@ jint ComputeIntensiveClass::computeThenCallback(JNIEnv *env, jobject thiz, jobje
     CallbackProxy::setCount(env, listener, 100);
     CallbackProxy::setLock(env, listener, listener);
     CallbackProxy::onJobProgress(env, listener, 100);
+
+    testJNIHelper(env);
 
     jstring str = env->NewStringUTF("Yes, callback from jni");
     CallbackProxy::onJobDone(env, listener, JNI_TRUE, str);

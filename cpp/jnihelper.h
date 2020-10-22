@@ -81,7 +81,7 @@ class LocalRef {
   LocalRef(const LocalRef& copy) : _value(nullptr), _env(nullptr), _owned(true) {
     if (copy._value) {
       _env = copy._env;
-      _value = _env->NewLocalRef(copy._value);
+      _value = reinterpret_cast<JniPointer>(_env->NewLocalRef(copy._value));
       _owned = true;
       assert(_value);
     }
@@ -137,9 +137,11 @@ class GlobalRef {
  public:
   explicit GlobalRef(JniPointer value = nullptr) : GlobalRef(Env().get(), value) {}
 
+  explicit GlobalRef(const LocalRef<JniPointer>& local) : GlobalRef(local.get()) {}
+
   explicit GlobalRef(JNIEnv* env, JniPointer value = nullptr) {
     if (value) {
-      _value = env->NewGlobalRef(value);
+      _value = reinterpret_cast<JniPointer>(env->NewGlobalRef(value));
     }
   }
 
@@ -147,18 +149,19 @@ class GlobalRef {
 
   GlobalRef(GlobalRef&& from) noexcept: _value(from._value) { from._value = nullptr; }
 
-  GlobalRef& operator=(const GlobalRef from) noexcept {
+  GlobalRef& operator=(GlobalRef from) noexcept {
     swap(from);
     return *this;
   }
 
-  void swap(GlobalRef<JniPointer>& other) noexcept {
+  void swap(GlobalRef& other) noexcept {
     std::swap(_value, other._value);
   }
 
   LocalRef<JniPointer> toLocal() const {
     if (_value) {
-      return LocalRef<JniPointer>(Env()->NewLocalRef(_value));
+      return LocalRef<JniPointer>(
+          reinterpret_cast<JniPointer>(Env()->NewLocalRef(_value)));
     } else {
       return {};
     }
@@ -274,7 +277,7 @@ inline std::string fromJavaString(JNIEnv* env, jstring string) {
   return ret;
 }
 
-inline std::string fromJavaString(jstring string) { return fromJavaString(Env().get(), string); }
+inline std::string fromJavaString(const LocalRef<jstring>& string) { return fromJavaString(Env().get(), string.get()); }
 
 class StringHolder {
  private:
@@ -290,7 +293,7 @@ class StringHolder {
         _cStr(jstr ? env->GetStringUTFChars(jstr, nullptr) : nullptr),
         _length(jstr ? env->GetStringUTFLength(jstr) : 0) {}
 
-  StringHolder(jstring jstr) : StringHolder(Env().get(), jstr) {}
+  StringHolder(const LocalRef<jstring>& jstr) : StringHolder(Env().get(), jstr.get()) {}
 
   StringHolder(const StringHolder&) = delete;
   StringHolder& operator=(const StringHolder&) = delete;
