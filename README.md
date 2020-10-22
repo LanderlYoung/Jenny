@@ -198,9 +198,9 @@ Jenny annotation processor arguments:
 | name | default value | meaning |
 | :-: | :-: | :- | 
 | `jenny.threadSafe` | `true` | The proxy class supports lazy init, this flag controls if the lazy init is thread safe or not. |
-| `jenny.errorLoggerFunction` | `null` | When proxy failed to find some method/class/field use the given function to do log before abort. The function must be a C++ function on top namespace with signature as `void(const char*)` |
+| `jenny.errorLoggerFunction` | `null` | When proxy failed to find some method/class/field use the given function to do log before abort. The function must be a C++ function on top namespace with signature as `void(JNIEnv* env, const char* error)` |
 | `jenny.outputDirectory` | `null` | By default, Jenny generate filed to apt dst dir, use this argument to control where the generated files are. |
-| `jenny.fusionProxyHeaderName` | `"jenny_fusion_proxies.h"` | The `fusionProxyHeader` is a header file that include all generated proxy files and give you a `jenny::initAllProxies` function to init all proxies at once, this flag changes the file name. |
+| `jenny.fusionProxyHeaderName` | `"jenny_fusion_proxies.h"` | The `fusionProxyHeader` is a header file that include all generated proxy files and gives you a `jenny::initAllProxies` function to init all proxies at once, this flag changes the file name. |
 | `jenny.headerOnlyProxy` | `true` | The generated proxy file use header only fasion or not. |
 | `jenny.useJniHelper` | `false` | Turn on/off jnihelper |
 
