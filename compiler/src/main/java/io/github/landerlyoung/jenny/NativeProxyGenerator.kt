@@ -226,7 +226,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             |            if (owned) {
             |                return _local;
             |            } else {
-            |                return  {_local.get(), false};
+            |                return ::jenny::LocalRef<jobject>(_local.get(), false);
             |            }
             |        } else {
             |            return _global.toLocal();
@@ -372,6 +372,11 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             } else {
                 append("        ")
             }
+
+            if (useJniHelper && needWrapLocalRef(m.returnType)) {
+                append(functionReturnType).append("(")
+            }
+
             if (returnTypeNeedCast(jniReturnType)) {
                 append("reinterpret_cast<${jniReturnType}>(")
             }
@@ -382,6 +387,10 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             if (returnTypeNeedCast(jniReturnType)) {
                 append(")")
             }
+            if (useJniHelper && needWrapLocalRef(m.returnType)) {
+                append(")")
+            }
+
             append(";\n")
             append("    }\n\n")
         }
@@ -419,6 +428,10 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     |       ${methodPrologue(isStatic, useJniHelper)}
                     |       return """.trimMargin())
 
+                if (useJniHelper && needWrapLocalRef(f.asType())) {
+                    append(functionReturnType).append("(")
+                }
+
                 if (returnTypeNeedCast(jniReturnType)) {
                     append("reinterpret_cast<${jniReturnType}>(")
                 }
@@ -428,7 +441,9 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 if (returnTypeNeedCast(jniReturnType)) {
                     append(")")
                 }
-
+                if (useJniHelper && needWrapLocalRef(f.asType())) {
+                    append(")")
+                }
                 append(""";
                     |
                     |    }

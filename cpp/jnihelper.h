@@ -69,7 +69,9 @@ class LocalRef {
   bool _owned;
 
  public:
-  LocalRef(JniPointer value = nullptr, bool owned = true) : LocalRef(Env().get(), value, owned) {}
+  LocalRef(): LocalRef(nullptr, nullptr, false) {}
+
+  explicit LocalRef(JniPointer value, bool owned = true) : LocalRef(Env().get(), value, owned) {}
 
   LocalRef(JNIEnv* env, JniPointer value = nullptr, bool owned = true)
       : _value(value), _env(env), _owned(owned) {
