@@ -100,13 +100,15 @@ void ComputeIntensiveClass::testOverload__I(JNIEnv *env, jclass clazz, jint i) {
 jstring JNICALL ComputeIntensiveClass::httpGet(JNIEnv *env, jclass clazz, jstring _url) {
     using namespace java::okhttp;
 
+    jenny::LocalRef<jstring> url(_url, false);
+
     OkHttpClientProxy client = OkHttpClientProxy::newInstance();
-    BuilderProxy builder = BuilderProxy::newInstance().url(_url);
+    BuilderProxy builder = BuilderProxy::newInstance().url(url);
     RequestProxy request = builder.build();
     CallProxy call = client.newCall(request.getThis());
     ResponseProxy response = call.execute();
     ResponseBodyProxy body = response.body();
-    return body.string();
+    return body.string().release();
 
 
     /*

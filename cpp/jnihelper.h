@@ -79,7 +79,7 @@ class LocalRef {
   LocalRef(const LocalRef& copy) : _value(nullptr), _env(nullptr), _owned(true) {
     if (copy._value) {
       _env = copy._env;
-      _value = _env->NewLocalRef(_value);
+      _value = _env->NewLocalRef(copy._value);
       _owned = true;
       assert(_value);
     }
