@@ -50,9 +50,10 @@ public class MainActivity extends AppCompatActivity {
             mNativeDrawable.onClick();
         });
 
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        ComputeIntensiveClass.runJniHelperTest();
 
         final ComputeIntensiveClass nativeClass = new ComputeIntensiveClass();
         mTextView = findViewById(R.id.text);

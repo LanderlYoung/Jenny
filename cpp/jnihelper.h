@@ -69,7 +69,7 @@ class LocalRef {
   bool _owned;
 
  public:
-  LocalRef(): LocalRef(nullptr, nullptr, false) {}
+  LocalRef() : LocalRef(nullptr, nullptr, false) {}
 
   explicit LocalRef(JniPointer value, bool owned = true) : LocalRef(Env().get(), value, owned) {}
 
@@ -187,7 +187,7 @@ class GlobalRef {
     return ret;
   }
 
-  operator bool() const{ return _value != nullptr; }
+  operator bool() const { return _value != nullptr; }
 };
 
 inline bool checkUtfBytes(const char* bytes) {
@@ -277,7 +277,10 @@ inline std::string fromJavaString(JNIEnv* env, jstring string) {
   return ret;
 }
 
-inline std::string fromJavaString(const LocalRef<jstring>& string) { return fromJavaString(Env().get(), string.get()); }
+inline std::string fromJavaString(const LocalRef<jstring>& string) {
+  return fromJavaString(Env().get(),
+                        string.get());
+}
 
 class StringHolder {
  private:
@@ -342,6 +345,36 @@ class StringHolder {
   const std::string_view view() const { return std::string_view(c_str(), length()); }
 };
 
+/**
+ * \code
+ *
+ * TryCatch tryCatch0;
+ * {
+ *   TryCatch tryCatch;
+ *   jenv->Throw(static_cast<jthrowable>(runtimeException));
+ *   assert(tryCatch.hasCaught());
+ *   assert(tryCatch.getAndClearException());
+ * }
+ * assert(!tryCatch0.hasCaught());
+ *
+ * {
+ *   TryCatch tryCatch;
+ *   jenv->Throw(static_cast<jthrowable>(runtimeException));
+ *   auto ex = tryCatch.getAndClearException();
+ *   tryCatch.throwException(ex);
+ * }
+ * assert(tryCatch0.hasCaught());
+ * tryCatch0.clearException();
+ *
+ * {
+ *   TryCatch tryCatch;
+ *   jenv->Throw(static_cast<jthrowable>(runtimeException.getThis(false).get()));
+ *   tryCatch.rethrowException();
+ * }
+*  assert(tryCatch0.hasCaught());
+ *
+ * \endcode
+ */
 class TryCatch {
  private:
   JNIEnv* _env;
@@ -354,17 +387,54 @@ class TryCatch {
   TryCatch(const TryCatch&) = delete;
   TryCatch& operator=(const TryCatch&) = delete;
 
-  bool hasCaught() { return _env->ExceptionCheck(); }
+  bool hasCaught() const { return _env->ExceptionCheck(); }
 
-  LocalRef<jthrowable> exception() { return LocalRef<jthrowable>(_env->ExceptionOccurred()); }
+  /**
+   * get current exception if any, and clear it.
+   *
+   * note: In order to do any JNI operations after words, the  "current exception" must be cleared first,
+   * otherwise JVM would abort.
+   */
+  LocalRef<jthrowable> getAndClearException() {
+    jthrowable e = _env->ExceptionOccurred();
+    if (e) {
+      _env->ExceptionClear();
+    }
+    return LocalRef<jthrowable>(_env, e);
+  }
 
-  bool rethrow() {
-    auto e = exception();
+  /**
+   * clear current exception.
+   * @return true for has pending and cleared. false for no pending exception.
+   */
+  bool clearException() {
+    if (hasCaught()) {
+      _env->ExceptionClear();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * rethrow an exception, and this TryCatch won't do clear exception in dtor again.
+   */
+  void throwException(const LocalRef<jthrowable>& e) {
     if (e) {
       _rethrow = true;
       _env->Throw(e.get());
     }
-    return e;
+  }
+
+  /**
+   * If hasCaught, rethrow the current exception (won't do clear exception in dtor again.)
+   * @return has pending exception or not
+   */
+  bool rethrowException() {
+    if (hasCaught()) {
+      _rethrow = true;
+      return true;
+    }
+    return false;
   }
 
   ~TryCatch() {
@@ -441,7 +511,8 @@ inline void Env::attachJvm(JavaVM* jvm) {
 inline JNIEnv* Env::attachCurrentThreadIfNeed() {
   JNIEnv* env;
   auto state = staticState();
-  assert(state->_jvm && "please call ::jenny::Env::attachJvm before any usage. (JNI_OnLoad is recommended.)");
+  assert(state->_jvm
+             && "please call ::jenny::Env::attachJvm before any usage. (JNI_OnLoad is recommended.)");
   auto jvm = state->_jvm;
   if (jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) == JNI_EDETACHED) {
     assert(jvm);
@@ -470,4 +541,89 @@ inline JNIEnv* Env::attachCurrentThreadIfNeed() {
 
 #endif
 
-}  // namespace jenny
+namespace internal {
+
+// UnitTest
+inline void jniHelperUnitTest(JNIEnv* env_) {
+  Env env;
+  assert(env.get() == env_);
+
+  {
+    LocalRef<jstring> str = toJavaString("hello");
+    assert(str);
+    LocalRef<jstring> str_copy = str;
+    assert(str_copy);
+
+    LocalRef<jstring> str_notOwn(str.get(), false);
+    assert(str_notOwn);
+
+    assert(env->IsSameObject(str.get(), str_copy.get()));
+    assert(env->IsSameObject(str.get(), str_notOwn.get()));
+
+    LocalRef<jstring> move = std::move(str);
+    assert(move);
+    assert(!str);
+    move = toJavaString("world");
+    assert(!env->IsSameObject(move.get(), str_copy.get()));
+    assert(move);
+  }
+
+  {
+    LocalRef<jstring> str = toJavaString("hello");
+    GlobalRef<jstring> glb(str);
+    assert(env->IsSameObject(glb.get(), str.get()));
+    GlobalRef<jstring> glb_copy = glb;
+    assert(glb_copy);
+
+
+    assert(env->IsSameObject(glb.get(), glb_copy.get()));
+
+    GlobalRef<jstring> glb_move = std::move(glb);
+    assert(glb_move);
+    assert(!glb);
+    glb_move = GlobalRef<jstring>(toJavaString("world"));
+    assert(!env->IsSameObject(glb_move.get(), glb_copy.get()));
+    assert(glb_move);
+  }
+
+  {
+    std::string h = "hello";
+    LocalRef<jstring> str = toJavaString(h.c_str());
+    assert(h == fromJavaString(str));
+    StringHolder sh(str);
+    assert(sh.view() == h);
+  }
+
+  {
+    LocalRef<jclass> runtimeExceptionClass(env->FindClass("java/lang/RuntimeException"));
+
+    TryCatch tryCatch0;
+    {
+      TryCatch tryCatch;
+      env->ThrowNew(runtimeExceptionClass.get(), nullptr);
+      assert(tryCatch.hasCaught());
+      assert(tryCatch.getAndClearException());
+    }
+    assert(!tryCatch0.hasCaught());
+
+    {
+      TryCatch tryCatch;
+      env->ThrowNew(runtimeExceptionClass.get(), nullptr);
+      auto ex = tryCatch.getAndClearException();
+      tryCatch.throwException(ex);
+    }
+    assert(tryCatch0.hasCaught());
+    tryCatch0.clearException();
+
+    {
+      TryCatch tryCatch;
+      env->ThrowNew(runtimeExceptionClass.get(), nullptr);
+      tryCatch.rethrowException();
+    }
+    assert(tryCatch0.hasCaught());
+  }
+}
+
+}
+
+};  // namespace jenny

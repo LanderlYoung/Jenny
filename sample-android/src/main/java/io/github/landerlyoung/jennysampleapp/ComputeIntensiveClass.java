@@ -82,6 +82,8 @@ public class ComputeIntensiveClass {
 
     public native int computeThenCallback(Callback listener);
 
+    public static native void runJniHelperTest();
+
     // apply NativeCode annotation to non-native method
     // will raise a compile time error
     //@NativeCode
