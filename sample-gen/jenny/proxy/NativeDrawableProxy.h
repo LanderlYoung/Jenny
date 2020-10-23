@@ -45,27 +45,43 @@ public:
 
     // ====== jni helper ======
 private:
-   ::jenny::LocalRef<jobject> _local;
-   ::jenny::GlobalRef<jobject> _global;
+    ::jenny::LocalRef<jobject> _local;
+    ::jenny::GlobalRef<jobject> _global;
  
 public:
 
-   // jni helper
-   jobject getThis() const { return _local ? _local.get() : _global.get(); }
+    // jni helper
+    ::jenny::LocalRef<jobject> getThis(bool owned = true) const {
+        if (_local) {
+            if (owned) {
+                return _local;
+            } else {
+                return ::jenny::LocalRef<jobject>(_local.get(), false);
+            }
+        } else {
+            return _global.toLocal();
+        }
+    }
 
-   // jni helper constructors
-   NativeDrawableProxy(jobject ref, bool owned = false): _local(ref, owned) {}
+    // jni helper constructors
+    NativeDrawableProxy(jobject ref, bool owned = false): _local(ref, owned) {
+       assertInited(::jenny::Env().get());
+    }
    
-   NativeDrawableProxy(::jenny::LocalRef<jobject> ref): _local(std::move(ref)) {}
+    NativeDrawableProxy(::jenny::LocalRef<jobject> ref): _local(std::move(ref)) {
+       assertInited(::jenny::Env().get());
+    }
    
-   NativeDrawableProxy(::jenny::GlobalRef<jobject> ref): _global(std::move(ref)) {}
+    NativeDrawableProxy(::jenny::GlobalRef<jobject> ref): _global(std::move(ref)) {
+       assertInited(::jenny::Env().get());
+    }
    
 
 
         // for jni helper
     // field: private final long nativeHandle
     jlong getNativeHandle() const {
-       ::jenny::Env env; jobject thiz = getThis();
+       ::jenny::Env env; jobject thiz = getThis(false).get();
        return env->GetLongField(thiz, getClassInitState().sField_nativeHandle_0);
 
     }
@@ -83,12 +99,12 @@ private:
 
     jfieldID sField_nativeHandle_0 = nullptr;
 
-   }; // endof struct ClassInitState
+    }; // endof struct ClassInitState
 
-   static inline ClassInitState& getClassInitState() {
-       static ClassInitState classInitState;
-       return classInitState;
-   }
+    static inline ClassInitState& getClassInitState() {
+        static ClassInitState classInitState;
+        return classInitState;
+    }
 
 };
 

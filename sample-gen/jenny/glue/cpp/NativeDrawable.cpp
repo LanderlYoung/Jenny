@@ -14,6 +14,7 @@
  * Signature: ()J
  */
 jlong NativeDrawable::nativeInit(JNIEnv* env, jobject thiz) {
+    // TODO(jenny): generated method stub.
     return 0;
 }
 
@@ -23,6 +24,7 @@ jlong NativeDrawable::nativeInit(JNIEnv* env, jobject thiz) {
  * Signature: ()V
  */
 void NativeDrawable::onClick(JNIEnv* env, jobject thiz) {
+    // TODO(jenny): generated method stub.
     
 }
 
@@ -32,6 +34,7 @@ void NativeDrawable::onClick(JNIEnv* env, jobject thiz) {
  * Signature: (Landroid/graphics/Canvas;)V
  */
 void NativeDrawable::draw(JNIEnv* env, jobject thiz, jobject canvas) {
+    // TODO(jenny): generated method stub.
     
 }
 
@@ -41,6 +44,7 @@ void NativeDrawable::draw(JNIEnv* env, jobject thiz, jobject canvas) {
  * Signature: ()V
  */
 void NativeDrawable::release(JNIEnv* env, jobject thiz) {
+    // TODO(jenny): generated method stub.
     
 }
 

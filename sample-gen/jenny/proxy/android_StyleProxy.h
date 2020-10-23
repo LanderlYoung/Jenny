@@ -91,82 +91,98 @@ public:
 
     // ====== jni helper ======
 private:
-   ::jenny::LocalRef<jobject> _local;
-   ::jenny::GlobalRef<jobject> _global;
+    ::jenny::LocalRef<jobject> _local;
+    ::jenny::GlobalRef<jobject> _global;
  
 public:
 
-   // jni helper
-   jobject getThis() const { return _local ? _local.get() : _global.get(); }
+    // jni helper
+    ::jenny::LocalRef<jobject> getThis(bool owned = true) const {
+        if (_local) {
+            if (owned) {
+                return _local;
+            } else {
+                return ::jenny::LocalRef<jobject>(_local.get(), false);
+            }
+        } else {
+            return _global.toLocal();
+        }
+    }
 
-   // jni helper constructors
-   StyleProxy(jobject ref, bool owned = false): _local(ref, owned) {}
+    // jni helper constructors
+    StyleProxy(jobject ref, bool owned = false): _local(ref, owned) {
+       assertInited(::jenny::Env().get());
+    }
    
-   StyleProxy(::jenny::LocalRef<jobject> ref): _local(std::move(ref)) {}
+    StyleProxy(::jenny::LocalRef<jobject> ref): _local(std::move(ref)) {
+       assertInited(::jenny::Env().get());
+    }
    
-   StyleProxy(::jenny::GlobalRef<jobject> ref): _global(std::move(ref)) {}
+    StyleProxy(::jenny::GlobalRef<jobject> ref): _global(std::move(ref)) {
+       assertInited(::jenny::Env().get());
+    }
    
 
     // for jni helper
     // method: public static android.graphics.Paint.Style[] values()
-    static jobjectArray values() {
+    static ::jenny::LocalRef<jobjectArray> values() {
         ::jenny::Env env; assertInited(env.get());
-        return reinterpret_cast<jobjectArray>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_values_0));
+        return ::jenny::LocalRef<jobjectArray>(reinterpret_cast<jobjectArray>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_values_0)));
     }
 
     // for jni helper
     // method: public static android.graphics.Paint.Style valueOf(java.lang.String name)
-    static jobject valueOf(jstring name) {
+    static ::jenny::LocalRef<jobject> valueOf(const ::jenny::LocalRef<jstring>& name) {
         ::jenny::Env env; assertInited(env.get());
-        return env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_0, name);
+        return ::jenny::LocalRef<jobject>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_valueOf_0, name.get()));
     }
 
 
         // for jni helper
     // field: public static final android.graphics.Paint.Style FILL
-    static jobject getFILL() {
+    static ::jenny::LocalRef<jobject> getFILL() {
        ::jenny::Env env; assertInited(env.get());
-       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_0);
+       return ::jenny::LocalRef<jobject>(env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_0));
 
     }
 
         // for jni helper
     // field: public static final android.graphics.Paint.Style FILL
-    static void setFILL(jobject FILL) {
+    static void setFILL(const ::jenny::LocalRef<jobject>& FILL) {
         ::jenny::Env env; assertInited(env.get());
-        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_0, FILL);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_0, FILL.get());
     }
 
 
         // for jni helper
     // field: public static final android.graphics.Paint.Style STROKE
-    static jobject getSTROKE() {
+    static ::jenny::LocalRef<jobject> getSTROKE() {
        ::jenny::Env env; assertInited(env.get());
-       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_STROKE_1);
+       return ::jenny::LocalRef<jobject>(env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_STROKE_1));
 
     }
 
         // for jni helper
     // field: public static final android.graphics.Paint.Style STROKE
-    static void setSTROKE(jobject STROKE) {
+    static void setSTROKE(const ::jenny::LocalRef<jobject>& STROKE) {
         ::jenny::Env env; assertInited(env.get());
-        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_STROKE_1, STROKE);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_STROKE_1, STROKE.get());
     }
 
 
         // for jni helper
     // field: public static final android.graphics.Paint.Style FILL_AND_STROKE
-    static jobject getFILL_AND_STROKE() {
+    static ::jenny::LocalRef<jobject> getFILL_AND_STROKE() {
        ::jenny::Env env; assertInited(env.get());
-       return env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_AND_STROKE_2);
+       return ::jenny::LocalRef<jobject>(env->GetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_AND_STROKE_2));
 
     }
 
         // for jni helper
     // field: public static final android.graphics.Paint.Style FILL_AND_STROKE
-    static void setFILL_AND_STROKE(jobject FILL_AND_STROKE) {
+    static void setFILL_AND_STROKE(const ::jenny::LocalRef<jobject>& FILL_AND_STROKE) {
         ::jenny::Env env; assertInited(env.get());
-        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_AND_STROKE_2, FILL_AND_STROKE);
+        env->SetStaticObjectField(getClassInitState().sClazz, getClassInitState().sField_FILL_AND_STROKE_2, FILL_AND_STROKE.get());
     }
 
 
@@ -186,12 +202,12 @@ private:
     jfieldID sField_STROKE_1 = nullptr;
     jfieldID sField_FILL_AND_STROKE_2 = nullptr;
 
-   }; // endof struct ClassInitState
+    }; // endof struct ClassInitState
 
-   static inline ClassInitState& getClassInitState() {
-       static ClassInitState classInitState;
-       return classInitState;
-   }
+    static inline ClassInitState& getClassInitState() {
+        static ClassInitState classInitState;
+        return classInitState;
+    }
 
 };
 } // endof namespace android

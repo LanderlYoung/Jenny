@@ -35,8 +35,8 @@ public:
     
     // construct: private Graphics()
     static jobject newInstance(JNIEnv* env) {
-       assertInited(env);
-       return env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0);
+        assertInited(env);
+        return env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0);
     } 
     
 
@@ -73,61 +73,77 @@ public:
 
     // ====== jni helper ======
 private:
-   ::jenny::LocalRef<jobject> _local;
-   ::jenny::GlobalRef<jobject> _global;
+    ::jenny::LocalRef<jobject> _local;
+    ::jenny::GlobalRef<jobject> _global;
  
 public:
 
-   // jni helper
-   jobject getThis() const { return _local ? _local.get() : _global.get(); }
+    // jni helper
+    ::jenny::LocalRef<jobject> getThis(bool owned = true) const {
+        if (_local) {
+            if (owned) {
+                return _local;
+            } else {
+                return ::jenny::LocalRef<jobject>(_local.get(), false);
+            }
+        } else {
+            return _global.toLocal();
+        }
+    }
 
-   // jni helper constructors
-   GraphicsProxy(jobject ref, bool owned = false): _local(ref, owned) {}
+    // jni helper constructors
+    GraphicsProxy(jobject ref, bool owned = false): _local(ref, owned) {
+       assertInited(::jenny::Env().get());
+    }
    
-   GraphicsProxy(::jenny::LocalRef<jobject> ref): _local(std::move(ref)) {}
+    GraphicsProxy(::jenny::LocalRef<jobject> ref): _local(std::move(ref)) {
+       assertInited(::jenny::Env().get());
+    }
    
-   GraphicsProxy(::jenny::GlobalRef<jobject> ref): _global(std::move(ref)) {}
+    GraphicsProxy(::jenny::GlobalRef<jobject> ref): _global(std::move(ref)) {
+       assertInited(::jenny::Env().get());
+    }
    
     // construct: private Graphics()
     static GraphicsProxy newInstance() {
-       ::jenny::Env env; assertInited(env.get());
-       return env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0);
+        ::jenny::Env env; assertInited(env.get());
+        return env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0);
     } 
     
 
     // for jni helper
     // method: public static final android.graphics.Paint newPaint()
-    static jobject newPaint() {
+    static ::jenny::LocalRef<jobject> newPaint() {
         ::jenny::Env env; assertInited(env.get());
-        return env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_newPaint_0);
+        return ::jenny::LocalRef<jobject>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_newPaint_0));
     }
 
     // for jni helper
     // method: public static final void paintSetStyle(android.graphics.Paint paint, android.graphics.Paint.Style style)
-    static void paintSetStyle(jobject paint, jobject style) {
+    static void paintSetStyle(const ::jenny::LocalRef<jobject>& paint, const ::jenny::LocalRef<jobject>& style) {
         ::jenny::Env env; assertInited(env.get());
-        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_paintSetStyle_0, paint, style);
+        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_paintSetStyle_0, paint.get(), style.get());
     }
 
     // for jni helper
     // method: public static final void drawableCircle(android.graphics.Canvas canvas, float x, float y, float r, android.graphics.Paint paint)
-    static void drawableCircle(jobject canvas, jfloat x, jfloat y, jfloat r, jobject paint) {
+    static void drawableCircle(const ::jenny::LocalRef<jobject>& canvas, jfloat x, jfloat y, jfloat r, const ::jenny::LocalRef<jobject>& paint) {
         ::jenny::Env env; assertInited(env.get());
-        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_drawableCircle_0, canvas, x, y, r, paint);
+        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_drawableCircle_0, canvas.get(), x, y, r, paint.get());
     }
 
     // for jni helper
     // method: public static final android.graphics.Rect drawableGetBounds(android.graphics.drawable.Drawable drawable)
-    static jobject drawableGetBounds(jobject drawable) {
+    static ::jenny::LocalRef<jobject> drawableGetBounds(const ::jenny::LocalRef<jobject>& drawable) {
         ::jenny::Env env; assertInited(env.get());
-        return env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_drawableGetBounds_0, drawable);
+        return ::jenny::LocalRef<jobject>(env->CallStaticObjectMethod(getClassInitState().sClazz, getClassInitState().sMethod_drawableGetBounds_0, drawable.get()));
     }
 
     // for jni helper
     // method: public static final void setColor(android.graphics.Paint paint, int color)
-    static void setColor(jobject paint, jint color) {
+    static void setColor(const ::jenny::LocalRef<jobject>& paint, jint color) {
         ::jenny::Env env; assertInited(env.get());
-        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_setColor_0, paint, color);
+        env->CallStaticVoidMethod(getClassInitState().sClazz, getClassInitState().sMethod_setColor_0, paint.get(), color);
     }
 
 
@@ -148,12 +164,12 @@ private:
     jmethodID sMethod_setColor_0 = nullptr;
 
 
-   }; // endof struct ClassInitState
+    }; // endof struct ClassInitState
 
-   static inline ClassInitState& getClassInitState() {
-       static ClassInitState classInitState;
-       return classInitState;
-   }
+    static inline ClassInitState& getClassInitState() {
+        static ClassInitState classInitState;
+        return classInitState;
+    }
 
 };
 } // endof namespace jenny

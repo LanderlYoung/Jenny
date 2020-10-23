@@ -35,8 +35,8 @@ public:
     
     // construct: public NestedClass()
     static jobject newInstance(JNIEnv* env, jobject enclosingClass) {
-       assertInited(env);
-       return env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0, enclosingClass);
+        assertInited(env);
+        return env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0, enclosingClass);
     } 
     
 
@@ -49,33 +49,49 @@ public:
 
     // ====== jni helper ======
 private:
-   ::jenny::LocalRef<jobject> _local;
-   ::jenny::GlobalRef<jobject> _global;
+    ::jenny::LocalRef<jobject> _local;
+    ::jenny::GlobalRef<jobject> _global;
  
 public:
 
-   // jni helper
-   jobject getThis() const { return _local ? _local.get() : _global.get(); }
+    // jni helper
+    ::jenny::LocalRef<jobject> getThis(bool owned = true) const {
+        if (_local) {
+            if (owned) {
+                return _local;
+            } else {
+                return ::jenny::LocalRef<jobject>(_local.get(), false);
+            }
+        } else {
+            return _global.toLocal();
+        }
+    }
 
-   // jni helper constructors
-   NestedClassProxy(jobject ref, bool owned = false): _local(ref, owned) {}
+    // jni helper constructors
+    NestedClassProxy(jobject ref, bool owned = false): _local(ref, owned) {
+       assertInited(::jenny::Env().get());
+    }
    
-   NestedClassProxy(::jenny::LocalRef<jobject> ref): _local(std::move(ref)) {}
+    NestedClassProxy(::jenny::LocalRef<jobject> ref): _local(std::move(ref)) {
+       assertInited(::jenny::Env().get());
+    }
    
-   NestedClassProxy(::jenny::GlobalRef<jobject> ref): _global(std::move(ref)) {}
+    NestedClassProxy(::jenny::GlobalRef<jobject> ref): _global(std::move(ref)) {
+       assertInited(::jenny::Env().get());
+    }
    
     // construct: public NestedClass()
-    static NestedClassProxy newInstance(jobject enclosingClass) {
-       ::jenny::Env env; assertInited(env.get());
-       return env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0, enclosingClass);
+    static NestedClassProxy newInstance(const ::jenny::LocalRef<jobject>& enclosingClass) {
+        ::jenny::Env env; assertInited(env.get());
+        return env->NewObject(getClassInitState().sClazz, getClassInitState().sConstruct_0, enclosingClass.get());
     } 
     
 
     // for jni helper
     // method: public void hello()
-    void hello(jobject enclosingClass) const {
-        ::jenny::Env env; jobject thiz = getThis();
-        env->CallVoidMethod(thiz, getClassInitState().sMethod_hello_0, enclosingClass);
+    void hello(const ::jenny::LocalRef<jobject>& enclosingClass) const {
+        ::jenny::Env env; jobject thiz = getThis(false).get();
+        env->CallVoidMethod(thiz, getClassInitState().sMethod_hello_0, enclosingClass.get());
     }
 
 
@@ -92,12 +108,12 @@ private:
     jmethodID sMethod_hello_0 = nullptr;
 
 
-   }; // endof struct ClassInitState
+    }; // endof struct ClassInitState
 
-   static inline ClassInitState& getClassInitState() {
-       static ClassInitState classInitState;
-       return classInitState;
-   }
+    static inline ClassInitState& getClassInitState() {
+        static ClassInitState classInitState;
+        return classInitState;
+    }
 
 };
 

@@ -20,6 +20,7 @@
 #include "java_okhttp_CallProxy.h"
 #include "java_okhttp_ResponseProxy.h"
 #include "java_okhttp_ResponseBodyProxy.h"
+#include "java_lang_RuntimeExceptionProxy.h"
 #include "android_StyleProxy.h"
 #include "android_RectProxy.h"
 
@@ -38,6 +39,7 @@ java::okhttp::BuilderProxy::initClazz(env)&&
 java::okhttp::CallProxy::initClazz(env)&&
 java::okhttp::ResponseProxy::initClazz(env)&&
 java::okhttp::ResponseBodyProxy::initClazz(env)&&
+java::lang::RuntimeExceptionProxy::initClazz(env)&&
 android::StyleProxy::initClazz(env)&&
 android::RectProxy::initClazz(env);
    return success;

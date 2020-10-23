@@ -99,16 +99,34 @@ dependencies {
 }
 
 task copyGeneratedCpp {
+    def generatedDir = "generated/source/kapt/debug"
     doLast {
         copy {
             // copy proxy
-            from new File(project.buildDir, "generated/source/kapt/debug/jenny/proxy")
+            from new File(project.buildDir, "${generatedDir}/jenny/proxy")
             into project.file('src/main/cpp/gen')
         }
         copy {
             // copy glue header
-            from new File(project.buildDir, "generated/source/kapt/debug/jenny/glue/header")
+            from new File(project.buildDir, "${generatedDir}/jenny/glue/header")
             into project.file('src/main/cpp')
+        }
+
+        // copy to sample-gen
+        copy {
+            from new File(project.buildDir, generatedDir)
+            include(
+                    "jenny/glue/cpp/NativeDrawable.cpp",
+                    "jenny/glue/header/NativeDrawable.h",
+                    "jenny/proxy/android_StyleProxy.h",
+                    "jenny/proxy/java_okhttp_CallProxy.h",
+                    "jenny/proxy/jenny_fusion_proxies.h",
+                    "jenny/proxy/jenny_GraphicsProxy.h",
+                    "jenny/proxy/NativeDrawableProxy.h",
+                    "jenny/proxy/NativeClassProxy.h",
+                    "jenny/proxy/NestedClassProxy.h"
+            )
+            into rootProject.file("sample-gen")
         }
     }
 }
