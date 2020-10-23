@@ -23,6 +23,7 @@ Jenny comes with two main part:
 2. Native**Proxy**Generator: which generate helper C++ class for you to call java APIs through JNI interface, including create new instance, call method, get/set fields, define constants.
 
 **Glue** stands for c++ code to implement Java native method. (Glue java and C++.)
+
 **Proxy** stands for c++ class to provide calls to java from c++. (c++ side proxy for the java class.)
 
 And there is an extra bonus -- [jnihelper.h](cpp/jnihelper.h) that uses C++ RAII technology to simplify JNI APIs. When opt-in (with `'jenny.useJniHelper'=true`), the generated proxy class will also add methods using `jnihelper`, which makes life even happier!
@@ -125,7 +126,7 @@ String run(String url) throws IOException {
 
 If you are femiliar with JNI, you'd be surprised! The C++ code using Jenny just as clean as the Java code. Without Jenny it would be a nightmare.
 
-And here is another real world comparesion using `URLConnection` api **with vs without jenny**. [Follow the link to see the nightmare!🔗](https://gist.github.com/LanderlYoung/1a203f519ba5f91b38c1d81534d63664)
+And here is another real world comparesion using `URLConnection` api **with vs without jenny**. [🔗Follow the link to see the nightmare!](https://gist.github.com/LanderlYoung/1a203f519ba5f91b38c1d81534d63664)
 
 
 And also, here is another example without `jnihelper`.
@@ -192,7 +193,7 @@ Also, you can tell Jenny to generate code for libray classes by using the `@Nati
 
 > (note): Use this feature with caution. When your compile-class-path and runtime-class-path have different version of the same class, it's easy to crash because the proxy can't find some method which appears in compile-time but not on runtime. For instance to generate proxy for [`java.net.http.HttpRequest`](https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpRequest.html) compiled with java-11, ran with java-8, your code crashes because that class just don't exist before java-11.
 >
-> In this case, the recommand way is to write your own helper class, and generate proxy for it.
+> In this case, the recommanded way is to write your own helper class, and generate proxy for it.
 
 ## Configurations
 
