@@ -20,6 +20,9 @@ class NamespaceHelper(namespace: String) {
         }
     }
 
+    // like std::chrono
+    val namespaceNotation:String = namespaces.joinToString("::")
+
     fun beginNamespace() = namespaces.joinToString(" ") { "namespace $it {" }
 
     fun endNamespace() = if (namespaces.isNotEmpty())

@@ -48,6 +48,8 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         mElementsUtils = processingEnv.elementUtils
         mFiler = processingEnv.filer
         mConfigurations = Configurations.fromOptions(processingEnv.options)
+
+        mMessager.printMessage(Diagnostic.Kind.NOTE, "Jenny configured with:${mConfigurations}")
     }
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
@@ -56,8 +58,12 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                 || !annotations.any { it.qualifiedName.toString() in SUPPORTED_ANNOTATIONS }) return false
 
         try {
-            generateNativeGlueCode(roundEnv)
-            generateNativeProxy(roundEnv)
+            val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
+
+            generateNativeGlueCode(roundEnv, env)
+            val proxyClasses = generateNativeProxy(roundEnv, env)
+            generateFusionProxyHeader(env, proxyClasses)
+            generateJniHelper(env)
         } catch (e: Throwable) {
             mMessager.printMessage(Diagnostic.Kind.ERROR, "Jenny failed to process ${e.javaClass.name} ${e.message}")
         }
@@ -65,28 +71,27 @@ class JennyAnnotationProcessor : AbstractProcessor() {
         return true
     }
 
-    private fun generateNativeGlueCode(roundEnv: RoundEnvironment) {
+    private fun generateNativeGlueCode(roundEnv: RoundEnvironment, env: Environment): List<CppClass> {
         // classify annotations by class
-        val classes = roundEnv.getElementsAnnotatedWith(NativeClass::class.java)
-
-        val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
-        classes.asSequence()
-                .filter { it is TypeElement }
-                .forEach { NativeGlueGenerator(env, it as TypeElement).doGenerate() }
+        return roundEnv.getElementsAnnotatedWith(NativeClass::class.java)
+                .filterIsInstance<TypeElement>()
+                .map {
+                    NativeGlueGenerator(env, it).doGenerate()
+                }
     }
 
-    private fun generateNativeProxy(roundEnv: RoundEnvironment) {
-        val env = Environment(mMessager, mTypeUtils, mElementsUtils, mFiler, mConfigurations)
+    private fun generateNativeProxy(roundEnv: RoundEnvironment, env: Environment): List<CppClass> {
+        val classes = mutableListOf<CppClass>()
 
-        roundEnv.getElementsAnnotatedWith(NativeProxy::class.java)
-                .forEach {
+        classes += roundEnv.getElementsAnnotatedWith(NativeProxy::class.java)
+                .map {
                     val config = NativeProxyGenerator.NativeProxyConfig(
                             (it.getAnnotation(NativeProxy::class.java)
                                     ?: AnnotationResolver.getDefaultImplementation(NativeProxy::class.java)))
                     NativeProxyGenerator(env, it as TypeElement, config).doGenerate()
                 }
 
-        (roundEnv.getElementsAnnotatedWith(NativeProxyForClasses::class.java)
+        classes += (roundEnv.getElementsAnnotatedWith(NativeProxyForClasses::class.java)
                 .asSequence()
                 .map { it.getAnnotation(NativeProxyForClasses::class.java) }
                 +
@@ -94,13 +99,14 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                         .asSequence()
                         .flatMap { it.getAnnotationsByType(NativeProxyForClasses::class.java).asSequence() }
                 )
-                .forEach { annotation ->
+                .toCollection(mutableSetOf())
+                .flatMap { annotation ->
                     try {
                         annotation.classes
                         throw AssertionError("unreachable")
                     } catch (e: MirroredTypesException) {
                         e.typeMirrors
-                    }.forEach {
+                    }.map {
                         val clazz = mTypeUtils.asElement(it) as TypeElement
 
                         val config = NativeProxyGenerator.NativeProxyConfig(
@@ -109,6 +115,18 @@ class JennyAnnotationProcessor : AbstractProcessor() {
                         NativeProxyGenerator(env, clazz, config).doGenerate()
                     }
                 }
+
+        return classes
+    }
+
+    private fun generateJniHelper(env: Environment) {
+        env.createOutputFile(Constants.JENNY_GEN_DIR_PROXY, Constants.JENNY_JNI_HELPER_H_NAME).use {
+            it.write(Constants.JENNY_JNI_HELPER_H_CONTENT.toByteArray(Charsets.UTF_8))
+        }
+    }
+
+    private fun generateFusionProxyHeader(env: Environment, proxyClasses: Collection<CppClass>) {
+        FusionProxyGenerator(env, proxyClasses).generate()
     }
 
     override fun getSupportedSourceVersion(): SourceVersion {

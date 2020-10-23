@@ -24,6 +24,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.NoType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import kotlin.collections.component1
@@ -86,13 +87,15 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         findFields()
     }
 
-    override fun doGenerate() {
+    override fun doGenerate(): CppClass {
         init()
 
         generatorHeader()
         if (!mEnv.configurations.headerOnlyProxy) {
             generateSource()
         }
+
+        return CppClass(cppClassName, mNamespaceHelper.namespaceNotation, mHeaderName)
     }
 
     private fun generatorHeader() {
@@ -114,6 +117,12 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         |
                         |""".trimMargin())
                     }
+                    if (mEnv.configurations.useJniHelper) {
+                        append("""
+                        |#include "jnihelper.h"
+                        |
+                        |""".trimMargin())
+                    }
 
                     append("""
                         |${mNamespaceHelper.beginNamespace()}
@@ -128,15 +137,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
                     append("""
                         |
-                        |private:
-                        |
-                    """.trimMargin())
-
-                    append("""
-                        |
-                        |    JNIEnv* mJniEnv;
-                        |    jobject mJavaObjectReference;
-                        |
                         |public:
                         |
                         |    static bool initClazz(JNIEnv* env);
@@ -147,56 +147,16 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         |        auto initClazzSuccess = initClazz(env);
                         |        assert(initClazzSuccess);
                         |    }
-                        |
-                        |    ${cppClassName}(): ${cppClassName}(nullptr, nullptr) {}
-                        |    
-                        |    ${cppClassName}(JNIEnv* env, jobject javaObj)
-                        |            : mJniEnv(env), mJavaObjectReference(javaObj) {
-                        |        if (env) { assertInited(env); }
-                        |    }
-                        |
-                        |    ${cppClassName}(const $cppClassName& from) = default;
-                        |    $cppClassName &operator=(const $cppClassName &) = default;
-                        |
-                        |    ${cppClassName}($cppClassName&& from) noexcept
-                        |           : mJniEnv(from.mJniEnv), mJavaObjectReference(from.mJavaObjectReference) {
-                        |        from.mJavaObjectReference = nullptr;
-                        |    }
-                        |    
-                        |    ${cppClassName}& operator=($cppClassName&& from) noexcept {
-                        |       mJniEnv = from.mJniEnv;
-                        |       std::swap(mJavaObjectReference, from.mJavaObjectReference);
-                        |       return *this;
-                        |   }
-                        |
-                        |    ~${cppClassName}() = default;
-                        |    
-                        |    // helper method to get underlay jobject reference
-                        |    jobject operator*() const {
-                        |       return mJavaObjectReference;
-                        |    }
-                        |    
-                        |    // helper method to check underlay jobject reference is not nullptr
-                        |    operator bool() const {
-                        |       return mJavaObjectReference;
-                        |    }
-                        |    
-                        |    // helper method to delete JNI local ref.
-                        |    // use only when you really understand JNIEnv::DeleteLocalRef.
-                        |    void deleteLocalRef() {
-                        |       if (mJavaObjectReference) {
-                        |           mJniEnv->DeleteLocalRef(mJavaObjectReference);
-                        |           mJavaObjectReference = nullptr;
-                        |       }
-                        |    }
-                        |    
-                        |    // === java methods below ===
                         |    
                         |""".trimMargin())
 
-                    buildConstructorDefines()
-                    buildMethodDefines()
-                    buildFieldDefines()
+                    buildConstructorDefines(false)
+                    buildMethodDefines(false)
+                    buildFieldDefines(false)
+
+                    if (mEnv.configurations.useJniHelper) {
+                        generateForJniHelper()
+                    }
 
                     append("""
                         |
@@ -224,13 +184,12 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     buildFieldIdDeclare()
 
                     append("""
-                        |   }; // endof struct ClassInitState
+                        |    }; // endof struct ClassInitState
                         |
-                        |   template <typename T = void>
-                        |   static ClassInitState& getClassInitState() {
-                        |       static ClassInitState classInitState;
-                        |       return classInitState;
-                        |   }
+                        |    static inline ClassInitState& getClassInitState() {
+                        |        static ClassInitState classInitState;
+                        |        return classInitState;
+                        |    }
                         |
                         |
                     """.trimMargin())
@@ -250,6 +209,47 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 warn("generate header file $mHeaderName failed!")
             }
         }
+    }
+
+    private fun StringBuilder.generateForJniHelper() {
+        append("""
+            |    // ====== jni helper ======
+            |private:
+            |    ::jenny::LocalRef<jobject> _local;
+            |    ::jenny::GlobalRef<jobject> _global;
+            | 
+            |public:
+            |
+            |    // jni helper
+            |    ::jenny::LocalRef<jobject> getThis(bool owned = true) const {
+            |        if (_local) {
+            |            if (owned) {
+            |                return _local;
+            |            } else {
+            |                return ::jenny::LocalRef<jobject>(_local.get(), false);
+            |            }
+            |        } else {
+            |            return _global.toLocal();
+            |        }
+            |    }
+            |
+            |    // jni helper constructors
+            |    ${cppClassName}(jobject ref, bool owned = false): _local(ref, owned) {
+            |       assertInited(::jenny::Env().get());
+            |    }
+            |   
+            |    ${cppClassName}(::jenny::LocalRef<jobject> ref): _local(std::move(ref)) {
+            |       assertInited(::jenny::Env().get());
+            |    }
+            |   
+            |    ${cppClassName}(::jenny::GlobalRef<jobject> ref): _global(std::move(ref)) {
+            |       assertInited(::jenny::Env().get());
+            |    }
+            |   
+            |""".trimMargin())
+        buildConstructorDefines(true)
+        buildMethodDefines(true)
+        buildFieldDefines(true)
     }
 
     private fun generateSource() {
@@ -329,17 +329,16 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         append('\n')
     }
 
-    private fun StringBuilder.buildConstructorDefines() {
+    private fun StringBuilder.buildConstructorDefines(useJniHelper: Boolean) {
         mConstructors.forEach { r ->
-            var param = getJniMethodParam(r.method)
-            if (param.isNotEmpty()) {
-                param = ", $param"
-            }
+            val param = makeParam(true, useJniHelper, getJniMethodParam(r.method, useJniHelper))
+
+            val returnType = if (useJniHelper) cppClassName else "jobject"
             append("""
                 |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
-                |    static $cppClassName newInstance${r.resolvedPostFix}(JNIEnv* env${param}) noexcept {
-                |       assertInited(env);
-                |       return ${cppClassName}(env, env->NewObject(${getClassState(getClazz())}, ${getClassState(getConstructorName(r.index))}${getJniMethodParamVal(r.method)}));
+                |    static $returnType newInstance${r.resolvedPostFix}(${param}) {
+                |        ${methodPrologue(true, useJniHelper)}
+                |        return env->NewObject(${getClassState(getClazz())}, ${getClassState(getConstructorName(r.index))}${getJniMethodParamVal(r.method, useJniHelper)});
                 |    } 
                 |    
                 |""".trimMargin())
@@ -347,92 +346,104 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         append('\n')
     }
 
-    private fun StringBuilder.buildMethodDefines() {
+    private fun StringBuilder.buildMethodDefines(useJniHelper: Boolean) {
         mMethods.forEach { r ->
             val m = r.method
             val isStatic = m.modifiers.contains(Modifier.STATIC)
-            val returnType = mHelper.toJNIType(m.returnType)
+            val jniReturnType = mHelper.toJNIType(m.returnType)
+            val functionReturnType = m.returnType.toJniTypeForReturn(useJniHelper)
+            val staticMod = if (isStatic || !useJniHelper) "static " else ""
+            val constMod = if (isStatic || !useJniHelper) "" else "const "
 
-            var jniParam = getJniMethodParam(m)
-            if (isStatic) {
-                jniParam = if (jniParam.isNotEmpty()) {
-                    "JNIEnv* env, $jniParam"
-                } else {
-                    "JNIEnv* env"
-                }
+            val jniParam = makeParam(isStatic, useJniHelper, getJniMethodParam(m, useJniHelper))
+
+            if (useJniHelper) {
+                append("    // for jni helper\n")
             }
-
-            val staticMethod = if (isStatic) "static " else ""
-            val env = if (isStatic) "env" else "mJniEnv"
-            val constMod = if (isStatic) "" else "const "
 
             append("""
                 |    // method: ${mHelper.getModifiers(m)} ${m.returnType} ${m.simpleName}(${mHelper.getJavaMethodParam(m)})
-                |    ${staticMethod}$returnType ${m.simpleName}${r.resolvedPostFix}(${jniParam}) ${constMod}{
+                |    ${staticMod}${functionReturnType} ${m.simpleName}${r.resolvedPostFix}(${jniParam}) ${constMod}{
+                |        ${methodPrologue(isStatic, useJniHelper)}
                 |""".trimMargin())
-            if (isStatic) {
-                append("        assertInited(env);\n")
-            }
 
             if (m.returnType.kind !== TypeKind.VOID) {
                 append("        return ")
             } else {
                 append("        ")
             }
-            if (returnTypeNeedCast(returnType)) {
-                append("reinterpret_cast<${returnType}>(")
+
+            if (useJniHelper && needWrapLocalRef(m.returnType)) {
+                append(functionReturnType).append("(")
+            }
+
+            if (returnTypeNeedCast(jniReturnType)) {
+                append("reinterpret_cast<${jniReturnType}>(")
             }
 
             val static = if (isStatic) "Static" else ""
-            val classOrObj = if (isStatic) getClassState(getClazz()) else "mJavaObjectReference"
-            append("${env}->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getClassState(getMethodName(m, r.index))}${getJniMethodParamVal(m)})")
-            if (returnTypeNeedCast(returnType)) {
+            val classOrObj = if (isStatic) getClassState(getClazz()) else "thiz"
+            append("env->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getClassState(getMethodName(m, r.index))}${getJniMethodParamVal(m, useJniHelper)})")
+            if (returnTypeNeedCast(jniReturnType)) {
                 append(")")
             }
+            if (useJniHelper && needWrapLocalRef(m.returnType)) {
+                append(")")
+            }
+
             append(";\n")
             append("    }\n\n")
         }
         append('\n')
     }
 
-    private fun StringBuilder.buildFieldDefines() {
+    private fun StringBuilder.buildFieldDefines(useJniHelper: Boolean) {
         mFields.forEachIndexed { index, f ->
             val isStatic = f.modifiers.contains(Modifier.STATIC)
-            val camelCaseName = f.simpleName.toString().capitalize()
-            val returnType = mHelper.toJNIType(f.asType())
+            val camelCaseName = f.simpleName.toString().capitalize(Locale.ROOT)
             val getterSetters = hasGetterSetter(f)
             val fieldId = getFieldName(f, index)
             val typeForJniCall = getTypeForJniCall(f.asType())
-            val jniType = mHelper.toJNIType(f.asType())
 
 
             val static = if (isStatic) "Static" else ""
-            val staticMod = if (isStatic) "static " else ""
-            val classOrObj = if (isStatic) getClassState(getClazz()) else "mJavaObjectReference"
-            val assertInit = if (isStatic) "assertInited(env);" else ""
-            val jniEnv = if (isStatic) "env" else "mJniEnv"
-            val const = if (isStatic) "" else "const "
+            val staticMod = if (isStatic || !useJniHelper) "static " else ""
+            val constMod = if (isStatic || !useJniHelper) "" else "const "
+            val classOrObj = if (isStatic) getClassState(getClazz()) else "thiz"
+            val jniEnv = "env"
 
-            val comment = "// field: ${mHelper.getModifiers(f)} ${f.asType()} ${f.simpleName}"
+            var comment = "// field: ${mHelper.getModifiers(f)} ${f.asType()} ${f.simpleName}"
+            if (useJniHelper) {
+                comment = "    // for jni helper\n    $comment"
+            }
 
+            // getter
             if (getterSetters.contains(GetterSetter.GETTER)) {
-                val env = if (isStatic) "JNIEnv* env" else ""
+                val jniReturnType = mHelper.toJNIType(f.asType())
+                val functionReturnType = f.asType().toJniTypeForReturn(useJniHelper)
+                val param = makeParam(isStatic, useJniHelper, "")
                 append("""
                     |    $comment
-                    |    ${staticMod}$returnType get${camelCaseName}(${env}) ${const}{
-                    |       $assertInit
+                    |    ${staticMod}$functionReturnType get${camelCaseName}(${param}) ${constMod}{
+                    |       ${methodPrologue(isStatic, useJniHelper)}
                     |       return """.trimMargin())
 
-                if (returnTypeNeedCast(returnType)) {
-                    append("reinterpret_cast<${returnType}>(")
+                if (useJniHelper && needWrapLocalRef(f.asType())) {
+                    append(functionReturnType).append("(")
+                }
+
+                if (returnTypeNeedCast(jniReturnType)) {
+                    append("reinterpret_cast<${jniReturnType}>(")
                 }
 
                 append("${jniEnv}->Get${static}${typeForJniCall}Field(${classOrObj}, ${getClassState(fieldId)})")
 
-                if (returnTypeNeedCast(returnType)) {
+                if (returnTypeNeedCast(jniReturnType)) {
                     append(")")
                 }
-
+                if (useJniHelper && needWrapLocalRef(f.asType())) {
+                    append(")")
+                }
                 append(""";
                     |
                     |    }
@@ -440,18 +451,15 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     |""".trimMargin())
             }
 
+            // setter
             if (getterSetters.contains(GetterSetter.SETTER)) {
-                val param = "$jniType ${f.simpleName}".let {
-                    if (isStatic) {
-                        "JNIEnv* env, $it"
-                    } else
-                        it
-                }
+                val param = makeParam(isStatic, useJniHelper, "${f.asType().toJniTypeForParam(useJniHelper)} ${f.simpleName}")
+                val passedParam = if (useJniHelper && needWrapLocalRef(f.asType())) "${f.simpleName}.get()" else f.simpleName
                 append("""
                     |    $comment
-                    |    ${staticMod}void set${camelCaseName}(${param}) ${const}{
-                    |        $assertInit
-                    |        ${jniEnv}->Set${static}${typeForJniCall}Field(${classOrObj}, ${getClassState(fieldId)}, ${f.simpleName});
+                    |    ${staticMod}void set${camelCaseName}(${param}) ${constMod}{
+                    |        ${methodPrologue(isStatic, useJniHelper)}
+                    |        ${jniEnv}->Set${static}${typeForJniCall}Field(${classOrObj}, ${getClassState(fieldId)}, ${passedParam});
                     |    }
                     |
                     |""".trimMargin())
@@ -598,6 +606,31 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         }
         append('\n')
     }
+
+    private fun makeParam(vararg params: String): String =
+            params.filter { it.isNotEmpty() }.joinToString(", ")
+
+    private fun makeParam(isStatic: Boolean, useJniHelper: Boolean, jniParam: String): String =
+            if (!useJniHelper) {
+                if (isStatic) {
+                    makeParam("JNIEnv* env", jniParam)
+                } else {
+                    makeParam("JNIEnv* env", "jobject thiz", jniParam)
+                }
+            } else {
+                jniParam
+            }
+
+    private fun methodPrologue(isStatic: Boolean, useJniHelper: Boolean): String =
+            if (useJniHelper) {
+                if (isStatic) {
+                    "::jenny::Env env; assertInited(env.get());"
+                } else {
+                    "::jenny::Env env; jobject thiz = getThis(false).get();"
+                }
+            } else {
+                "assertInited(env);"
+            }
 
     private fun shouldGenerateMethod(m: ExecutableElement): Boolean {
         val annotation = m.getAnnotation(NativeMethodProxy::class.java)
@@ -755,35 +788,64 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         }
     }
 
-    private fun getJniMethodParam(m: ExecutableElement) = buildString {
+    // need wrap LocalRef for jnihelper or not
+    fun needWrapLocalRef(type: TypeMirror): Boolean {
+        return !type.kind.isPrimitive && type !is NoType
+    }
+
+    fun TypeMirror.toJniTypeForParam(useJniHelper: Boolean): String {
+        val jniType = mHelper.toJNIType(this)
+        return if (useJniHelper && needWrapLocalRef(this)) {
+            "const ::jenny::LocalRef<$jniType>&"
+        } else {
+            jniType
+        }
+    }
+
+    fun TypeMirror.toJniTypeForReturn(useJniHelper: Boolean): String {
+        val jniType = mHelper.toJNIType(this)
+        return if (useJniHelper && needWrapLocalRef(this)) {
+            "::jenny::LocalRef<$jniType>"
+        } else {
+            jniType
+        }
+    }
+
+    private fun getJniMethodParam(m: ExecutableElement, useJniHelper: Boolean) = buildString {
         var needComma = false
         if (mHelper.isNestedClass(mClazz)) {
             val enclosingElement = mClazz.enclosingElement
             // nested class has an this$0 in its constructor
-            append(mHelper.toJNIType(enclosingElement.asType()))
+            append(enclosingElement.asType().toJniTypeForParam(useJniHelper))
                     .append(" ")
                     .append("enclosingClass")
             needComma = true
         }
         m.parameters.forEach { p ->
             if (needComma) append(", ")
-            append(mHelper.toJNIType(p.asType()))
+            append(p.asType().toJniTypeForParam(useJniHelper))
                     .append(" ")
                     .append(p.simpleName)
             needComma = true
         }
     }
 
-    private fun getJniMethodParamVal(m: ExecutableElement): String {
+    private fun getJniMethodParamVal(m: ExecutableElement, useJniHelper: Boolean): String {
         val sb = StringBuilder(64)
         if (mHelper.isNestedClass(mClazz)) {
-            //nested class has an this$0 in its constructor
-            sb.append(", ")
-                    .append("enclosingClass")
+            // nested class has an `jboject this$0` in its constructor
+            sb.append(", ").append("enclosingClass")
+            if (useJniHelper) {
+                // LocalRef::get
+                sb.append(".get()")
+            }
         }
         m.parameters.forEach { p ->
-            sb.append(", ")
-                    .append(p.simpleName)
+            sb.append(", ").append(p.simpleName)
+            if (useJniHelper && needWrapLocalRef(p.asType())) {
+                // LocalRef::get
+                sb.append(".get()")
+            }
         }
         return sb.toString()
     }

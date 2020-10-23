@@ -14,6 +14,13 @@ apply plugin: 'java'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+compileJava {
+    options.compilerArgs += [
+            "-Ajenny.threadSafe=false",
+            "-Ajenny.useJniHelper=false",
+    ]
+}
+
 dependencies {
     implementation project(':annotation')
     annotationProcessor project(':compiler')

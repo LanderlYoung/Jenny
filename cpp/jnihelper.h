@@ -2,6 +2,9 @@
 // Apache License
 // Version 2.0, January 2004
 // http://www.apache.org/licenses/
+//
+// This file is part of the Jenny project.
+// https://github.com/LanderlYoung/Jenny
 
 /**
  * <pre>
@@ -14,10 +17,10 @@
 
 #pragma once
 
+#include <jni.h>
 #include <cassert>
 #include <memory>
 #include <string>
-#include <jni.h>
 
 #ifdef __ANDROID__
 #include <pthread.h>
@@ -39,6 +42,12 @@ class Env {
    * suggested on JNI_OnLoad
    */
   static void attachJvm(JavaVM* jvm);
+
+  static void attachJvm(JNIEnv* env) {
+    JavaVM *jvm;
+    env->GetJavaVM(&jvm);
+    attachJvm(jvm);
+  }
 
  public:
   Env() : _env(attachCurrentThreadIfNeed()) {}
@@ -62,43 +71,60 @@ template <typename JniPointer>
 class LocalRef {
  private:
   JniPointer _value;
+  JNIEnv* _env;
+  bool _owned;
 
  public:
-  LocalRef(JniPointer value = nullptr) : LocalRef(Env().get(), value) {}
+  LocalRef() : LocalRef(nullptr, nullptr, false) {}
 
-  LocalRef(JNIEnv* env, JniPointer value = nullptr) : _value(value) {
+  explicit LocalRef(JniPointer value, bool owned = true) : LocalRef(Env().get(), value, owned) {}
+
+  LocalRef(JNIEnv* env, JniPointer value = nullptr, bool owned = true)
+      : _value(value), _env(env), _owned(owned) {
     assert(value == nullptr || env->GetObjectRefType(value) == jobjectRefType::JNILocalRefType);
   }
 
-  LocalRef(const LocalRef&) = delete;
-  LocalRef& operator=(const LocalRef&) = delete;
-
-  LocalRef(LocalRef&& from) noexcept : _value(from._value) { from._value = nullptr; }
-
-  LocalRef& operator=(LocalRef&& from) noexcept {
-    if (&from != this) {
-      if (_value) {
-        Env()->DeleteLocalRef(_value);
-      }
-
-      _value = from._value;
-      from._value = nullptr;
+  LocalRef(const LocalRef& copy) : _value(nullptr), _env(nullptr), _owned(true) {
+    if (copy._value) {
+      _env = copy._env;
+      _value = reinterpret_cast<JniPointer>(_env->NewLocalRef(copy._value));
+      _owned = true;
+      assert(_value);
     }
+  }
+
+  LocalRef(LocalRef&& from) noexcept : _value(from._value), _env(from._env), _owned(from._owned) {
+    from._value = nullptr;
+    from._env = nullptr;
+    from._owned = false;
+  }
+
+  LocalRef& operator=(LocalRef other) noexcept {
+    swap(other);
     return *this;
   }
 
+  void swap(LocalRef<JniPointer>& other) noexcept {
+    std::swap(_value, other._value);
+    std::swap(_env, other._env);
+    std::swap(_owned, other._owned);
+  }
+
   ~LocalRef() {
-    if (_value) {
-      Env()->DeleteLocalRef(_value);
+    if (_value && _owned) {
+      _env->DeleteLocalRef(_value);
+      _env = nullptr;
     }
   }
 
-  GlobalRef<JniPointer> toGlobal();
+  GlobalRef<JniPointer> toGlobal() const;
 
-  JniPointer get() { return _value; }
+  JniPointer get() const { return _value; }
+
+  bool owned() const { return _owned; }
 
   /**
-   * same as unique_ptr::release, return the global ref out, and give of the ownership.
+   * same as unique_ptr::release, return the ref out, and give of the ownership.
    */
   JniPointer release() {
     auto ret = _value;
@@ -106,7 +132,7 @@ class LocalRef {
     return ret;
   }
 
-  operator bool() { return _value != nullptr; }
+  operator bool() const { return _value != nullptr; }
 };
 
 template <typename JniPointer>
@@ -117,9 +143,11 @@ class GlobalRef {
  public:
   explicit GlobalRef(JniPointer value = nullptr) : GlobalRef(Env().get(), value) {}
 
+  explicit GlobalRef(const LocalRef<JniPointer>& local) : GlobalRef(local.get()) {}
+
   explicit GlobalRef(JNIEnv* env, JniPointer value = nullptr) {
     if (value) {
-      _value = env->NewGlobalRef(value);
+      _value = reinterpret_cast<JniPointer>(env->NewGlobalRef(value));
     }
   }
 
@@ -127,28 +155,16 @@ class GlobalRef {
 
   GlobalRef(GlobalRef&& from) noexcept : _value(from._value) { from._value = nullptr; }
 
-  GlobalRef& operator=(const GlobalRef& from) noexcept {
-    if (&from != this) {
-      clear();
-
-      Env env;
-      _value = env->NewGlobalRef(from._value);
-    }
-  }
-
-  GlobalRef& operator=(GlobalRef&& from) noexcept {
-    if (&from != this) {
-      clear();
-      _value = from._value;
-      from._value = nullptr;
-    }
+  GlobalRef& operator=(GlobalRef from) noexcept {
+    swap(from);
     return *this;
   }
 
+  void swap(GlobalRef& other) noexcept { std::swap(_value, other._value); }
+
   LocalRef<JniPointer> toLocal() const {
     if (_value) {
-      Env env;
-      return LocalRef<JniPointer>(env->NewLocalRef(_value));
+      return LocalRef<JniPointer>(reinterpret_cast<JniPointer>(Env()->NewLocalRef(_value)));
     } else {
       return {};
     }
@@ -158,8 +174,7 @@ class GlobalRef {
 
   void clear() {
     if (_value) {
-      Env env;
-      env->DeleteGlobalRef(_value);
+      Env()->DeleteGlobalRef(_value);
       _value = nullptr;
     }
   }
@@ -175,9 +190,7 @@ class GlobalRef {
     return ret;
   }
 
-  JniPointer operator*() { return _value; }
-
-  operator bool() { return _value != nullptr; }
+  operator bool() const { return _value != nullptr; }
 };
 
 inline bool checkUtfBytes(const char* bytes) {
@@ -235,8 +248,8 @@ inline bool checkUtfBytes(const char* bytes) {
 }
 
 template <typename JniPointer>
-GlobalRef<JniPointer> LocalRef<JniPointer>::toGlobal() {
-  return GlobalRef<JniPointer>(_value);
+GlobalRef<JniPointer> LocalRef<JniPointer>::toGlobal() const {
+  return GlobalRef<JniPointer>(_env, _value);
 }
 
 inline LocalRef<jstring> toJavaString(JNIEnv* env, const char* rawString) {
@@ -267,7 +280,9 @@ inline std::string fromJavaString(JNIEnv* env, jstring string) {
   return ret;
 }
 
-inline std::string fromJavaString(jstring string) { return fromJavaString(Env().get(), string); }
+inline std::string fromJavaString(const LocalRef<jstring>& string) {
+  return fromJavaString(Env().get(), string.get());
+}
 
 class StringHolder {
  private:
@@ -283,7 +298,7 @@ class StringHolder {
         _cStr(jstr ? env->GetStringUTFChars(jstr, nullptr) : nullptr),
         _length(jstr ? env->GetStringUTFLength(jstr) : 0) {}
 
-  StringHolder(jstring jstr) : StringHolder(Env().get(), jstr) {}
+  StringHolder(const LocalRef<jstring>& jstr) : StringHolder(Env().get(), jstr.get()) {}
 
   StringHolder(const StringHolder&) = delete;
   StringHolder& operator=(const StringHolder&) = delete;
@@ -296,7 +311,7 @@ class StringHolder {
     move._length = 0;
   }
 
-  StringHolder& operator=(StringHolder& from) noexcept {
+  StringHolder& operator=(StringHolder&& from) noexcept {
     if (_cStr) {
       _env->ReleaseStringUTFChars(_jstr, _cStr);
     }
@@ -332,6 +347,36 @@ class StringHolder {
   const std::string_view view() const { return std::string_view(c_str(), length()); }
 };
 
+/**
+ * \code
+ *
+ * TryCatch tryCatch0;
+ * {
+ *   TryCatch tryCatch;
+ *   jenv->Throw(static_cast<jthrowable>(runtimeException));
+ *   assert(tryCatch.hasCaught());
+ *   assert(tryCatch.getAndClearException());
+ * }
+ * assert(!tryCatch0.hasCaught());
+ *
+ * {
+ *   TryCatch tryCatch;
+ *   jenv->Throw(static_cast<jthrowable>(runtimeException));
+ *   auto ex = tryCatch.getAndClearException();
+ *   tryCatch.throwException(ex);
+ * }
+ * assert(tryCatch0.hasCaught());
+ * tryCatch0.clearException();
+ *
+ * {
+ *   TryCatch tryCatch;
+ *   jenv->Throw(static_cast<jthrowable>(runtimeException.getThis(false).get()));
+ *   tryCatch.rethrowException();
+ * }
+ *  assert(tryCatch0.hasCaught());
+ *
+ * \endcode
+ */
 class TryCatch {
  private:
   JNIEnv* _env;
@@ -344,17 +389,54 @@ class TryCatch {
   TryCatch(const TryCatch&) = delete;
   TryCatch& operator=(const TryCatch&) = delete;
 
-  bool hasCaught() { return _env->ExceptionCheck(); }
+  bool hasCaught() const { return _env->ExceptionCheck(); }
 
-  LocalRef<jthrowable> exception() { return LocalRef<jthrowable>(_env->ExceptionOccurred()); }
+  /**
+   * get current exception if any, and clear it.
+   *
+   * note: In order to do any JNI operations after words, the  "current exception" must be cleared
+   * first, otherwise JVM would abort.
+   */
+  LocalRef<jthrowable> getAndClearException() {
+    jthrowable e = _env->ExceptionOccurred();
+    if (e) {
+      _env->ExceptionClear();
+    }
+    return LocalRef<jthrowable>(_env, e);
+  }
 
-  bool rethrow() {
-    auto e = exception();
+  /**
+   * clear current exception.
+   * @return true for has pending and cleared. false for no pending exception.
+   */
+  bool clearException() {
+    if (hasCaught()) {
+      _env->ExceptionClear();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * rethrow an exception, and this TryCatch won't do clear exception in dtor again.
+   */
+  void throwException(const LocalRef<jthrowable>& e) {
     if (e) {
       _rethrow = true;
       _env->Throw(e.get());
     }
-    return e;
+  }
+
+  /**
+   * If hasCaught, rethrow the current exception (won't do clear exception in dtor again.)
+   * @return has pending exception or not
+   */
+  bool rethrowException() {
+    if (hasCaught()) {
+      _rethrow = true;
+      return true;
+    }
+    return false;
   }
 
   ~TryCatch() {
@@ -375,7 +457,6 @@ struct Env::StaticState {
   StaticState() {
     ::pthread_key_create(&envWrapperKey, [](void*) {
       auto state = Env::staticState();
-      assert(state->_jvm);
       state->_jvm->DetachCurrentThread();
     });
   }
@@ -386,7 +467,7 @@ inline Env::StaticState* Env::staticState() {
   return &state;
 }
 
-void Env::attachJvm(JavaVM* jvm) {
+inline void Env::attachJvm(JavaVM* jvm) {
   auto state = staticState();
   state->_jvm = jvm;
 }
@@ -394,6 +475,8 @@ void Env::attachJvm(JavaVM* jvm) {
 inline JNIEnv* Env::attachCurrentThreadIfNeed() {
   JNIEnv* env;
   auto state = staticState();
+  assert(state->_jvm &&
+         "please call ::jenny::Env::attachJvm before any usage. (JNI_OnLoad is recommended.)");
   auto jvm = state->_jvm;
   if (jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) == JNI_EDETACHED) {
     assert(jvm);
@@ -423,7 +506,8 @@ inline Env::StaticState* Env::staticState() {
   return &state;
 }
 
-void Env::attachJvm(JavaVM* jvm) {
+inline void Env::attachJvm(JavaVM* jvm) {
+  assert(jvm);
   auto state = staticState();
   state->_jvm = jvm;
 }
@@ -431,6 +515,8 @@ void Env::attachJvm(JavaVM* jvm) {
 inline JNIEnv* Env::attachCurrentThreadIfNeed() {
   JNIEnv* env;
   auto state = staticState();
+  assert(state->_jvm &&
+      "please call ::jenny::Env::attachJvm before any usage. (JNI_OnLoad is recommended.)");
   auto jvm = state->_jvm;
   if (jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) == JNI_EDETACHED) {
     assert(jvm);
@@ -459,4 +545,90 @@ inline JNIEnv* Env::attachCurrentThreadIfNeed() {
 
 #endif
 
-}  // namespace jni
+namespace internal {
+
+// UnitTest
+inline void jniHelperUnitTest(JNIEnv* env_) {
+  Env::attachJvm(env_);
+
+  Env env;
+  assert(env.get() == env_);
+
+  {
+    LocalRef<jstring> str = toJavaString("hello");
+    assert(str);
+    LocalRef<jstring> str_copy = str;
+    assert(str_copy);
+
+    LocalRef<jstring> str_notOwn(str.get(), false);
+    assert(str_notOwn);
+
+    assert(env->IsSameObject(str.get(), str_copy.get()));
+    assert(env->IsSameObject(str.get(), str_notOwn.get()));
+
+    LocalRef<jstring> move = std::move(str);
+    assert(move);
+    assert(!str);
+    move = toJavaString("world");
+    assert(!env->IsSameObject(move.get(), str_copy.get()));
+    assert(move);
+  }
+
+  {
+    LocalRef<jstring> str = toJavaString("hello");
+    GlobalRef<jstring> glb(str);
+    assert(env->IsSameObject(glb.get(), str.get()));
+    GlobalRef<jstring> glb_copy = glb;
+    assert(glb_copy);
+
+    assert(env->IsSameObject(glb.get(), glb_copy.get()));
+
+    GlobalRef<jstring> glb_move = std::move(glb);
+    assert(glb_move);
+    assert(!glb);
+    glb_move = GlobalRef<jstring>(toJavaString("world"));
+    assert(!env->IsSameObject(glb_move.get(), glb_copy.get()));
+    assert(glb_move);
+  }
+
+  {
+    std::string h = "hello";
+    LocalRef<jstring> str = toJavaString(h.c_str());
+    assert(h == fromJavaString(str));
+    StringHolder sh(str);
+    assert(sh.view() == h);
+  }
+
+  {
+    LocalRef<jclass> runtimeExceptionClass(env->FindClass("java/lang/RuntimeException"));
+
+    TryCatch tryCatch0;
+    {
+      TryCatch tryCatch;
+      env->ThrowNew(runtimeExceptionClass.get(), nullptr);
+      assert(tryCatch.hasCaught());
+      assert(tryCatch.getAndClearException());
+    }
+    assert(!tryCatch0.hasCaught());
+
+    {
+      TryCatch tryCatch;
+      env->ThrowNew(runtimeExceptionClass.get(), nullptr);
+      auto ex = tryCatch.getAndClearException();
+      tryCatch.throwException(ex);
+    }
+    assert(tryCatch0.hasCaught());
+    tryCatch0.clearException();
+
+    {
+      TryCatch tryCatch;
+      env->ThrowNew(runtimeExceptionClass.get(), nullptr);
+      tryCatch.rethrowException();
+    }
+    assert(tryCatch0.hasCaught());
+  }
+}
+
+}  // namespace internal
+
+}  // namespace jenny

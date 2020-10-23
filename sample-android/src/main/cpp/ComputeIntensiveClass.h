@@ -99,6 +99,13 @@ jstring JNICALL httpGet(JNIEnv* env, jclass clazz, jstring url);
  */
 jint JNICALL computeThenCallback(JNIEnv* env, jobject thiz, jobject listener);
 
+/*
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
+ * Method:    public static void runJniHelperTest()
+ * Signature: ()V
+ */
+void JNICALL runJniHelperTest(JNIEnv* env, jclass clazz);
+
 /**
 * register Native functions
 * @returns success or not
@@ -162,6 +169,11 @@ inline bool registerNativeFunctions(JNIEnv* env) {
            /* method name      */ jenny_u8cast(u8"computeThenCallback"),
            /* method signature */ jenny_u8cast(u8"(Lio/github/landerlyoung/jennysampleapp/Callback;)I"),
            /* function pointer */ reinterpret_cast<void *>(computeThenCallback)
+       },
+       {
+           /* method name      */ jenny_u8cast(u8"runJniHelperTest"),
+           /* method signature */ jenny_u8cast(u8"()V"),
+           /* function pointer */ reinterpret_cast<void *>(runJniHelperTest)
        }
    };
 

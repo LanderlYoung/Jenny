@@ -41,6 +41,19 @@ class NativeDrawable : Drawable() {
     override fun setColorFilter(colorFilter: ColorFilter?) {
     }
 
+    @Deprecated(
+            message = "Moved to extension function. Put the 'content' argument first to fix Java",
+            replaceWith = ReplaceWith(
+                    expression = "content.toResponseBody(contentType)",
+                    imports = ["okhttp3.ResponseBody.Companion.toResponseBody"]
+            ),
+            level = DeprecationLevel.WARNING)
+    fun dep() {}
+
+    internal fun it() {
+
+    }
+
     companion object {
         init {
             System.loadLibrary("hello-jenny")
@@ -48,7 +61,7 @@ class NativeDrawable : Drawable() {
     }
 }
 
-@NativeProxy(namespace = "jenny")
+@NativeProxy(namespace = "jenny", allMethods = true)
 object Graphics {
     @JvmStatic
     fun newPaint() = Paint(Paint.ANTI_ALIAS_FLAG)

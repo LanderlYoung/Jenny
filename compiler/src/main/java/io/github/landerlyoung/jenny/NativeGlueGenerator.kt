@@ -54,11 +54,12 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
 
     private val cppClassName: String = mSimpleClassName
 
-    override fun doGenerate() {
+    override fun doGenerate(): CppClass {
         if (init() && mMethods.isNotEmpty()) {
             generateHeader()
             generateSource()
         }
+        return CppClass(cppClassName, mNamespaceHelper.namespaceNotation, mHeaderName)
     }
 
     private fun init(): Boolean {
@@ -244,7 +245,10 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
     }
 
     private fun StringBuilder.buildMethodBodyWithReturnStatement(m: ExecutableElement) {
-        append(" {\n")
+        append(""" {
+            |    // TODO(jenny): generated method stub.
+            |
+        """.trimMargin())
         val a = m.getAnnotation(NativeCode::class.java)
         if (a != null) {
             for (line in a.value) {
