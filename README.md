@@ -25,11 +25,11 @@ Jenny comes with two main part:
 **Glue** stands for c++ code to implement Java native method. (Glue java and C++.)
 **Proxy** stands for c++ class to provide calls to java from c++. (c++ side proxy for the java class.)
 
-And there is an extra bonus -- ['jnihelper.h'](cpp/jnihelper.h) that uses C++ RAII technology to simplify JNI APIs. When opt-in (with `'jenny.useJniHelper'=true`), the generated proxy class will also add methods using `jnihelper`, which makes life even happier!
+And there is an extra bonus -- [jnihelper.h](cpp/jnihelper.h) that uses C++ RAII technology to simplify JNI APIs. When opt-in (with `'jenny.useJniHelper'=true`), the generated proxy class will also add methods using `jnihelper`, which makes life even happier!
 
 ## Why Jenny?
 
-When writing JNI code, people usually come across APIs where java method/field/type signatures are required, some of them like `JNIEnv::RegisterNatives`, `JNIEnv::FindClass`, `JNIEnv::GetMethodID`, etc. It is very hard to hand-craft those signatures correctly and efficiently, so programmers often waste much time writing those boilerplate.
+When writing JNI code, people usually come across APIs where java method/field/type signatures are required, some of them like `JNIEnv::RegisterNatives`, `JNIEnv::FindClass`, `JNIEnv::GetMethodID`, etc. It is very hard to hand-craft those signatures correctly and efficiently, so programmers often waste much time writing and debugging those boilerplate.
 
 Jenny is now your JNI code maid, who takes care of all those boilerplate so you can be even more productive.
 
@@ -92,7 +92,9 @@ You just need to fill the stubs with real code.
 
 ### Proxy
 
-The following code is a show case that C++ uses OkHttp to perfomr a HTTP get operation through JNI APIs.
+The following [code][proxy_code] is a show case that C++ uses OkHttp to perfomr a HTTP get operation through JNI APIs.
+
+[proxy_code]: sample-android/src/main/cpp/ComputeIntensiveClass.cpp#L100
 
 ```C++
 jstring func(jstring _url) {
@@ -121,9 +123,10 @@ String run(String url) throws IOException {
 }
 ```
 
-If you are femiliar with JNI, yuo'd be surprised! The C++ code using Jenny just as clean as the Java code. Without Jenny it would be a nightmare.
+If you are femiliar with JNI, you'd be surprised! The C++ code using Jenny just as clean as the Java code. Without Jenny it would be a nightmare.
 
-And here is another real world comparesion **with vs without jenny**. [🔗🔗🔗](https://gist.github.com/LanderlYoung/1a203f519ba5f91b38c1d81534d63664)
+And here is another real world comparesion using `URLConnection` api **with vs without jenny**. [Follow the link to see the nightmare!🔗](https://gist.github.com/LanderlYoung/1a203f519ba5f91b38c1d81534d63664)
+
 
 And also, here is another example without `jnihelper`.
 
@@ -167,7 +170,7 @@ For kotlin project, you gonna need the `kotlin-kapt` plugin.
 
 That's it!
 
-The generated code directory depends on your compiler config, typically, for android project it's inside `build/generated/source/kapt/debug/jenny`, for java project it's `build/generated/sources/annotationProcessor/java/main/jenny`.
+The generated code directory depends on your compiler config, typically, for android project it's inside `build/generated/source/kapt/debug/jenny`, for java project it's `build/generated/sources/annotationProcessor/java/main/jenny`. Also, you can use your own directory with simple config, see below.
 
 You can use the generated code as you like, copy-past manually, or use gradle to copy them automatically (see sample in `sample-android/guild.gradle`).
 
@@ -177,17 +180,17 @@ You can use the generated code as you like, copy-past manually, or use gradle to
 
 Add `@NativeClass()` annotation to you native class in order to let Jenny spot you class, and then generate corresponding cpp source.
 
-Then Jenny would generate code for you, like here [sample-gen](sample-gen).
+Then Jenny would generate code for you. [sample-gen](sample-gen) contains samples for Jenny generated code.
 
-Note: There is a config field in `NativeClass.dynamicRegisterJniMethods`, when `true` (the default value) will generate code registering JNI function dynamically on the JNI_OnLoad callback by `JNIEnv::RegisterNatives`, instead of using JNI function name conversions (what javah/javac does).
+> Note: There is a config field in `NativeClass.dynamicRegisterJniMethods`, when `true` (the default value) will generate code registering JNI function dynamically on the JNI_OnLoad callback by `JNIEnv::RegisterNatives`, instead of using JNI function name conversions (what javah/javac does).
 
 #### Annotations for proxy
 
 Add `@NativeProxy` to your normal java/kotlin class, need to cooperate with `@NativeMethodProxy` and `@NativeFieldProxy`, please read the doc.
 
-Also, you can tell Jenny to generate code for libray classes by using the `@NativeProxyForClasses` annotation. ^[note]^
+Also, you can tell Jenny to generate code for libray classes by using the `@NativeProxyForClasses` annotation. <sup>(note)</sup>
 
-> note: Use this feature with caution. When your compile class path and runtime class path have different version of the same class, it's easy to crash because the proxy can't find some method which appears in compile class path but not on runtime class path. For instance to generate proxy for [`java.net.http.HttpRequest`](https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpRequest.html) compiled with java-11, ran with java-7, your code crashes because that class just don't exist in java-7.
+> (note): Use this feature with caution. When your compile-class-path and runtime-class-path have different version of the same class, it's easy to crash because the proxy can't find some method which appears in compile-time but not on runtime. For instance to generate proxy for [`java.net.http.HttpRequest`](https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpRequest.html) compiled with java-11, ran with java-8, your code crashes because that class just don't exist before java-11.
 >
 > In this case, the recommand way is to write your own helper class, and generate proxy for it.
 
@@ -200,7 +203,7 @@ Jenny annotation processor arguments:
 | `jenny.threadSafe` | `true` | The proxy class supports lazy init, this flag controls if the lazy init is thread safe or not. |
 | `jenny.errorLoggerFunction` | `null` | When proxy failed to find some method/class/field use the given function to do log before abort. The function must be a C++ function on top namespace with signature as `void(JNIEnv* env, const char* error)` |
 | `jenny.outputDirectory` | `null` | By default, Jenny generate filed to apt dst dir, use this argument to control where the generated files are. |
-| `jenny.fusionProxyHeaderName` | `"jenny_fusion_proxies.h"` | The `fusionProxyHeader` is a header file that include all generated proxy files and gives you a `jenny::initAllProxies` function to init all proxies at once, this flag changes the file name. |
+| `jenny.fusionProxyHeaderName` | `jenny_fusion_proxies.h` | The `fusionProxyHeader` is a header file that include all generated proxy files and gives you a `jenny::initAllProxies` function to init all proxies at once, this flag changes the file name. |
 | `jenny.headerOnlyProxy` | `true` | The generated proxy file use header only fasion or not. |
 | `jenny.useJniHelper` | `false` | Turn on/off jnihelper |
 
@@ -240,8 +243,14 @@ compileJava {
 ```
 
 
-#### 2. My JNI code crash saying some class not found while the are really there?!
+#### 2. My JNI code crashes saying some class not found while the are really there?!
 
-When using JNI with multi thread in C++, please be noticed the `pure` native thread (that is create in C++ then attached to jvm) has it class loader as the boot class loader, so on such thread you can only see java standard library classes. For more info, please refer to [here](https://developer.android.com/training/articles/perf-jni#native-libraries).
+When using JNI with multi-thread in C++, please be noticed the `pure` native thread (that is create in C++ then attached to jvm) has its class loader as the boot class loader, so on such thread you can only see java standard library classes. For more info, please refer to [here](https://developer.android.com/training/articles/perf-jni#native-libraries).
 
-To solve this problem, please init proxy classes on the `JNI_OnLoad` callback, and thete is a `jenny_fusion_proxies.h` may by helpful.
+To solve this problem, please init proxy classes on the `JNI_OnLoad` callback, and there is a `jenny_fusion_proxies.h` may by helpful.
+
+## License
+
+Open sourced under the Apache License Version 2.0.
+
+If you like or are using this project, please start!
