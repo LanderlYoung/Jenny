@@ -43,11 +43,11 @@ class FusionProxyGenerator(private val env: Environment, private val proxyClasse
             |inline bool initAllProxies(JNIEnv* env) {
             |
             |   bool success = 
+            |
         """.trimMargin())
 
-        append(
-        proxyClasses.joinToString("&&\n") {
-            it.namespace + "::" +it.name + "::initClazz(env)"
+        append(proxyClasses.joinToString(" &&\n") {
+            "        " + it.namespace + "::" + it.name + "::initClazz(env)"
         })
         append(";")
 

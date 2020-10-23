@@ -118,13 +118,8 @@ task copyGeneratedCpp {
             include(
                     "jenny/glue/cpp/NativeDrawable.cpp",
                     "jenny/glue/header/NativeDrawable.h",
-                    "jenny/proxy/android_StyleProxy.h",
                     "jenny/proxy/java_okhttp_CallProxy.h",
-                    "jenny/proxy/jenny_fusion_proxies.h",
-                    "jenny/proxy/jenny_GraphicsProxy.h",
-                    "jenny/proxy/NativeDrawableProxy.h",
-                    "jenny/proxy/NativeClassProxy.h",
-                    "jenny/proxy/NestedClassProxy.h"
+                    "jenny/proxy/jenny_fusion_proxies.h"
             )
             into rootProject.file("sample-gen")
         }

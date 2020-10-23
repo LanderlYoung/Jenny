@@ -28,20 +28,21 @@ namespace jenny {
 
 inline bool initAllProxies(JNIEnv* env) {
 
-   bool success = ::CallbackProxy::initClazz(env)&&
-::NestedClassProxy::initClazz(env)&&
-::NativeDrawableProxy::initClazz(env)&&
-jenny::GraphicsProxy::initClazz(env)&&
-::GenericProxy::initClazz(env)&&
-java::okhttp::OkHttpClientProxy::initClazz(env)&&
-java::okhttp::RequestProxy::initClazz(env)&&
-java::okhttp::BuilderProxy::initClazz(env)&&
-java::okhttp::CallProxy::initClazz(env)&&
-java::okhttp::ResponseProxy::initClazz(env)&&
-java::okhttp::ResponseBodyProxy::initClazz(env)&&
-java::lang::RuntimeExceptionProxy::initClazz(env)&&
-android::StyleProxy::initClazz(env)&&
-android::RectProxy::initClazz(env);
+   bool success = 
+        ::CallbackProxy::initClazz(env) &&
+        ::NestedClassProxy::initClazz(env) &&
+        ::NativeDrawableProxy::initClazz(env) &&
+        jenny::GraphicsProxy::initClazz(env) &&
+        ::GenericProxy::initClazz(env) &&
+        java::okhttp::OkHttpClientProxy::initClazz(env) &&
+        java::okhttp::RequestProxy::initClazz(env) &&
+        java::okhttp::BuilderProxy::initClazz(env) &&
+        java::okhttp::CallProxy::initClazz(env) &&
+        java::okhttp::ResponseProxy::initClazz(env) &&
+        java::okhttp::ResponseBodyProxy::initClazz(env) &&
+        java::lang::RuntimeExceptionProxy::initClazz(env) &&
+        android::StyleProxy::initClazz(env) &&
+        android::RectProxy::initClazz(env);
    return success;
 }
 
