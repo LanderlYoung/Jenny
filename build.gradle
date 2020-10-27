@@ -3,7 +3,7 @@
 buildscript {
     ext {
         pub = [
-                publishVersion: '1.0.0',
+                publishVersion: '1.1.0',
                 userOrg       : 'landerlyoung',
                 groupId       : 'io.github.landerlyoung',
                 desc          : 'Java/Android JNI glue/proxy code generator',
