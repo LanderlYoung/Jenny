@@ -21,5 +21,7 @@ jobs:
     - name: Build with Gradle
       run: |
         ./gradlew :sample-android:assembleDebug
+    - name: Test incremental compile
+      run: |
         echo "// test incremental compile" >> sample-android/src/main/java/io/github/landerlyoung/jennysampleapp/Callback.java
         ./gradlew :sample-android:assembleDebug
