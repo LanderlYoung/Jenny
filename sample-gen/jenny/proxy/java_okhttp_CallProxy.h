@@ -120,56 +120,56 @@ public:
     // for jni helper
     // method: public abstract okhttp3.Request request()
     ::jenny::LocalRef<jobject> request() const {
-        ::jenny::Env env; jobject thiz = getThis(false).get();
+        ::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();
         return ::jenny::LocalRef<jobject>(env->CallObjectMethod(thiz, getClassInitState().sMethod_request_0));
     }
 
     // for jni helper
     // method: public abstract okhttp3.Response execute()
     ::jenny::LocalRef<jobject> execute() const {
-        ::jenny::Env env; jobject thiz = getThis(false).get();
+        ::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();
         return ::jenny::LocalRef<jobject>(env->CallObjectMethod(thiz, getClassInitState().sMethod_execute_0));
     }
 
     // for jni helper
     // method: public abstract void enqueue(okhttp3.Callback arg0)
     void enqueue(const ::jenny::LocalRef<jobject>& arg0) const {
-        ::jenny::Env env; jobject thiz = getThis(false).get();
+        ::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();
         env->CallVoidMethod(thiz, getClassInitState().sMethod_enqueue_0, arg0.get());
     }
 
     // for jni helper
     // method: public abstract void cancel()
     void cancel() const {
-        ::jenny::Env env; jobject thiz = getThis(false).get();
+        ::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();
         env->CallVoidMethod(thiz, getClassInitState().sMethod_cancel_0);
     }
 
     // for jni helper
     // method: public abstract boolean isExecuted()
     jboolean isExecuted() const {
-        ::jenny::Env env; jobject thiz = getThis(false).get();
+        ::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();
         return env->CallBooleanMethod(thiz, getClassInitState().sMethod_isExecuted_0);
     }
 
     // for jni helper
     // method: public abstract boolean isCanceled()
     jboolean isCanceled() const {
-        ::jenny::Env env; jobject thiz = getThis(false).get();
+        ::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();
         return env->CallBooleanMethod(thiz, getClassInitState().sMethod_isCanceled_0);
     }
 
     // for jni helper
     // method: public abstract okio.Timeout timeout()
     ::jenny::LocalRef<jobject> timeout() const {
-        ::jenny::Env env; jobject thiz = getThis(false).get();
+        ::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();
         return ::jenny::LocalRef<jobject>(env->CallObjectMethod(thiz, getClassInitState().sMethod_timeout_0));
     }
 
     // for jni helper
     // method: public abstract okhttp3.Call clone()
     ::jenny::LocalRef<jobject> clone() const {
-        ::jenny::Env env; jobject thiz = getThis(false).get();
+        ::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();
         return ::jenny::LocalRef<jobject>(env->CallObjectMethod(thiz, getClassInitState().sMethod_clone_0));
     }
 
