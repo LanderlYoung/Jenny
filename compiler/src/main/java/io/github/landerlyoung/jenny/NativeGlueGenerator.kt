@@ -22,7 +22,6 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
-import javax.tools.StandardLocation
 
 /**
  * Author: landerlyoung@gmail.com
@@ -245,11 +244,8 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
     }
 
     private fun StringBuilder.buildMethodBodyWithReturnStatement(m: ExecutableElement) {
-        append(""" {
-            |    // TODO(jenny): generated method stub.
-            |
-        """.trimMargin())
         val a = m.getAnnotation(NativeCode::class.java)
+        append(" {\n")
         if (a != null) {
             for (line in a.value) {
                 append("    ")
@@ -257,6 +253,10 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
                 append('\n')
             }
         } else {
+            append("""
+                |    // TODO(jenny): generated method stub.
+                |
+            """.trimMargin())
             append("    ")
             append(mHelper.getReturnStatement(m))
             append('\n')

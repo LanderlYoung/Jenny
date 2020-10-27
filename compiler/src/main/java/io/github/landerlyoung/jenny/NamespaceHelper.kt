@@ -21,7 +21,7 @@ class NamespaceHelper(namespace: String) {
     }
 
     // like std::chrono
-    val namespaceNotation:String = namespaces.joinToString("::")
+    val namespaceNotation: String = namespaces.joinToString("::")
 
     fun beginNamespace() = namespaces.joinToString(" ") { "namespace $it {" }
 
