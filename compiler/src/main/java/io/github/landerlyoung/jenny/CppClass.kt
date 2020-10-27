@@ -13,4 +13,10 @@ data class CppClass(
         val name: String,
         val namespace: String,
         val headerFileName: String
-)
+) : Comparable<CppClass> {
+
+    override fun compareTo(other: CppClass) = compareValuesBy(
+            this, other,
+            { it.namespace },
+            { it.name })
+}
