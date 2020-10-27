@@ -10,19 +10,19 @@
 #include <jni.h>
 
 #include "CallbackProxy.h"
-#include "NestedClassProxy.h"
-#include "NativeDrawableProxy.h"
-#include "jenny_GraphicsProxy.h"
 #include "GenericProxy.h"
-#include "java_okhttp_OkHttpClientProxy.h"
-#include "java_okhttp_RequestProxy.h"
+#include "NativeDrawableProxy.h"
+#include "NestedClassProxy.h"
+#include "android_RectProxy.h"
+#include "android_StyleProxy.h"
+#include "java_lang_RuntimeExceptionProxy.h"
 #include "java_okhttp_BuilderProxy.h"
 #include "java_okhttp_CallProxy.h"
-#include "java_okhttp_ResponseProxy.h"
+#include "java_okhttp_OkHttpClientProxy.h"
+#include "java_okhttp_RequestProxy.h"
 #include "java_okhttp_ResponseBodyProxy.h"
-#include "java_lang_RuntimeExceptionProxy.h"
-#include "android_StyleProxy.h"
-#include "android_RectProxy.h"
+#include "java_okhttp_ResponseProxy.h"
+#include "jenny_GraphicsProxy.h"
 
 namespace jenny {
 
@@ -30,19 +30,19 @@ inline bool initAllProxies(JNIEnv* env) {
 
    bool success = 
         ::CallbackProxy::initClazz(env) &&
-        ::NestedClassProxy::initClazz(env) &&
-        ::NativeDrawableProxy::initClazz(env) &&
-        jenny::GraphicsProxy::initClazz(env) &&
         ::GenericProxy::initClazz(env) &&
-        java::okhttp::OkHttpClientProxy::initClazz(env) &&
-        java::okhttp::RequestProxy::initClazz(env) &&
+        ::NativeDrawableProxy::initClazz(env) &&
+        ::NestedClassProxy::initClazz(env) &&
+        android::RectProxy::initClazz(env) &&
+        android::StyleProxy::initClazz(env) &&
+        java::lang::RuntimeExceptionProxy::initClazz(env) &&
         java::okhttp::BuilderProxy::initClazz(env) &&
         java::okhttp::CallProxy::initClazz(env) &&
-        java::okhttp::ResponseProxy::initClazz(env) &&
+        java::okhttp::OkHttpClientProxy::initClazz(env) &&
+        java::okhttp::RequestProxy::initClazz(env) &&
         java::okhttp::ResponseBodyProxy::initClazz(env) &&
-        java::lang::RuntimeExceptionProxy::initClazz(env) &&
-        android::StyleProxy::initClazz(env) &&
-        android::RectProxy::initClazz(env);
+        java::okhttp::ResponseProxy::initClazz(env) &&
+        jenny::GraphicsProxy::initClazz(env);
    return success;
 }
 

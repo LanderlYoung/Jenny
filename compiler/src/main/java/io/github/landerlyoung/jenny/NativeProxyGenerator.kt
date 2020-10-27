@@ -626,7 +626,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 if (isStatic) {
                     "::jenny::Env env; assertInited(env.get());"
                 } else {
-                    "::jenny::Env env; jobject thiz = getThis(false).get();"
+                    "::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();"
                 }
             } else {
                 "assertInited(env);"

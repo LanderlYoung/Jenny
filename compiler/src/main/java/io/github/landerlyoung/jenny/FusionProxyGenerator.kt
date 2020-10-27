@@ -9,7 +9,12 @@ package io.github.landerlyoung.jenny
  * ```
  */
 
-class FusionProxyGenerator(private val env: Environment, private val proxyClasses: Collection<CppClass>) {
+class FusionProxyGenerator(
+        private val env: Environment,
+        _proxyClasses: Collection<CppClass>) {
+
+    private val proxyClasses: List<CppClass> = _proxyClasses.sorted()
+
     fun generate() {
         env.createOutputFile(Constants.JENNY_GEN_DIR_PROXY, env.configurations.fusionProxyHeaderName).use { out ->
             buildString {
