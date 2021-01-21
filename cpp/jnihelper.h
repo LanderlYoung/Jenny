@@ -44,7 +44,7 @@ class Env {
   static void attachJvm(JavaVM* jvm);
 
   static void attachJvm(JNIEnv* env) {
-    JavaVM *jvm;
+    JavaVM* jvm;
     env->GetJavaVM(&jvm);
     attachJvm(jvm);
   }
@@ -194,6 +194,7 @@ class GlobalRef {
 };
 
 inline bool checkUtfBytes(const char* bytes) {
+  if (bytes == nullptr) return false;
   while (*bytes != '\0') {
     const uint8_t* utf8 = reinterpret_cast<const uint8_t*>(bytes++);
     // Switch on the high four bits.
@@ -346,6 +347,52 @@ class StringHolder {
 
   const std::string_view view() const { return std::string_view(c_str(), length()); }
 };
+
+class ByteArrayHolder {
+  jenny::Env env_;
+  jbyteArray array_;
+
+  jbyte* data_ = nullptr;
+  size_t length_ = 0;
+  bool commit_ = false;
+
+ public:
+  ByteArrayHolder(const jenny::LocalRef<jbyteArray>& array) : ByteArrayHolder(array.get()) {}
+
+  ByteArrayHolder(jbyteArray array) : env_(), array_(array) {
+    if (array) {
+      jboolean isCopy;
+      data_ = env_->GetByteArrayElements(array, &isCopy);
+      length_ = env_->GetArrayLength(array);
+    }
+  }
+  ByteArrayHolder(const ByteArrayHolder&) = delete;
+  ByteArrayHolder& operator=(const ByteArrayHolder&) = delete;
+
+  jbyte* data() const { return data_; }
+
+  size_t length() const { return length_; }
+
+  void commit(bool doCommit = true) { commit_ = doCommit; }
+
+  ~ByteArrayHolder() {
+    if (array_) {
+      env_->ReleaseByteArrayElements(array_, data(), commit_ ? JNI_COMMIT : JNI_ABORT);
+    }
+  }
+};
+
+inline jenny::LocalRef<jbyteArray> makeByteArray(size_t len, const void* data = nullptr) {
+  jenny::Env env;
+  jenny::LocalRef<jbyteArray> array(env->NewByteArray(len));
+  if (data) {
+    jboolean isCopy;
+    auto ptr = env->GetByteArrayElements(array.get(), &isCopy);
+    std::memcpy(ptr, data, len);
+    env->ReleaseByteArrayElements(array.get(), ptr, JNI_COMMIT);
+  }
+  return array;
+}
 
 /**
  * \code
