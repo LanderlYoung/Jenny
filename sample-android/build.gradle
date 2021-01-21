@@ -73,7 +73,7 @@ kapt {
         // arg("jenny.outputDirectory", project.buildDir.absolutePath+"/test")
         arg("jenny.headerOnlyProxy", "true")
         arg("jenny.useJniHelper", "true")
-        // arg("jenny.fusionProxyHeaderName", "JennyFisonProxy.h")
+        // arg("jenny.fusionProxyHeaderName", "JennyFusionProxy.h")
     }
 }
 

@@ -16,8 +16,7 @@
 package io.github.landerlyoung.jenny
 
 import java.io.IOException
-import java.util.EnumSet
-import java.util.Locale
+import java.util.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
@@ -27,6 +26,7 @@ import javax.lang.model.element.VariableElement
 import javax.lang.model.type.NoType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
+import kotlin.collections.LinkedHashSet
 import kotlin.collections.component1
 import kotlin.collections.component2
 
@@ -494,9 +494,13 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             |
             |""".trimMargin())
 
+
+        append("""
+                |    auto& state = getClassInitState();
+                |""".trimMargin())
+
         if (mEnv.configurations.threadSafe) {
             append("""
-                |    auto& state = getClassInitState();
                 |    if (!state.sInited) {
                 |        std::lock_guard<std::mutex> lg(state.sInitLock);
                 |""".trimMargin())
@@ -530,33 +534,25 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             |
             |""".trimMargin())
 
-        if (mEnv.configurations.threadSafe) {
-            append("""
-                |${prefix} void $cppClassName::releaseClazz(JNIEnv* env) {
-                |    auto& state = getClassInitState();
-                |    if (state.sInited) {
-                |        std::lock_guard<std::mutex> lg(state.sInitLock);
-                |        if (state.sInited) {
-                |            env->DeleteGlobalRef(state.sClazz);
-                |            state.sClazz = nullptr;
-                |            state.sInited = false;
-                |        }
-                |    }
-                |}
-                |
-                |""".trimMargin())
+        val lockGuard = if (mEnv.configurations.threadSafe) {
+            "std::lock_guard<std::mutex> lg(state.sInitLock);"
         } else {
-            append("""
-                |/*static*/ void $cppClassName::releaseClazz(JNIEnv* env) {
-                |    auto& state = getClassInitState();
-                |    if (state.sInited) {
-                |        env->DeleteGlobalRef(state.sClazz);
-                |        state.sInited = false;
-                |    }
-                |}
-                |
-                |""".trimMargin())
+            ""
         }
+        append("""
+            |${prefix} void $cppClassName::releaseClazz(JNIEnv* env) {
+            |    auto& state = getClassInitState();
+            |    if (state.sInited) {
+            |        $lockGuard
+            |        if (state.sInited) {
+            |            env->DeleteGlobalRef(state.sClazz);
+            |            state.sClazz = nullptr;
+            |            state.sInited = false;
+            |        }
+            |    }
+            |}
+            |
+            |""".trimMargin())
     }
 
     private fun StringBuilder.buildConstructorIdInit() {
