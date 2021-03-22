@@ -51,19 +51,7 @@ allprojects {
         // https://github.com/vanniktech/gradle-maven-publish-plugin
         apply plugin: "com.vanniktech.maven.publish"
 
-        ext {
-            POM_ARTIFACT_ID = "jenny-$name"
-            POM_NAME = "jenny-$name"
-            POM_URL = pub.website
-            POM_DEVELOPER_ID = pub.user
-            POM_DEVELOPER_NAME = pub.user
-            POM_DEVELOPER_URL = pub.user_url
-        }
-//        setProperty("POM_ARTIFACT_ID", "jenny-$name")
-//        setProperty("POM_NAME", "jenny-$name")
-//        setProperty("POM_URL", pub.website)
-//        setProperty("POM_DEVELOPER_ID", pub.user)
-//        setProperty("POM_DEVELOPER_NAME", pub.user)
-//        setProperty("POM_DEVELOPER_URL", pub.user_url)
+        // publish to mavenLocal
+        // ./gradlew -PRELEASE_SIGNING_ENABLED=false publishToMavenLocal
     }
 }

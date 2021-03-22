@@ -4,7 +4,6 @@ sample-android/src/main/cpp/gen
 #gradle
 .gradle
 build
-gradle.properties
 local.properties
 
 #gradel ndk plugin
