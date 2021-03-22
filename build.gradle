@@ -48,8 +48,17 @@ allprojects {
     ] as Set
 
     if (publishProject.contains(name)) {
-        // https://github.com/vanniktech/gradle-maven-publish-plugin
+        // guide doc https://madhead.me/posts/no-bullshit-maven-publish/
+        // publish plugin repo https://github.com/vanniktech/gradle-maven-publish-plugin
         apply plugin: "com.vanniktech.maven.publish"
+
+        // gpg sign config
+        // https://github.com/vanniktech/gradle-maven-publish-plugin/blob/master/.github/workflows/publish-release.yml
+        signing {
+            if (project.hasProperty('SIGNING_PRIVATE_KEY') && project.hasProperty('SIGNING_PASSWORD')) {
+                useInMemoryPgpKeys(project.getProperty('SIGNING_PRIVATE_KEY'), project.getProperty('SIGNING_PASSWORD'))
+            }
+        }
 
         // publish to mavenLocal
         // ./gradlew -PRELEASE_SIGNING_ENABLED=false publishToMavenLocal
