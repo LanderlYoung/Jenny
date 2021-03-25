@@ -394,6 +394,28 @@ inline jenny::LocalRef<jbyteArray> makeByteArray(size_t len, const void* data = 
   return array;
 }
 
+inline void copyFromByteArray(const LocalRef<jbyteArray>& array, void* dst, size_t len) {
+  jenny::Env env;
+  jboolean copy;
+  auto buf = env->GetByteArrayElements(array.get(), &copy);
+  if (len == 0) {
+    len = env->GetArrayLength(array.get());
+  }
+  std::memcpy(dst, buf, len);
+  env->ReleaseByteArrayElements(array.get(), buf, JNI_ABORT);
+}
+
+inline void copyToByteArray(const LocalRef<jbyteArray>& array, const void* src, size_t len) {
+  jenny::Env env;
+  jboolean copy;
+  auto buf = env->GetByteArrayElements(array.get(), &copy);
+  if (len == 0) {
+    len = env->GetArrayLength(array.get());
+  }
+  std::memcpy(buf, src, len);
+  env->ReleaseByteArrayElements(array.get(), buf, JNI_COMMIT);
+}
+
 /**
  * \code
  *
@@ -566,8 +588,6 @@ inline JNIEnv* Env::attachCurrentThreadIfNeed() {
       "please call ::jenny::Env::attachJvm before any usage. (JNI_OnLoad is recommended.)");
   auto jvm = state->_jvm;
   if (jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) == JNI_EDETACHED) {
-    assert(jvm);
-
     struct EnvWrapper {
       JavaVM* const jvm;
       JNIEnv* env;
@@ -644,6 +664,29 @@ inline void jniHelperUnitTest(JNIEnv* env_) {
     assert(h == fromJavaString(str));
     StringHolder sh(str);
     assert(sh.view() == h);
+  }
+
+  {
+    auto bytes = makeByteArray(1024);
+    uint8_t data[] = {0, 1, 2, 3, 4, 5, 6, 7};
+    auto len = sizeof(data) / sizeof(data[0]);
+    copyToByteArray(bytes, data, len);
+    {
+      ByteArrayHolder holder(bytes);
+      assert(holder.length() == 1024);
+      assert(holder.data()[0] == 0);
+      assert(holder.data()[4] == 4);
+      assert(holder.data()[7] == 7);
+      assert(holder.data()[8] == 0);
+    }
+
+    {
+      std::memset(data, 0, len);
+      copyFromByteArray(bytes, data, len-1);
+      assert(data[0] == 0);
+      assert(data[4] == 4);
+      assert(data[7] == 0);
+    }
   }
 
   {
