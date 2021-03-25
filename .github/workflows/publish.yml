@@ -25,5 +25,5 @@ jobs:
         ORG_GRADLE_PROJECT_SIGNING_PASSWORD: ${{ secrets.PGP_SIGNING_PASSWORD }}
       run: |
         echo publish tag ${{ github.ref }}
-        ./gradlew uploadArchives --no-daemon --no-parallel
+        ./gradlew publish --no-daemon --no-parallel
         ./gradlew closeAndReleaseRepository --no-daemon --no-parallel

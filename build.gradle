@@ -60,6 +60,40 @@ allprojects {
             }
         }
 
+        // https://github.com/vanniktech/gradle-maven-publish-plugin/issues/206
+        publishing {
+            repositories {
+                withType(MavenArtifactRepository) {
+                    if (name == "local") return
+                    def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                    if (version.endsWith("SNAPSHOT")) {
+                        url = uri(snapshotsRepoUrl)
+                    } else {
+                        url = uri(releasesRepoUrl)
+                    }
+                    credentials {
+                        if (hasProperty('mavenCentralRepositoryUsername')
+                                && hasProperty('mavenCentralRepositoryPassword')) {
+                            username = mavenCentralRepositoryUsername
+                            password = mavenCentralRepositoryPassword
+                        }
+                    }
+                }
+            }
+        }
+        mavenPublish {
+            nexus {
+                baseUrl = "https://s01.oss.sonatype.org/service/local/"
+                stagingProfile = pub.groupId
+                if (hasProperty('mavenCentralRepositoryUsername')
+                        && hasProperty('mavenCentralRepositoryPassword')) {
+                    repositoryUsername = mavenCentralRepositoryUsername
+                    repositoryPassword = mavenCentralRepositoryPassword
+                }
+            }
+        }
+
         // publish to mavenLocal
         // ./gradlew -PRELEASE_SIGNING_ENABLED=false publishToMavenLocal
     }
