@@ -1,13 +1,13 @@
 # Jenny -- the JNI helper
 
-[![CI][CI_B]][CI]  [![Publish][PUB_B]][PUB] [![Download][BT_B]][BT] ![GitHub code size in bytes][CS_B] ![GitHub][LC_B]
+[![CI][CI_B]][CI]  [![Publish][PUB_B]][PUB] [![MavenCentral][MV_B]][MV] ![GitHub code size in bytes][CS_B] ![GitHub][LC_B]
 
 [CI_B]: https://github.com/LanderlYoung/Jenny/workflows/Android%20CI/badge.svg
 [CI]: https://github.com/LanderlYoung/Jenny/actions?workflow=Android+CI
 [PUB_B]: https://github.com/LanderlYoung/Jenny/workflows/Publish/badge.svg
 [PUB]: https://github.com/LanderlYoung/Jenny/actions?workflow=Publish
-[BT_B]: https://api.bintray.com/packages/landerlyoung/maven/jenny-annotation/images/download.svg
-[BT]: https://bintray.com/landerlyoung/maven
+[MV_B]: https://maven-badges.herokuapp.com/maven-central/io.github.landerlyoung/jenny-compiler/badge.svg
+[MV]: https://search.maven.org/artifact/io.github.landerlyoung/jenny-compiler
 [CS_B]: https://img.shields.io/github/languages/code-size/LanderlYoung/Jenny
 [LC_B]: https://img.shields.io/github/license/LanderlYoung/Jenny
 
