@@ -155,7 +155,7 @@ Jenny comes with two component
 1. the annotation library
 2. the annotation-processor
 
-[![Download][BT_B]][BT] 👈👈👈 click here for latest version on jcenter.
+[![Download][MV_B]][MV] 👈👈👈 click here for latest version on maven central.
 
 ```groovy
 
