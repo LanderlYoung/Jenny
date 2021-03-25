@@ -6,7 +6,7 @@
 [CI]: https://github.com/LanderlYoung/Jenny/actions?workflow=Android+CI
 [PUB_B]: https://github.com/LanderlYoung/Jenny/workflows/Publish/badge.svg
 [PUB]: https://github.com/LanderlYoung/Jenny/actions?workflow=Publish
-[MV_B]: https://maven-badges.herokuapp.com/maven-central/io.github.landerlyoung/jenny-compiler/badge.svg
+[MV_B]: https://img.shields.io/maven-central/v/io.github.landerlyoung/jenny-annotation
 [MV]: https://search.maven.org/artifact/io.github.landerlyoung/jenny-compiler
 [CS_B]: https://img.shields.io/github/languages/code-size/LanderlYoung/Jenny
 [LC_B]: https://img.shields.io/github/license/LanderlYoung/Jenny
