@@ -3,15 +3,17 @@
 buildscript {
     ext {
         pub = [
-                publishVersion: '1.1.2',
-                userOrg       : 'landerlyoung',
+                publishVersion: '1.1.3',
+                user          : 'landerlyoung',
+                user_url      : 'https://github.com/LanderlYoung',
                 groupId       : 'io.github.landerlyoung',
                 desc          : 'Java/Android JNI glue/proxy code generator',
                 website       : 'https://github.com/LanderlYoung/Jenny',
+                scm_url       : 'scm:git:git://github.com/LanderlYoung/Jenny.git',
                 licences      : ['Apache-2.0']
         ]
 
-        kotlin_version = '1.4.10'
+        kotlin_version = '1.4.30'
 
         configRepo = { repo ->
             repo.mavenLocal()
@@ -24,7 +26,8 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.novoda:bintray-release:0.9.1'
+        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:1.4.30'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.14.2'
         classpath 'com.android.tools.build:gradle:4.1.0'
     }
 }
@@ -33,6 +36,9 @@ allprojects {
     // basic
     configRepo buildscript.repositories
     configRepo repositories
+
+    // config
+    group = pub.groupId
     version = pub.publishVersion
     description = pub.desc
 
@@ -42,22 +48,53 @@ allprojects {
     ] as Set
 
     if (publishProject.contains(name)) {
-        apply plugin: 'com.novoda.bintray-release'
+        // guide doc https://madhead.me/posts/no-bullshit-maven-publish/
+        // publish plugin repo https://github.com/vanniktech/gradle-maven-publish-plugin
+        apply plugin: "com.vanniktech.maven.publish"
 
-        publish {
-            publishVersion = version
-            artifactId = "jenny-$name"
-            userOrg = pub.userOrg
-            groupId = pub.groupId
-            desc = pub.desc
-            website = pub.website
-            licences = pub.licences
-            override = true
-
-            // account config from command line
-            // -PbintrayUser=xxx
-            // -PbintrayKey=xxx
-            // -PdryRun=xxx
+        // gpg sign config
+        // https://github.com/vanniktech/gradle-maven-publish-plugin/blob/master/.github/workflows/publish-release.yml
+        signing {
+            if (project.hasProperty('SIGNING_PRIVATE_KEY') && project.hasProperty('SIGNING_PASSWORD')) {
+                useInMemoryPgpKeys(project.getProperty('SIGNING_PRIVATE_KEY'), project.getProperty('SIGNING_PASSWORD'))
+            }
         }
+
+        // https://github.com/vanniktech/gradle-maven-publish-plugin/issues/206
+        publishing {
+            repositories {
+                withType(MavenArtifactRepository) {
+                    if (name == "local") return
+                    def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                    if (version.endsWith("SNAPSHOT")) {
+                        url = uri(snapshotsRepoUrl)
+                    } else {
+                        url = uri(releasesRepoUrl)
+                    }
+                    credentials {
+                        if (hasProperty('mavenCentralRepositoryUsername')
+                                && hasProperty('mavenCentralRepositoryPassword')) {
+                            username = mavenCentralRepositoryUsername
+                            password = mavenCentralRepositoryPassword
+                        }
+                    }
+                }
+            }
+        }
+        mavenPublish {
+            nexus {
+                baseUrl = "https://s01.oss.sonatype.org/service/local/"
+                stagingProfile = pub.groupId
+                if (hasProperty('mavenCentralRepositoryUsername')
+                        && hasProperty('mavenCentralRepositoryPassword')) {
+                    repositoryUsername = mavenCentralRepositoryUsername
+                    repositoryPassword = mavenCentralRepositoryPassword
+                }
+            }
+        }
+
+        // publish to mavenLocal
+        // ./gradlew -PRELEASE_SIGNING_ENABLED=false publishToMavenLocal
     }
 }
