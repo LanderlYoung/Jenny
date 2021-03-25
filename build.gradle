@@ -3,7 +3,7 @@
 buildscript {
     ext {
         pub = [
-                publishVersion: '1.1.2',
+                publishVersion: '1.1.3',
                 user          : 'landerlyoung',
                 user_url      : 'https://github.com/LanderlYoung',
                 groupId       : 'io.github.landerlyoung',
