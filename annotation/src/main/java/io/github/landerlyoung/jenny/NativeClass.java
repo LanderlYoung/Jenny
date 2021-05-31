@@ -52,4 +52,39 @@ public @interface NativeClass {
      * @return use dynamic register or JNI function name conversions
      */
     boolean dynamicRegisterJniMethods() default true;
+
+    /**
+     * @return file naming strategy for glue code header/source files
+     */
+    FileNameStrategy fileNameStrategy() default FileNameStrategy.DEFAULT;
+
+    /**
+     * Valid file name strategies to use when generating glue code header/source files
+     */
+    enum FileNameStrategy {
+        /**
+         * Use naming strategy set in configuration
+         */
+        DEFAULT,
+        /**
+         * Jenny file name strategy
+         * <p>
+         * i.e.
+         * <ul>
+         *     <li>com.example.SomeClass -> SomeClass.h</li>
+         *     <li>com.example.SomeClass$InnerClass -> InnerClass.h</li>
+         * </ul>
+         */
+        JENNY,
+        /**
+         * javah file name strategy
+         * <p>
+         * i.e.
+         * <ul>
+         *     <li>com.example.SomeClass -> com_example_SomeClass.h</li>
+         *     <li>com.example.SomeClass$InnerClass -> com_example_SomeClass_InnerClass.h</li>
+         * </ul>
+         */
+        JAVAH
+    }
 }

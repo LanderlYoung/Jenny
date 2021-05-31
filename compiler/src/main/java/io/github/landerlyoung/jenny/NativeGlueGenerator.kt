@@ -66,8 +66,18 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
 
         mNamespaceHelper = NamespaceHelper(mNativeClassAnnotation.namespace)
 
-        mHeaderName = mNamespaceHelper.fileNamePrefix + "$cppClassName.h"
-        mSourceName = mNamespaceHelper.fileNamePrefix + "$cppClassName.cpp"
+        // use the specified file name strategy unless it is DEFAULT,
+        // in which case, use the file name strategy set in configurations
+        val fileNameStrategy = mNativeClassAnnotation.fileNameStrategy
+            .takeIf { it != NativeClass.FileNameStrategy.DEFAULT }
+            ?: mEnv.configurations.fileNameStrategy
+        val fileName = when (fileNameStrategy) {
+            NativeClass.FileNameStrategy.JENNY,
+            NativeClass.FileNameStrategy.DEFAULT -> mNamespaceHelper.fileNamePrefix + cppClassName
+            NativeClass.FileNameStrategy.JAVAH -> mHelper.toJNIClassName(mClassName)
+        }
+        mHeaderName = "$fileName.h"
+        mSourceName = "$fileName.cpp"
         log("jenny begin generate glue code for class [$mClassName]")
         log("header : [$mHeaderName]")
         log("source : [$mSourceName]")
@@ -311,7 +321,6 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
                 append(",")
             }
             append('\n')
-
         }
     }
 
@@ -323,5 +332,4 @@ class NativeGlueGenerator(env: Environment, clazz: TypeElement) : AbsCodeGenerat
             "Java_" + mJNIClassName + "_" + simpleName.replace("_", "_1").stripNonASCII()
         }
     }
-
 }
