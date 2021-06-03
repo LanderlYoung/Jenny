@@ -98,17 +98,24 @@ void ComputeIntensiveClass::testOverload__I(JNIEnv *env, jclass clazz, jint i) {
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
 jstring JNICALL ComputeIntensiveClass::httpGet(JNIEnv *env, jclass clazz, jstring _url) {
-    using namespace java::okhttp;
+#define __                          \
+    if (env->ExceptionCheck()) {    \
+        env->ExceptionClear();      \
+        return nullptr;             \
+    }
 
+    using namespace java::okhttp;
     jenny::LocalRef<jstring> url(_url, false);
 
-    OkHttpClientProxy client = OkHttpClientProxy::newInstance();
-    BuilderProxy builder = BuilderProxy::newInstance().url(url);
-    RequestProxy request = builder.build();
-    CallProxy call = client.newCall(request.getThis());
-    ResponseProxy response = call.execute();
-    ResponseBodyProxy body = response.body();
+    OkHttpClientProxy client = OkHttpClientProxy::newInstance(); __
+    BuilderProxy builder = BuilderProxy::newInstance().url(url); __
+    RequestProxy request = builder.build(); __
+    CallProxy call = client.newCall(request.getThis()); __
+    ResponseProxy response = call.execute(); __
+    ResponseBodyProxy body = response.body(); __
     return body.string().release();
+
+#undef __
 
 
     /*
