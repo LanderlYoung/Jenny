@@ -4,12 +4,12 @@ buildscript {
     ext {
         pub = [
                 publishVersion: '1.2.0',
-                user          : 'landerlyoung',
-                user_url      : 'https://github.com/LanderlYoung',
-                groupId       : 'io.github.landerlyoung',
+                user          : 'villevoutilainen',
+                user_url      : 'https://github.com/villevoutilainen',
+                groupId       : 'io.github.villevoutilainen',
                 desc          : 'Java/Android JNI glue/proxy code generator',
-                website       : 'https://github.com/LanderlYoung/Jenny',
-                scm_url       : 'scm:git:git://github.com/LanderlYoung/Jenny.git',
+                website       : 'https://github.com/villevoutilainen/Jenny',
+                scm_url       : 'scm:git:git://github.com/villevoutilainen/Jenny.git',
                 licences      : ['Apache-2.0']
         ]
 
