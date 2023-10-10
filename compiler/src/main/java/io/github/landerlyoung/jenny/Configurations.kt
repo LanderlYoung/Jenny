@@ -18,7 +18,8 @@ data class Configurations(
         val outputDirectory: String?,
         val fusionProxyHeaderName: String,
         val headerOnlyProxy: Boolean = true,
-        val useJniHelper: Boolean = false
+        val useJniHelper: Boolean = false,
+        val useQJniObject: Boolean = false
 ) {
     companion object {
         private const val PREFIX = "jenny."
@@ -39,13 +40,16 @@ data class Configurations(
 
         val USE_JNI_HELPER = PREFIX + Configurations::useJniHelper.name
 
+        val USE_QJNIOBJECT = PREFIX + Configurations::useQJniObject.name
+
         val ALL_OPTIONS = setOf(
                 THREAD_SAFE,
                 ERROR_LOGGER_FUNCTION,
                 OUTPUT_DIRECTORY,
                 FUSION_PROXY_HEADER_NAME,
                 HEADER_ONLY_PROXY,
-                USE_JNI_HELPER
+                USE_JNI_HELPER,
+                USE_QJNIOBJECT
         )
 
         fun fromOptions(options: Map<String, String>) = Configurations(
@@ -54,7 +58,8 @@ data class Configurations(
                 options[OUTPUT_DIRECTORY],
                 options[FUSION_PROXY_HEADER_NAME] ?: Constants.JENNY_FUSION_PROXY_HEADER_NAME,
                 options[HEADER_ONLY_PROXY] != false.toString(),
-                options[USE_JNI_HELPER] == true.toString()
+                options[USE_JNI_HELPER] == true.toString(),
+                options[USE_QJNIOBJECT] == true.toString()
         )
 
         @JvmStatic
