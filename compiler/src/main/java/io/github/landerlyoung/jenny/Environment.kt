@@ -16,6 +16,7 @@
 package io.github.landerlyoung.jenny
 
 import java.io.File
+import java.util.*
 import java.io.OutputStream
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -37,6 +38,19 @@ class Environment(
         private val filer: Filer,
         val configurations: Configurations
 ) {
+
+    fun readTemplateFile(name: String): String =
+            configurations.templateDirectory?.let {
+              try {
+                File(it, name)
+                .inputStream().use {
+                  String(it.readBytes(), Charsets.UTF_8)
+                }
+              } catch (e: Throwable) {
+                messager.printMessage(Diagnostic.Kind.NOTE, "Jenny | " + e.toString() + "\n")
+                String()
+              }
+            } ?: String()
 
     fun createOutputFile(packageName: String, name: String): OutputStream =
             configurations.outputDirectory?.let {
