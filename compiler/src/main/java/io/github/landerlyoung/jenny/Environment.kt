@@ -39,19 +39,6 @@ class Environment(
         val configurations: Configurations
 ) {
 
-    fun readTemplateFile(name: String): String =
-            configurations.templateDirectory?.let {
-              try {
-                File(it, name)
-                .inputStream().use {
-                  String(it.readBytes(), Charsets.UTF_8)
-                }
-              } catch (e: Throwable) {
-                messager.printMessage(Diagnostic.Kind.NOTE, "Jenny | " + e.toString() + "\n")
-                String()
-              }
-            } ?: String()
-
     fun createOutputFile(packageName: String, name: String): OutputStream =
             configurations.outputDirectory?.let {
                 File(it, packageName.replace('.', File.separatorChar) + File.separatorChar + name)

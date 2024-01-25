@@ -17,6 +17,8 @@ sourceSets {
 dependencies {
     implementation project(':annotation')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation("gg.jte:jte:3.1.4")
+    implementation("gg.jte:jte-kotlin:3.1.4")
 }
 
 repositories {
