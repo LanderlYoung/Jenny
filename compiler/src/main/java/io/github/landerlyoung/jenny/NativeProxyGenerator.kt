@@ -84,8 +84,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private val cppClassName: String = mSimpleClassName + "Proxy"
 
-    private lateinit var codeResolver : DirectoryCodeResolver
-    private lateinit var templateEngine : TemplateEngine
+    private lateinit var templateEngine: TemplateEngine
 
     public class JteData(
       public val mCppClassName: String,
@@ -101,8 +100,8 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
         mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
         if (mEnv.configurations.useTemplates) {
-            codeResolver = DirectoryCodeResolver(Path.of(mEnv.configurations.templateDirectory))
-            templateEngine = TemplateEngine.create(codeResolver, Path.of(mEnv.configurations.templateDirectory), ContentType.Plain, NativeProxyGenerator::class.java.classLoader)
+            val codeResolver = DirectoryCodeResolver(Path.of(mEnv.configurations.templateDirectory))
+            templateEngine = TemplateEngine.create(codeResolver!!, Path.of(mEnv.configurations.templateDirectory), ContentType.Plain, NativeProxyGenerator::class.java.classLoader)
             templateEngine.precompileAll()
         }
     }
@@ -133,7 +132,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 buildString {
                     if (mEnv.configurations.useTemplates) {
                         val jteOutput = StringOutput();
-                        templateEngine!!.render("header_preamble.kte", jteData, jteOutput)
+                        templateEngine.render("header_preamble.kte", jteData, jteOutput)
                         append(jteOutput.toString())
                     } else {
                         append(Constants.AUTO_GENERATE_NOTICE)
@@ -170,7 +169,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
                     if (mEnv.configurations.useTemplates) {
                         val jteOutput = StringOutput();
-                        templateEngine!!.render("header_initfunctions.kte", jteData, jteOutput)
+                        templateEngine.render("header_initfunctions.kte", jteData, jteOutput)
                         append(jteOutput.toString())
                     } else {
                         append("""
@@ -199,7 +198,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
                     if (mEnv.configurations.useTemplates) {
                         val jteOutput = StringOutput();
-                        templateEngine!!.render("header_initvars.kte", jteData, jteOutput)
+                        templateEngine.render("header_initvars.kte", jteData, jteOutput)
                         append(jteOutput.toString())
                     } else {
                         append("""
@@ -231,7 +230,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
                     if (mEnv.configurations.useTemplates) {
                         val jteOutput = StringOutput();
-                        templateEngine!!.render("header_postamble.kte", jteData, jteOutput)
+                        templateEngine.render("header_postamble.kte", jteData, jteOutput)
                         append(jteOutput.toString())
                     } else {
                         append("""
