@@ -84,6 +84,9 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private val cppClassName: String = mSimpleClassName + "Proxy"
 
+    private lateinit var codeResolver : DirectoryCodeResolver
+    private lateinit var templateEngine : TemplateEngine
+
     public class JteData(
       public val mCppClassName: String,
       public val mNamespaceHelper: NamespaceHelper,
@@ -97,6 +100,11 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     init {
         mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
         mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
+        if (mEnv.configurations.useTemplates) {
+            codeResolver = DirectoryCodeResolver(Path.of(mEnv.configurations.templateDirectory))
+            templateEngine = TemplateEngine.create(codeResolver, Path.of(mEnv.configurations.templateDirectory), ContentType.Plain, NativeProxyGenerator::class.java.classLoader)
+            templateEngine.precompileAll()
+        }
     }
 
     private fun init() {
@@ -118,16 +126,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     }
 
     private fun generatorHeader() {
-        var codeResolver : DirectoryCodeResolver? = null
-        if (mEnv.configurations.useTemplates) {
-            codeResolver = DirectoryCodeResolver(Path.of(mEnv.configurations.templateDirectory))
-        }
-        var templateEngine : TemplateEngine? = null
-        if (mEnv.configurations.useTemplates) {
-            templateEngine = TemplateEngine.create(codeResolver, Path.of(mEnv.configurations.templateDirectory), ContentType.Plain, NativeProxyGenerator::class.java.classLoader)
-            templateEngine.precompileAll()
-        }
-        
+
         mEnv.createOutputFile(Constants.JENNY_GEN_DIR_PROXY, mHeaderName).use { out ->
             try {
                 log("write native proxy file [$mHeaderName]")
