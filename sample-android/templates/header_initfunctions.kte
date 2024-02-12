@@ -1,0 +1,15 @@
+@import io.github.landerlyoung.jenny.NativeProxyGenerator.JteData
+@import io.github.landerlyoung.jenny.Constants
+
+@param jteData: JteData
+
+public:
+
+    static bool initClazz(JNIEnv* env);
+
+    static void releaseClazz(JNIEnv* env);
+
+    static void assertInited(JNIEnv* env) {
+        auto initClazzSuccess = initClazz(env);
+        assert(initClazzSuccess);
+    }

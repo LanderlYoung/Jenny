@@ -1,0 +1,27 @@
+@import io.github.landerlyoung.jenny.NativeProxyGenerator.JteData
+@import io.github.landerlyoung.jenny.Constants
+
+@param jteData: JteData
+
+${Constants.AUTO_GENERATE_NOTICE}
+#pragma once
+
+#include <jni.h>
+#include <assert.h>                        
+
+@if (jteData.mEnv.configurations.threadSafe) 
+#include <atomic>
+#include <mutex>
+@endif
+
+@if (jteData.mEnv.configurations.useJniHelper)
+#include "jnihelper.h"
+@endif
+
+${jteData.mNamespaceHelper.beginNamespace()}
+class ${jteData.mCppClassName} {
+
+public:
+static constexpr auto FULL_CLASS_NAME = "${jteData.mSlashClassName}";
+
+

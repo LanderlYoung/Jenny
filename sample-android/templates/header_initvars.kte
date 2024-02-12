@@ -1,0 +1,16 @@
+@import io.github.landerlyoung.jenny.NativeProxyGenerator.JteData
+@import io.github.landerlyoung.jenny.Constants
+
+@param jteData: JteData
+
+private:
+    struct ClassInitState {
+
+@if (jteData.mEnv.configurations.threadSafe)
+    // thread safe init
+    std::atomic_bool sInited {};
+    std::mutex sInitLock {};
+@else
+    bool sInited = false;\n")
+@endif
+    jclass sClazz = nullptr;

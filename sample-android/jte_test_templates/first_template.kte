@@ -1,0 +1,13 @@
+@import io.github.landerlyoung.jenny.NativeProxyGenerator.JteData
+@import io.github.landerlyoung.jenny.Constants
+
+@param test: JteData
+/* just another comment */
+/* splice the test into a comment, here: ${test.mCppClassName} */
+/* We are in namespace ${test.mNamespaceHelper.beginNamespace()} */
+/* ${"""omg interpolation ${test.mCppClassName}"""} */
+/* Constants.AUTO_GENERATE_NOTICE: ${Constants.AUTO_GENERATE_NOTICE} */
+@if (test.mEnv.configurations.threadSafe) 
+#include <atomic>
+#include <mutex>
+@endif

@@ -29,6 +29,15 @@ import javax.lang.model.type.TypeMirror
 import kotlin.collections.LinkedHashSet
 import kotlin.collections.component1
 import kotlin.collections.component2
+import java.nio.file.*;
+
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
+import gg.jte.CodeResolver;
+import gg.jte.resolve.DirectoryCodeResolver;
+import gg.jte.TemplateOutput;
+import gg.jte.output.StringOutput;
+import gg.jte.html.*;
 
 /**
  * Author: landerlyoung@gmail.com
@@ -75,6 +84,16 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private val cppClassName: String = mSimpleClassName + "Proxy"
 
+    public class JteData(
+      public val mCppClassName: String,
+      public val mNamespaceHelper: NamespaceHelper,
+      public val mSlashClassName: String,
+      public val mEnv: Environment
+      ) {
+      
+    }
+    private val jteData: JteData = JteData(cppClassName, mNamespaceHelper,
+            mSlashClassName, mEnv)
     init {
         mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
         mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
@@ -99,56 +118,77 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     }
 
     private fun generatorHeader() {
+        var codeResolver : DirectoryCodeResolver? = null
+        if (mEnv.configurations.useTemplates) {
+            codeResolver = DirectoryCodeResolver(Path.of(mEnv.configurations.templateDirectory))
+        }
+        var templateEngine : TemplateEngine? = null
+        if (mEnv.configurations.useTemplates) {
+            templateEngine = TemplateEngine.create(codeResolver, Path.of(mEnv.configurations.templateDirectory), ContentType.Plain, NativeProxyGenerator::class.java.classLoader)
+            templateEngine.precompileAll()
+        }
+        
         mEnv.createOutputFile(Constants.JENNY_GEN_DIR_PROXY, mHeaderName).use { out ->
             try {
                 log("write native proxy file [$mHeaderName]")
                 buildString {
-                    append(Constants.AUTO_GENERATE_NOTICE)
-                    append("""
-                        |#pragma once
-                        |
-                        |#include <jni.h>
-                        |#include <assert.h>                        
-                        |""".trimMargin())
-                    if (mEnv.configurations.threadSafe) {
+                    if (mEnv.configurations.useTemplates) {
+                        val jteOutput = StringOutput();
+                        templateEngine!!.render("header_preamble.kte", jteData, jteOutput)
+                        append(jteOutput.toString())
+                    } else {
+                        append(Constants.AUTO_GENERATE_NOTICE)
                         append("""
-                        |#include <atomic>
-                        |#include <mutex>
-                        |
-                        |""".trimMargin())
-                    }
-                    if (mEnv.configurations.useJniHelper) {
+                             |#pragma once
+                             |
+                             |#include <jni.h>
+                             |#include <assert.h>                        
+                             |""".trimMargin())
+                        if (mEnv.configurations.threadSafe) {
+                            append("""
+                            |#include <atomic>
+                            |#include <mutex>
+                            |
+                            |""".trimMargin())
+                        }
+                        if (mEnv.configurations.useJniHelper) {
+                             append("""
+                             |#include "jnihelper.h"
+                             |
+                             |""".trimMargin())
+                        }
+
                         append("""
-                        |#include "jnihelper.h"
-                        |
-                        |""".trimMargin())
+                            |${mNamespaceHelper.beginNamespace()}
+                            |class $cppClassName {
+                            |
+                            |public:
+                            |    static constexpr auto FULL_CLASS_NAME = "$mSlashClassName";
+                            |
+                            |""".trimMargin())
                     }
-
-                    append("""
-                        |${mNamespaceHelper.beginNamespace()}
-                        |class $cppClassName {
-                        |
-                        |public:
-                        |    static constexpr auto FULL_CLASS_NAME = "$mSlashClassName";
-                        |
-                        |""".trimMargin())
-
                     buildConstantsIdDeclare()
 
-                    append("""
-                        |
-                        |public:
-                        |
-                        |    static bool initClazz(JNIEnv* env);
-                        |    
-                        |    static void releaseClazz(JNIEnv* env);
-                        |
-                        |    static void assertInited(JNIEnv* env) {
-                        |        auto initClazzSuccess = initClazz(env);
-                        |        assert(initClazzSuccess);
-                        |    }
-                        |    
-                        |""".trimMargin())
+                    if (mEnv.configurations.useTemplates) {
+                        val jteOutput = StringOutput();
+                        templateEngine!!.render("header_initfunctions.kte", jteData, jteOutput)
+                        append(jteOutput.toString())
+                    } else {
+                        append("""
+                            |
+                            |public:
+                            |
+                            |    static bool initClazz(JNIEnv* env);
+                            |    
+                            |    static void releaseClazz(JNIEnv* env);
+                            |
+                            |    static void assertInited(JNIEnv* env) {
+                            |        auto initClazzSuccess = initClazz(env);
+                            |        assert(initClazzSuccess);
+                            |    }
+                            |    
+                            |""".trimMargin())
+                    }
 
                     buildConstructorDefines(false)
                     buildMethodDefines(false)
@@ -158,45 +198,58 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         generateForJniHelper()
                     }
 
-                    append("""
-                        |
-                        |private:
-                        |    struct ClassInitState {
-                        |
-                    """.trimMargin())
-
-                    if (mEnv.configurations.threadSafe) {
-                        append("""
-                        |    // thread safe init
-                        |    std::atomic_bool sInited {};
-                        |    std::mutex sInitLock {};
-                        |""".trimMargin())
+                    if (mEnv.configurations.useTemplates) {
+                        val jteOutput = StringOutput();
+                        templateEngine!!.render("header_initvars.kte", jteData, jteOutput)
+                        append(jteOutput.toString())
                     } else {
-                        append("    bool sInited = false;\n")
+                        append("""
+                            |
+                            |private:
+                            |    struct ClassInitState {
+                            |
+                        """.trimMargin())
+
+                        if (mEnv.configurations.threadSafe) {
+                            append("""
+                            |    // thread safe init
+                            |    std::atomic_bool sInited {};
+                            |    std::mutex sInitLock {};
+                            |""".trimMargin())
+                        } else {
+                            append("    bool sInited = false;\n")
+                        }
+                        append("""
+                            |
+                            |    jclass sClazz = nullptr;
+                            |
+                            """.trimMargin())
                     }
-                    append("""
-                        |
-                        |    jclass sClazz = nullptr;
-                        |
-                    """.trimMargin())
+
                     buildConstructorIdDeclare()
                     buildMethodIdDeclare()
                     buildFieldIdDeclare()
 
-                    append("""
-                        |    }; // endof struct ClassInitState
-                        |
-                        |    static inline ClassInitState& getClassInitState() {
-                        |        static ClassInitState classInitState;
-                        |        return classInitState;
-                        |    }
-                        |
-                        |
-                    """.trimMargin())
+                    if (mEnv.configurations.useTemplates) {
+                        val jteOutput = StringOutput();
+                        templateEngine!!.render("header_postamble.kte", jteData, jteOutput)
+                        append(jteOutput.toString())
+                    } else {
+                        append("""
+                            |    }; // endof struct ClassInitState
+                            |
+                            |    static inline ClassInitState& getClassInitState() {
+                            |        static ClassInitState classInitState;
+                            |        return classInitState;
+                            |    }
+                            |
+                            |
+                        """.trimMargin())
 
-                    append("};\n")
-                    append(mNamespaceHelper.endNamespace())
-                    append("\n\n")
+                        append("};\n")
+                        append(mNamespaceHelper.endNamespace())
+                        append("\n\n")
+                    }
 
                     if (mEnv.configurations.headerOnlyProxy) {
                         append("\n\n")
@@ -207,6 +260,8 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 }
             } catch (e: IOException) {
                 warn("generate header file $mHeaderName failed!")
+            } catch (e: gg.jte.TemplateException) {
+                warn("Processing jte template failed!")
             }
         }
     }

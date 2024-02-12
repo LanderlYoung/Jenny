@@ -25,6 +25,9 @@ android {
             annotationProcessorOptions {
                 arguments += [
                         "jenny.useJniHelper": "true"
+                        "jenny.useTemplates": "true"
+                        "jenny.outputDirectory": project.file('src/main/cpp/gen')
+                        "jenny.templateDirectory": project.file('templates')
                 ]
             }
         }
@@ -70,9 +73,11 @@ kapt {
         // pass arguments to jenny
         // arg("jenny.threadSafe", "false")
         arg("jenny.errorLoggerFunction", "jennySampleErrorLog")
-        // arg("jenny.outputDirectory", project.buildDir.absolutePath+"/test")
-        arg("jenny.headerOnlyProxy", "true")
+        arg("jenny.outputDirectory", project.file('src/main/cpp/gen'))
+        arg("jenny.templateDirectory", project.file('templates'))
+        arg("jenny.headerOnlyProxy", "false")
         arg("jenny.useJniHelper", "true")
+        arg("jenny.useTemplates", "true")
         // arg("jenny.fusionProxyHeaderName", "JennyFusionProxy.h")
     }
 }

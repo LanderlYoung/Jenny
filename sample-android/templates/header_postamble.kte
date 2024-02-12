@@ -1,0 +1,15 @@
+@import io.github.landerlyoung.jenny.NativeProxyGenerator.JteData
+@import io.github.landerlyoung.jenny.Constants
+
+@param jteData: JteData
+
+
+    }; // endof struct ClassInitState
+
+    static inline ClassInitState& getClassInitState() {
+        static ClassInitState classInitState;
+        return classInitState;
+    }
+};
+${jteData.mNamespaceHelper.endNamespace()}
+
