@@ -1,0 +1,16 @@
+@import io.github.landerlyoung.jenny.NativeProxyGenerator.JteData
+@import io.github.landerlyoung.jenny.Constants
+@import io.github.landerlyoung.jenny.HandyHelper
+@import io.github.landerlyoung.jenny.MethodOverloadResolver.MethodRecord
+
+@param jteData: JteData
+
+@if (jteData.useJniHelperForParam)
+    @if (jteData.isStatic)
+::jenny::Env env; assertInited(env.get());
+    @else
+::jenny::Env env; ::jenny::LocalRef<jobject> jennyLocalRef = getThis(false); jobject thiz = jennyLocalRef.get();
+    @endif
+@else
+assertInited(env);
+@endif
