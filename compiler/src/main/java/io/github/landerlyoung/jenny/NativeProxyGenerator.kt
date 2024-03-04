@@ -94,14 +94,15 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
       public val mEnv: Environment,
       public var param: String,
       public var isStatic : Boolean = false,
-      public var useJniHelperForParam : Boolean = false
-      ) {
+      public var useJniHelperForParam : Boolean = false,
+      public var method : MethodOverloadResolver.MethodRecord? = null
+) {
       
     }
     private val jteData: JteData = JteData(cppClassName, mSimpleClassName,
             mNamespaceHelper,
             mSlashClassName, mEnv,
-            "", false, false)
+            "", false, false, null)
     init {
         mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
         mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
@@ -685,7 +686,13 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             }
 
     private fun methodPrologue(isStatic: Boolean, useJniHelper: Boolean): String =
-            if (useJniHelper) {
+            if (mEnv.configurations.useTemplates) {
+                val jteOutput = StringOutput()
+                jteData.isStatic = isStatic
+                jteData.useJniHelperForParam = useJniHelper
+                templateEngine.render("method_prologue.kte", jteData, jteOutput)
+                jteOutput.toString().trim()
+            } else if (useJniHelper) {
                 if (isStatic) {
                     "::jenny::Env env; assertInited(env.get());"
                 } else {
