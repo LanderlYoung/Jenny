@@ -88,14 +88,20 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     public class JteData(
       public val mCppClassName: String,
+      public val mSimpleClassName: String,
       public val mNamespaceHelper: NamespaceHelper,
       public val mSlashClassName: String,
-      public val mEnv: Environment
+      public val mEnv: Environment,
+      public var param: String,
+      public var isStatic : Boolean = false,
+      public var useJniHelperForParam : Boolean = false
       ) {
       
     }
-    private val jteData: JteData = JteData(cppClassName, mNamespaceHelper,
-            mSlashClassName, mEnv)
+    private val jteData: JteData = JteData(cppClassName, mSimpleClassName,
+            mNamespaceHelper,
+            mSlashClassName, mEnv,
+            "", false, false)
     init {
         mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
         mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
@@ -131,7 +137,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 log("write native proxy file [$mHeaderName]")
                 buildString {
                     if (mEnv.configurations.useTemplates) {
-                        val jteOutput = StringOutput();
+                        val jteOutput = StringOutput()
                         templateEngine.render("header_preamble.kte", jteData, jteOutput)
                         append(jteOutput.toString())
                     } else {
@@ -395,6 +401,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 |    } 
                 |    
                 |""".trimMargin())
+
         }
         append('\n')
     }
@@ -660,7 +667,14 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             params.filter { it.isNotEmpty() }.joinToString(", ")
 
     private fun makeParam(isStatic: Boolean, useJniHelper: Boolean, jniParam: String): String =
-            if (!useJniHelper) {
+            if (mEnv.configurations.useTemplates) {
+                val jteOutput = StringOutput()
+                jteData.param = jniParam
+                jteData.isStatic = isStatic
+                jteData.useJniHelperForParam = useJniHelper
+                templateEngine.render("param.kte", jteData, jteOutput)
+                jteOutput.toString().trim()
+            } else if (!useJniHelper) {
                 if (isStatic) {
                     makeParam("JNIEnv* env", jniParam)
                 } else {
