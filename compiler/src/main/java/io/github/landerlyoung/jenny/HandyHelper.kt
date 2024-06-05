@@ -256,6 +256,11 @@ class HandyHelper(private val mEnv: Environment) {
         return "sClazz"
     }
 
+    // need wrap LocalRef for jnihelper or not
+    fun needWrapLocalRef(type: TypeMirror): Boolean {
+        return !type.kind.isPrimitive && type !is NoType
+    }
+
     fun getConstructorName(index: Int): String {
         return "sConstruct_$index"
     }

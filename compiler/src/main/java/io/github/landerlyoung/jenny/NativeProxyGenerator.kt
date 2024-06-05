@@ -434,7 +434,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 append("        ")
             }
 
-            if (useJniHelper && needWrapLocalRef(m.returnType)) {
+            if (useJniHelper && mHelper.needWrapLocalRef(m.returnType)) {
                 append(functionReturnType).append("(")
             }
 
@@ -448,7 +448,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             if (returnTypeNeedCast(jniReturnType)) {
                 append(")")
             }
-            if (useJniHelper && needWrapLocalRef(m.returnType)) {
+            if (useJniHelper && mHelper.needWrapLocalRef(m.returnType)) {
                 append(")")
             }
 
@@ -489,7 +489,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     |       ${methodPrologue(isStatic, useJniHelper)}
                     |       return """.trimMargin())
 
-                if (useJniHelper && needWrapLocalRef(f.asType())) {
+                if (useJniHelper && mHelper.needWrapLocalRef(f.asType())) {
                     append(functionReturnType).append("(")
                 }
 
@@ -502,7 +502,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 if (returnTypeNeedCast(jniReturnType)) {
                     append(")")
                 }
-                if (useJniHelper && needWrapLocalRef(f.asType())) {
+                if (useJniHelper && mHelper.needWrapLocalRef(f.asType())) {
                     append(")")
                 }
                 append(""";
@@ -515,7 +515,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             // setter
             if (getterSetters.contains(GetterSetter.SETTER)) {
                 val param = makeParam(isStatic, useJniHelper, "${f.asType().toJniTypeForParam(useJniHelper)} ${f.simpleName}")
-                val passedParam = if (useJniHelper && needWrapLocalRef(f.asType())) "${f.simpleName}.get()" else f.simpleName
+                val passedParam = if (useJniHelper && mHelper.needWrapLocalRef(f.asType())) "${f.simpleName}.get()" else f.simpleName
                 append("""
                     |    $comment
                     |    ${staticMod}void set${camelCaseName}(${param}) ${constMod}{
@@ -846,14 +846,9 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         }
     }
 
-    // need wrap LocalRef for jnihelper or not
-    fun needWrapLocalRef(type: TypeMirror): Boolean {
-        return !type.kind.isPrimitive && type !is NoType
-    }
-
     fun TypeMirror.toJniTypeForParam(useJniHelper: Boolean): String {
         val jniType = mHelper.toJNIType(this)
-        return if (useJniHelper && needWrapLocalRef(this)) {
+        return if (useJniHelper && mHelper.needWrapLocalRef(this)) {
             "const ::jenny::LocalRef<$jniType>&"
         } else {
             jniType
@@ -862,7 +857,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     fun TypeMirror.toJniTypeForReturn(useJniHelper: Boolean): String {
         val jniType = mHelper.toJNIType(this)
-        return if (useJniHelper && needWrapLocalRef(this)) {
+        return if (useJniHelper && mHelper.needWrapLocalRef(this)) {
             "::jenny::LocalRef<$jniType>"
         } else {
             jniType
@@ -900,7 +895,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         }
         m.parameters.forEach { p ->
             sb.append(", ").append(p.simpleName)
-            if (useJniHelper && needWrapLocalRef(p.asType())) {
+            if (useJniHelper && mHelper.needWrapLocalRef(p.asType())) {
                 // LocalRef::get
                 sb.append(".get()")
             }
