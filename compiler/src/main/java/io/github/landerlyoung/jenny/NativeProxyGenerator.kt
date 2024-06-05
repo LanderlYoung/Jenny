@@ -398,7 +398,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
                 |    static $returnType newInstance${r.resolvedPostFix}(${param}) {
                 |        ${methodPrologue(true, useJniHelper)}
-                |        return env->NewObject(${getClassState(getClazz())}, ${getClassState(getConstructorName(r.index))}${getJniMethodParamVal(r.method, useJniHelper)});
+                |        return env->NewObject(${mHelper.getClassState(getClazz())}, ${mHelper.getClassState(getConstructorName(r.index))}${getJniMethodParamVal(r.method, useJniHelper)});
                 |    } 
                 |    
                 |""".trimMargin())
@@ -443,8 +443,8 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             }
 
             val static = if (isStatic) "Static" else ""
-            val classOrObj = if (isStatic) getClassState(getClazz()) else "thiz"
-            append("env->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${getClassState(getMethodName(m, r.index))}${getJniMethodParamVal(m, useJniHelper)})")
+            val classOrObj = if (isStatic) mHelper.getClassState(getClazz()) else "thiz"
+            append("env->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${mHelper.getClassState(getMethodName(m, r.index))}${getJniMethodParamVal(m, useJniHelper)})")
             if (returnTypeNeedCast(jniReturnType)) {
                 append(")")
             }
@@ -470,7 +470,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             val static = if (isStatic) "Static" else ""
             val staticMod = if (isStatic || !useJniHelper) "static " else ""
             val constMod = if (isStatic || !useJniHelper) "" else "const "
-            val classOrObj = if (isStatic) getClassState(getClazz()) else "thiz"
+            val classOrObj = if (isStatic) mHelper.getClassState(getClazz()) else "thiz"
             val jniEnv = "env"
 
             var comment = "// field: ${mHelper.getModifiers(f)} ${f.asType()} ${f.simpleName}"
@@ -497,7 +497,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     append("reinterpret_cast<${jniReturnType}>(")
                 }
 
-                append("${jniEnv}->Get${static}${typeForJniCall}Field(${classOrObj}, ${getClassState(fieldId)})")
+                append("${jniEnv}->Get${static}${typeForJniCall}Field(${classOrObj}, ${mHelper.getClassState(fieldId)})")
 
                 if (returnTypeNeedCast(jniReturnType)) {
                     append(")")
@@ -520,7 +520,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     |    $comment
                     |    ${staticMod}void set${camelCaseName}(${param}) ${constMod}{
                     |        ${methodPrologue(isStatic, useJniHelper)}
-                    |        ${jniEnv}->Set${static}${typeForJniCall}Field(${classOrObj}, ${getClassState(fieldId)}, ${passedParam});
+                    |        ${jniEnv}->Set${static}${typeForJniCall}Field(${classOrObj}, ${mHelper.getClassState(fieldId)}, ${passedParam});
                     |    }
                     |
                     |""".trimMargin())
@@ -557,7 +557,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
 
         append("""
-                |    auto& state = getClassInitState();
+                |    auto& state = mHelper.getClassInitState();
                 |""".trimMargin())
 
         if (mEnv.configurations.threadSafe) {
@@ -602,7 +602,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         }
         append("""
             |${prefix} void $cppClassName::releaseClazz(JNIEnv* env) {
-            |    auto& state = getClassInitState();
+            |    auto& state = mHelper.getClassInitState();
             |    if (state.sInited) {
             |        $lockGuard
             |        if (state.sInited) {
@@ -768,10 +768,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 // primitive type or jobject or void
                 false
         }
-    }
-
-    private fun getClassState(what: String): String {
-        return "getClassInitState().$what"
     }
 
     private fun getClazz(): String {
