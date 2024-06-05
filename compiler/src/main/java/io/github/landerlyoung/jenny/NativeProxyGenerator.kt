@@ -95,14 +95,15 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
       public var param: String,
       public var isStatic : Boolean = false,
       public var useJniHelperForParam : Boolean = false,
-      public var method : MethodOverloadResolver.MethodRecord? = null
+      public var method : MethodOverloadResolver.MethodRecord? = null,
+      public val mHelper: HandyHelper
 ) {
       
     }
     private val jteData: JteData = JteData(cppClassName, mSimpleClassName,
             mNamespaceHelper,
             mSlashClassName, mEnv,
-            "", false, false, null)
+            "", false, false, null, mHelper)
     init {
         mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
         mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
