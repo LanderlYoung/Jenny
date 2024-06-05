@@ -256,6 +256,10 @@ class HandyHelper(private val mEnv: Environment) {
         return "sClazz"
     }
 
+    fun getConstructorName(index: Int): String {
+        return "sConstruct_$index"
+    }
+
     fun toJNIType(t: TypeMirror?): String {
         if (t == null) return ""
 

@@ -366,7 +366,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private fun StringBuilder.buildConstructorIdDeclare() {
         mConstructors.forEach { r ->
-            append("    jmethodID ${getConstructorName(r.index)} = nullptr;\n")
+            append("    jmethodID ${mHelper.getConstructorName(r.index)} = nullptr;\n")
         }
         append('\n')
     }
@@ -398,7 +398,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
                 |    static $returnType newInstance${r.resolvedPostFix}(${param}) {
                 |        ${methodPrologue(true, useJniHelper)}
-                |        return env->NewObject(${mHelper.getClassState(mHelper.getClazz())}, ${mHelper.getClassState(getConstructorName(r.index))}${getJniMethodParamVal(r.method, useJniHelper)});
+                |        return env->NewObject(${mHelper.getClassState(mHelper.getClazz())}, ${mHelper.getClassState(mHelper.getConstructorName(r.index))}${getJniMethodParamVal(r.method, useJniHelper)});
                 |    } 
                 |    
                 |""".trimMargin())
@@ -619,7 +619,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     private fun StringBuilder.buildConstructorIdInit() {
         mConstructors.forEach { r ->
             val c = r.method
-            val name = "state.${getConstructorName(r.index)}"
+            val name = "state.${mHelper.getConstructorName(r.index)}"
             val signature = mHelper.getBinaryMethodSignature(c)
 
             append("""
@@ -768,10 +768,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 // primitive type or jobject or void
                 false
         }
-    }
-
-    private fun getConstructorName(index: Int): String {
-        return "sConstruct_$index"
     }
 
     private fun getMethodName(e: ExecutableElement, index: Int): String {
