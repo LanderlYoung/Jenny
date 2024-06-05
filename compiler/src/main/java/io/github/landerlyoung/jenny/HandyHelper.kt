@@ -252,6 +252,9 @@ class HandyHelper(private val mEnv: Environment) {
         return "getClassInitState().$what"
     }
 
+    fun getClazz(): String {
+        return "sClazz"
+    }
 
     fun toJNIType(t: TypeMirror?): String {
         if (t == null) return ""

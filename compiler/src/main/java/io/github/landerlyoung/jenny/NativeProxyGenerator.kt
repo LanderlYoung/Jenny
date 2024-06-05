@@ -398,7 +398,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
                 |    static $returnType newInstance${r.resolvedPostFix}(${param}) {
                 |        ${methodPrologue(true, useJniHelper)}
-                |        return env->NewObject(${mHelper.getClassState(getClazz())}, ${mHelper.getClassState(getConstructorName(r.index))}${getJniMethodParamVal(r.method, useJniHelper)});
+                |        return env->NewObject(${mHelper.getClassState(mHelper.getClazz())}, ${mHelper.getClassState(getConstructorName(r.index))}${getJniMethodParamVal(r.method, useJniHelper)});
                 |    } 
                 |    
                 |""".trimMargin())
@@ -443,7 +443,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             }
 
             val static = if (isStatic) "Static" else ""
-            val classOrObj = if (isStatic) mHelper.getClassState(getClazz()) else "thiz"
+            val classOrObj = if (isStatic) mHelper.getClassState(mHelper.getClazz()) else "thiz"
             append("env->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${mHelper.getClassState(getMethodName(m, r.index))}${getJniMethodParamVal(m, useJniHelper)})")
             if (returnTypeNeedCast(jniReturnType)) {
                 append(")")
@@ -470,7 +470,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             val static = if (isStatic) "Static" else ""
             val staticMod = if (isStatic || !useJniHelper) "static " else ""
             val constMod = if (isStatic || !useJniHelper) "" else "const "
-            val classOrObj = if (isStatic) mHelper.getClassState(getClazz()) else "thiz"
+            val classOrObj = if (isStatic) mHelper.getClassState(mHelper.getClazz()) else "thiz"
             val jniEnv = "env"
 
             var comment = "// field: ${mHelper.getModifiers(f)} ${f.asType()} ${f.simpleName}"
@@ -768,10 +768,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 // primitive type or jobject or void
                 false
         }
-    }
-
-    private fun getClazz(): String {
-        return "sClazz"
     }
 
     private fun getConstructorName(index: Int): String {
