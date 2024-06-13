@@ -261,6 +261,27 @@ class HandyHelper(private val mEnv: Environment) {
         return !type.kind.isPrimitive && type !is NoType
     }
 
+    fun getJniMethodParamVal(clazz: TypeElement, m: ExecutableElement, useJniHelper: Boolean): String {
+        val sb = StringBuilder(64)
+        if (isNestedClass(clazz)) {
+            // nested class has an `jboject this$0` in its constructor
+            sb.append(", ").append("enclosingClass")
+            if (useJniHelper) {
+                // LocalRef::get
+                sb.append(".get()")
+            }
+        }
+        m.parameters.forEach { p ->
+            sb.append(", ").append(p.simpleName)
+            if (useJniHelper && needWrapLocalRef(p.asType())) {
+                // LocalRef::get
+                sb.append(".get()")
+            }
+        }
+        return sb.toString()
+    }
+
+
     fun getConstructorName(index: Int): String {
         return "sConstruct_$index"
     }

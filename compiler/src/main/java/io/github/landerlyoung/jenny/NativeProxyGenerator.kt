@@ -399,7 +399,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
                 |    static $returnType newInstance${r.resolvedPostFix}(${param}) {
                 |        ${methodPrologue(true, useJniHelper)}
-                |        return env->NewObject(${mHelper.getClassState(mHelper.getClazz())}, ${mHelper.getClassState(mHelper.getConstructorName(r.index))}${getJniMethodParamVal(r.method, useJniHelper)});
+                |        return env->NewObject(${mHelper.getClassState(mHelper.getClazz())}, ${mHelper.getClassState(mHelper.getConstructorName(r.index))}${mHelper.getJniMethodParamVal(mClazz, r.method, useJniHelper)});
                 |    } 
                 |    
                 |""".trimMargin())
@@ -445,7 +445,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
             val static = if (isStatic) "Static" else ""
             val classOrObj = if (isStatic) mHelper.getClassState(mHelper.getClazz()) else "thiz"
-            append("env->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${mHelper.getClassState(getMethodName(m, r.index))}${getJniMethodParamVal(m, useJniHelper)})")
+            append("env->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${mHelper.getClassState(getMethodName(m, r.index))}${mHelper.getJniMethodParamVal(mClazz, m, useJniHelper)})")
             if (returnTypeNeedCast(jniReturnType)) {
                 append(")")
             }
@@ -882,26 +882,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     .append(p.simpleName)
             needComma = true
         }
-    }
-
-    private fun getJniMethodParamVal(m: ExecutableElement, useJniHelper: Boolean): String {
-        val sb = StringBuilder(64)
-        if (mHelper.isNestedClass(mClazz)) {
-            // nested class has an `jboject this$0` in its constructor
-            sb.append(", ").append("enclosingClass")
-            if (useJniHelper) {
-                // LocalRef::get
-                sb.append(".get()")
-            }
-        }
-        m.parameters.forEach { p ->
-            sb.append(", ").append(p.simpleName)
-            if (useJniHelper && mHelper.needWrapLocalRef(p.asType())) {
-                // LocalRef::get
-                sb.append(".get()")
-            }
-        }
-        return sb.toString()
     }
 
     private fun getTypeForJniCall(type: TypeMirror): String {
