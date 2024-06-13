@@ -3,7 +3,7 @@
 
 @param jteData: JteData
 
-@if (!jteData.useJniHelperForParam)
+@if (!jteData.useJniHelper)
     @if (jteData.isStatic)
         @if (jteData.param != "")
 JNIEnv* env, ${jteData.param}

@@ -5,7 +5,7 @@
 
 @param jteData: JteData
 
-@if (jteData.useJniHelperForParam)
+@if (jteData.useJniHelper)
     @if (jteData.isStatic)
 ::jenny::Env env; assertInited(env.get());
     @else

@@ -93,8 +93,11 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
       public val mSlashClassName: String,
       public val mEnv: Environment,
       public var param: String,
+      public var returnType: String,
+      public var methodPrologue: String,
       public var isStatic : Boolean = false,
-      public var useJniHelperForParam : Boolean = false,
+      public var useJniHelper : Boolean = false,
+      public var clazz : TypeElement? = null,
       public var method : MethodOverloadResolver.MethodRecord? = null,
       public val mHelper: HandyHelper
 ) {
@@ -103,7 +106,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     private val jteData: JteData = JteData(cppClassName, mSimpleClassName,
             mNamespaceHelper,
             mSlashClassName, mEnv,
-            "", false, false, null, mHelper)
+            "", "", "", false, false, null, null, mHelper)
     init {
         mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
         mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
@@ -395,14 +398,25 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             val param = makeParam(true, useJniHelper, getJniMethodParam(r.method, useJniHelper))
 
             val returnType = if (useJniHelper) cppClassName else "jobject"
-            append("""
-                |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
-                |    static $returnType newInstance${r.resolvedPostFix}(${param}) {
-                |        ${methodPrologue(true, useJniHelper)}
-                |        return env->NewObject(${mHelper.getClassState(mHelper.getClazz())}, ${mHelper.getClassState(mHelper.getConstructorName(r.index))}${mHelper.getJniMethodParamVal(mClazz, r.method, useJniHelper)});
-                |    } 
-                |    
-                |""".trimMargin())
+            if (mEnv.configurations.useTemplates) {
+                 val jteOutput = StringOutput()
+		 jteData.useJniHelper = useJniHelper
+		 jteData.clazz = mClazz
+		 jteData.method = r
+		 jteData.returnType = returnType
+		 jteData.methodPrologue = methodPrologue(true, useJniHelper)
+                 templateEngine.render("constructor_definition.kte", jteData, jteOutput)
+                 append(jteOutput.toString())
+            } else {
+	        append("""
+                    |    // construct: ${mHelper.getModifiers(r.method)} ${mSimpleClassName}(${mHelper.getJavaMethodParam(r.method)})
+                    |    static $returnType newInstance${r.resolvedPostFix}(${param}) {
+                    |        ${methodPrologue(true, useJniHelper)}
+                    |        return env->NewObject(${mHelper.getClassState(mHelper.getClazz())}, ${mHelper.getClassState(mHelper.getConstructorName(r.index))}${mHelper.getJniMethodParamVal(mClazz, r.method, useJniHelper)});
+                    |    }
+                    |
+                    |""".trimMargin())
+            }
 
         }
         append('\n')
@@ -673,7 +687,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 val jteOutput = StringOutput()
                 jteData.param = jniParam
                 jteData.isStatic = isStatic
-                jteData.useJniHelperForParam = useJniHelper
+                jteData.useJniHelper = useJniHelper
                 templateEngine.render("param.kte", jteData, jteOutput)
                 jteOutput.toString().trim()
             } else if (!useJniHelper) {
@@ -690,7 +704,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             if (mEnv.configurations.useTemplates) {
                 val jteOutput = StringOutput()
                 jteData.isStatic = isStatic
-                jteData.useJniHelperForParam = useJniHelper
+                jteData.useJniHelper = useJniHelper
                 templateEngine.render("method_prologue.kte", jteData, jteOutput)
                 jteOutput.toString().trim()
             } else if (useJniHelper) {
