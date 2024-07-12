@@ -437,6 +437,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             val returnType = if (useJniHelper) cppClassName else "jobject"
             if (mEnv.configurations.useTemplates) {
                 val jteOutput = StringOutput()
+                jteData.param = param
                 jteData.useJniHelper = useJniHelper
                 jteData.clazz = mClazz
                 jteData.method = r
@@ -661,7 +662,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
         append(
             """
-                |    auto& state = mHelper.getClassInitState();
+                |    auto& state = getClassInitState();
                 |""".trimMargin()
         )
 
@@ -716,7 +717,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         append(
             """
             |${prefix} void $cppClassName::releaseClazz(JNIEnv* env) {
-            |    auto& state = mHelper.getClassInitState();
+            |    auto& state = getClassInitState();
             |    if (state.sInited) {
             |        $lockGuard
             |        if (state.sInited) {
