@@ -13,16 +13,19 @@
 #include "ComputeIntensiveClass.h"
 #include "NestedNativeClass.h"
 #include "NativeDrawable.h"
-#include "gen/GenericProxy.h"
-#include "gen/jnihelper.h"
-#include "gen/jenny_fusion_proxies.h"
+#include "proxy/GenericProxy.h"
+#include "proxy/jnihelper.h"
+#include "proxy/jenny_fusion_proxies.h"
 
-#include "gen/java_okhttp_BuilderProxy.h"
-#include "gen/java_okhttp_OkHttpClientProxy.h"
-#include "gen/java_okhttp_RequestProxy.h"
-#include "gen/java_okhttp_CallProxy.h"
-#include "gen/java_okhttp_ResponseProxy.h"
-#include "gen/java_okhttp_ResponseBodyProxy.h"
+#include "proxy/java_okhttp_BuilderProxy.h"
+#include "proxy/java_okhttp_OkHttpClientProxy.h"
+#include "proxy/java_okhttp_RequestProxy.h"
+#include "proxy/java_okhttp_CallProxy.h"
+#include "proxy/java_okhttp_ResponseProxy.h"
+#include "proxy/java_okhttp_ResponseBodyProxy.h"
+#include "glue/header/NativeDrawable.h"
+#include "glue/header/ComputeIntensiveClass.h"
+
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv* env;
