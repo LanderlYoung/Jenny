@@ -1,4 +1,4 @@
-@import io.github.landerlyoung.jenny.NativeProxyGenerator.JteData
+@import io.github.landerlyoung.jenny.JteData
 @import io.github.landerlyoung.jenny.Constants
 
 @param jteData: JteData

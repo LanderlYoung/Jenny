@@ -88,24 +88,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private lateinit var templateEngine: TemplateEngine
 
-    public class JteData(
-        public val mCppClassName: String,
-        public val mSimpleClassName: String,
-        public val mNamespaceHelper: NamespaceHelper,
-        public val mSlashClassName: String,
-        public val mEnv: Environment,
-        public var param: String,
-        public var returnType: String,
-        public var methodPrologue: String,
-        public var isStatic: Boolean = false,
-        public var useJniHelper: Boolean = false,
-        public var clazz: TypeElement? = null,
-        public var method: MethodOverloadResolver.MethodRecord? = null,
-        public val mHelper: HandyHelper
-    ) {
-
-    }
-
     private val jteData: JteData = JteData(
         cppClassName, mSimpleClassName,
         mNamespaceHelper,
