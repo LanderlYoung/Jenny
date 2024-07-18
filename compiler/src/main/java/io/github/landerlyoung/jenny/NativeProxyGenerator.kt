@@ -38,6 +38,7 @@ import gg.jte.resolve.DirectoryCodeResolver;
 import gg.jte.TemplateOutput;
 import gg.jte.output.StringOutput;
 import gg.jte.html.*;
+import java.io.File
 
 /**
  * Author: landerlyoung@gmail.com
@@ -94,19 +95,27 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         mSlashClassName, mEnv,
         "", "", "", false, false, null, null, mHelper
     )
+    private var useTemplates = mEnv.configurations.useTemplates
 
     init {
         mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
         mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
-        if (mEnv.configurations.useTemplates) {
-            val codeResolver = DirectoryCodeResolver(Path.of(mEnv.configurations.templateDirectory))
-            templateEngine = TemplateEngine.create(
-                codeResolver!!,
-                Path.of(mEnv.configurations.templateDirectory),
-                ContentType.Plain,
-                NativeProxyGenerator::class.java.classLoader
-            )
-            templateEngine.precompileAll()
+        if (useTemplates) {
+            val path:String = mEnv.configurations.templateDirectory
+                ?:(System.getProperty("user.dir") + "/templates")
+            if (!File(path).exists()) {
+                error("Templates folder does not exist failed to generate using templates. Attempting without templates")
+                useTemplates = false
+            } else {
+                val codeResolver = DirectoryCodeResolver(Path.of(path))
+                templateEngine = TemplateEngine.create(
+                    codeResolver,
+                    Path.of(path),
+                    ContentType.Plain,
+                    NativeProxyGenerator::class.java.classLoader
+                )
+                templateEngine.precompileAll()
+            }
         }
     }
 
@@ -134,7 +143,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             try {
                 log("write native proxy file [$mHeaderName]")
                 buildString {
-                    if (mEnv.configurations.useTemplates) {
+                    if (useTemplates) {
                         val jteOutput = StringOutput()
                         templateEngine.render("header_preamble.kte", jteData, jteOutput)
                         append(jteOutput.toString())
@@ -179,7 +188,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     }
                     buildConstantsIdDeclare()
 
-                    if (mEnv.configurations.useTemplates) {
+                    if (useTemplates) {
                         val jteOutput = StringOutput();
                         templateEngine.render("header_initfunctions.kte", jteData, jteOutput)
                         append(jteOutput.toString())
@@ -210,7 +219,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         generateForJniHelper()
                     }
 
-                    if (mEnv.configurations.useTemplates) {
+                    if (useTemplates) {
                         val jteOutput = StringOutput();
                         templateEngine.render("header_initvars.kte", jteData, jteOutput)
                         append(jteOutput.toString())
@@ -248,7 +257,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     buildMethodIdDeclare()
                     buildFieldIdDeclare()
 
-                    if (mEnv.configurations.useTemplates) {
+                    if (useTemplates) {
                         val jteOutput = StringOutput();
                         templateEngine.render("header_postamble.kte", jteData, jteOutput)
                         append(jteOutput.toString())
@@ -417,7 +426,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             val param = makeParam(true, useJniHelper, getJniMethodParam(r.method, useJniHelper))
 
             val returnType = if (useJniHelper) cppClassName else "jobject"
-            if (mEnv.configurations.useTemplates) {
+            if (useTemplates) {
                 val jteOutput = StringOutput()
                 jteData.param = param
                 jteData.useJniHelper = useJniHelper
@@ -772,7 +781,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         params.filter { it.isNotEmpty() }.joinToString(", ")
 
     private fun makeParam(isStatic: Boolean, useJniHelper: Boolean, jniParam: String): String =
-        if (mEnv.configurations.useTemplates) {
+        if (useTemplates) {
             val jteOutput = StringOutput()
             jteData.param = jniParam
             jteData.isStatic = isStatic
@@ -790,7 +799,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         }
 
     private fun methodPrologue(isStatic: Boolean, useJniHelper: Boolean): String =
-        if (mEnv.configurations.useTemplates) {
+        if (useTemplates) {
             val jteOutput = StringOutput()
             jteData.isStatic = isStatic
             jteData.useJniHelper = useJniHelper
