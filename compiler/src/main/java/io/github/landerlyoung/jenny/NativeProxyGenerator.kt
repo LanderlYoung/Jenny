@@ -254,7 +254,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                             """.trimMargin()
                         )
                     }
-                    // TODO: Finish this
                     buildConstructorIdDeclare()
                     buildMethodIdDeclare()
                     buildFieldIdDeclare()
@@ -416,12 +415,12 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     }
 
     private fun StringBuilder.buildMethodIdDeclare() {
-        if(useTemplates){
+        if (useTemplates) {
             val stringOutput = StringOutput()
             val methods = MethodIdDeclaration(mHelper, mMethods)
             templateEngine.render("methods_ids_declarations.kte", methods, stringOutput)
             append(stringOutput.toString())
-        }else {
+        } else {
             mMethods.forEach { r ->
                 append("    jmethodID ${mHelper.getMethodName(r.method, r.index)} = nullptr;\n")
             }
@@ -429,17 +428,30 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         }
     }
 
+    data class FieldIdDeclaration(
+        val helper: HandyHelper,
+        val listOfFields: List<VariableElement>
+    )
+
     private fun StringBuilder.buildFieldIdDeclare() {
-        mFields.forEachIndexed { index, field ->
-            if (field.constantValue != null) {
-                warn(
-                    "you are trying to add getter/setter to a compile-time constant "
-                            + mClassName + "." + field.simpleName.toString()
-                )
+        if (useTemplates) {
+            val stringOutput = StringOutput()
+            val fields = FieldIdDeclaration(mHelper, mFields)
+            templateEngine.render("fields_ids_declarations.kte", fields, stringOutput)
+            append(stringOutput.toString())
+        } else {
+            mFields.forEachIndexed { index, field ->
+                if (field.constantValue != null) {
+                    warn(
+                        "you are trying to add getter/setter to a compile-time constant "
+                                + mClassName + "." + field.simpleName.toString()
+                    )
+                }
+                append("    jfieldID ${mHelper.getFieldName(field, index)} = nullptr;\n")
             }
-            append("    jfieldID ${getFieldName(field, index)} = nullptr;\n")
+            append('\n')
         }
-        append('\n')
+
     }
 
     private fun StringBuilder.buildConstructorDefines(useJniHelper: Boolean) {
@@ -548,7 +560,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             val isStatic = f.modifiers.contains(Modifier.STATIC)
             val camelCaseName = f.simpleName.toString().capitalize(Locale.ROOT)
             val getterSetters = hasGetterSetter(f)
-            val fieldId = getFieldName(f, index)
+            val fieldId = mHelper.getFieldName(f, index)
             val typeForJniCall = getTypeForJniCall(f.asType())
 
 
@@ -780,7 +792,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private fun StringBuilder.buildFieldIdInit() {
         mFields.forEachIndexed { index, f ->
-            val name = "state.${getFieldName(f, index)}"
+            val name = "state.${mHelper.getFieldName(f, index)}"
             val static = if (f.modifiers.contains(Modifier.STATIC)) "Static" else ""
             val fieldName = f.simpleName
             val signature = mHelper.getBinaryTypeSignature(f.asType())
@@ -901,11 +913,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 // primitive type or jobject or void
                 false
         }
-    }
-
-
-    private fun getFieldName(e: Element, index: Int): String {
-        return "sField_" + e.simpleName + "_" + index
     }
 
     private fun findConstructors() {
