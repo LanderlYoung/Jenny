@@ -89,11 +89,13 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private lateinit var templateEngine: TemplateEngine
 
-    private val jteData: JteData = JteData(
-        cppClassName, mSimpleClassName,
-        mNamespaceHelper,
-        mSlashClassName, mEnv,
-        "", "", "", false, false, null, null, mHelper
+    private val jteData = JteData(
+        className = cppClassName,
+        simpleClassName = mSimpleClassName,
+        namespaceHelper = mNamespaceHelper,
+        slashClassName = mSlashClassName,
+        environment = mEnv,
+        handyHelper = mHelper
     )
     private var useTemplates = mEnv.configurations.useTemplates
 
@@ -101,8 +103,8 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         mHeaderName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.h"
         mSourceName = mNamespaceHelper.fileNamePrefix + "${cppClassName}.cpp"
         if (useTemplates) {
-            val path:String = mEnv.configurations.templateDirectory
-                ?:(System.getProperty("user.dir") + "/templates")
+            val path: String = mEnv.configurations.templateDirectory
+                ?: (System.getProperty("user.dir") + "/templates")
             if (!File(path).exists()) {
                 error("Templates folder does not exist failed to generate using templates. Attempting without templates")
                 useTemplates = false
@@ -394,13 +396,13 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         append('\n')
     }
 
-    data class MethodIdDeclaration (
+    data class MethodIdDeclaration(
         val helper: HandyHelper,
-        val listOfMethods : List<MethodOverloadResolver.MethodRecord>
+        val listOfMethods: List<MethodOverloadResolver.MethodRecord>
     )
 
     private fun StringBuilder.buildConstructorIdDeclare() {
-        if(useTemplates) {
+        if (useTemplates) {
             val stringOutput = StringOutput()
             val constructors = MethodIdDeclaration(mHelper, mConstructors)
             templateEngine.render("constructors_ids_declarations.kte", constructors, stringOutput)
