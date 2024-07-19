@@ -5,5 +5,5 @@
 @param  methodIdDeclaration:MethodIdDeclaration
 
 @for(method:MethodRecord in methodIdDeclaration.listOfMethods)
-        jmethodID ${methodIdDeclaration.helper.getConstructorName(method.index)} = nullptr;\n
+        jmethodID ${methodIdDeclaration.helper.getConstructorName(method.index)} = nullptr;
 @endfor
