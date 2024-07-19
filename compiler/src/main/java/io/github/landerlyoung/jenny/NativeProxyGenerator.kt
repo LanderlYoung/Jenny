@@ -221,65 +221,13 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         generateForJniHelper()
                     }
 
-                    if (useTemplates) {
-                        val jteOutput = StringOutput();
-                        templateEngine.render("header_initvars.kte", jteData, jteOutput)
-                        append(jteOutput.toString())
-                    } else {
-                        append(
-                            """
-                            |
-                            |private:
-                            |    struct ClassInitState {
-                            |
-                        """.trimMargin()
-                        )
+                    headerInitPreDefinition()
 
-                        if (mEnv.configurations.threadSafe) {
-                            append(
-                                """
-                            |    // thread safe init
-                            |    std::atomic_bool sInited {};
-                            |    std::mutex sInitLock {};
-                            |""".trimMargin()
-                            )
-                        } else {
-                            append("    bool sInited = false;\n")
-                        }
-                        append(
-                            """
-                            |
-                            |    jclass sClazz = nullptr;
-                            |
-                            """.trimMargin()
-                        )
-                    }
                     buildConstructorIdDeclare()
                     buildMethodIdDeclare()
                     buildFieldIdDeclare()
 
-                    if (useTemplates) {
-                        val jteOutput = StringOutput();
-                        templateEngine.render("header_postamble.kte", jteData, jteOutput)
-                        append(jteOutput.toString())
-                    } else {
-                        append(
-                            """
-                            |    }; // endof struct ClassInitState
-                            |
-                            |    static inline ClassInitState& getClassInitState() {
-                            |        static ClassInitState classInitState;
-                            |        return classInitState;
-                            |    }
-                            |
-                            |
-                        """.trimMargin()
-                        )
-
-                        append("};\n")
-                        append(mNamespaceHelper.endNamespace())
-                        append("\n\n")
-                    }
+                    headerInitPostDefinition()
 
                     if (mEnv.configurations.headerOnlyProxy) {
                         append("\n\n")
@@ -337,6 +285,67 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         buildConstructorDefines(true)
         buildMethodDefines(true)
         buildFieldDefines(true)
+    }
+
+    private fun StringBuilder.headerInitPreDefinition() {
+        if (useTemplates) {
+            val jteOutput = StringOutput();
+            templateEngine.render("header_initvars.kte", jteData, jteOutput)
+            append(jteOutput.toString())
+        } else {
+            append(
+                """
+                            |
+                            |private:
+                            |    struct ClassInitState {
+                            |
+                        """.trimMargin()
+            )
+
+            if (mEnv.configurations.threadSafe) {
+                append(
+                    """
+                            |    // thread safe init
+                            |    std::atomic_bool sInited {};
+                            |    std::mutex sInitLock {};
+                            |""".trimMargin()
+                )
+            } else {
+                append("    bool sInited = false;\n")
+            }
+            append(
+                """
+                            |
+                            |    jclass sClazz = nullptr;
+                            |
+                            """.trimMargin()
+            )
+        }
+    }
+
+    private fun StringBuilder.headerInitPostDefinition() {
+        if (useTemplates) {
+            val jteOutput = StringOutput();
+            templateEngine.render("header_postamble.kte", jteData, jteOutput)
+            append(jteOutput.toString())
+        } else {
+            append(
+                """
+                            |    }; // endof struct ClassInitState
+                            |
+                            |    static inline ClassInitState& getClassInitState() {
+                            |        static ClassInitState classInitState;
+                            |        return classInitState;
+                            |    }
+                            |
+                            |
+                        """.trimMargin()
+            )
+
+            append("};\n")
+            append(mNamespaceHelper.endNamespace())
+            append("\n\n")
+        }
     }
 
     private fun generateSource() {
