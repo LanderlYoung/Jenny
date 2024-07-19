@@ -74,7 +74,7 @@ kapt {
         // arg("jenny.threadSafe", "false")
         arg("jenny.errorLoggerFunction", "jennySampleErrorLog")
         arg("jenny.outputDirectory", project.file('src/main/cpp/gen'))
-//        arg("jenny.templateDirectory", project.file('templates'))
+        arg("jenny.templateDirectory", project.file('templates'))
         arg("jenny.headerOnlyProxy", "false")
         arg("jenny.useJniHelper", "true")
         arg("jenny.useTemplates", "true")
