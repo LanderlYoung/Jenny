@@ -283,9 +283,8 @@ class HandyHelper(private val mEnv: Environment) {
 
 
     fun getConstructorName(index: Int) = "sConstruct_$index"
-
     fun getMethodName(e: ExecutableElement, index: Int) = "sMethod_" + e.simpleName + "_" + index
-
+    fun getFieldName(e: Element, index: Int) = "sField_" + e.simpleName + "_" + index
 
     fun toJNIType(t: TypeMirror?): String {
         if (t == null) return ""
