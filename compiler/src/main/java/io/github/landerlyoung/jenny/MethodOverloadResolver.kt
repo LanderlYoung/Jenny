@@ -11,13 +11,14 @@ import javax.lang.model.element.ExecutableElement
  * ```
  */
 class MethodOverloadResolver(
-        private val helper: HandyHelper,
-        private val nativeParamResolver: (ExecutableElement) -> String
+    private val helper: HandyHelper,
+    private val nativeParamResolver: (ExecutableElement) -> String
 ) {
-    class MethodRecord(
-            val method: ExecutableElement,
-            val resolvedPostFix: String,
-            val index: Int)
+    data class MethodRecord(
+        val method: ExecutableElement,
+        val resolvedPostFix: String,
+        val index: Int
+    )
 
     fun resolve(methodList: List<ExecutableElement>): List<MethodRecord> {
         val duplicateRecord = mutableMapOf<String, Boolean>()
@@ -30,9 +31,9 @@ class MethodOverloadResolver(
             val p = nativeParamResolver(m)
             if (duplicateRecord[p]!! || Constants.CPP_RESERVED_WORS.contains(m.simpleName.toString())) {
                 MethodRecord(
-                        m,
-                        helper.getMethodOverloadPostfix(m),
-                        index
+                    m,
+                    helper.getMethodOverloadPostfix(m),
+                    index
                 )
             } else {
                 MethodRecord(m, "", index)

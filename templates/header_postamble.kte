@@ -11,5 +11,5 @@
         return classInitState;
     }
 };
-${jteData.namespaceHelper.endNamespace()}
+${jteData.mNamespaceHelper.endNamespace()}
 

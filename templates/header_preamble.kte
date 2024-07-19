@@ -9,19 +9,19 @@ ${Constants.AUTO_GENERATE_NOTICE}
 #include <jni.h>
 #include <assert.h>                        
 
-@if (jteData.environment.configurations.threadSafe)
+@if (jteData.mEnv.configurations.threadSafe) 
 #include <atomic>
 #include <mutex>
 @endif
 
-@if (jteData.environment.configurations.useJniHelper)
+@if (jteData.mEnv.configurations.useJniHelper)
 #include "jnihelper.h"
 @endif
 
-${jteData.namespaceHelper.beginNamespace()}
-class ${jteData.className} {
+${jteData.mNamespaceHelper.beginNamespace()}
+class ${jteData.mCppClassName} {
 
 public:
-    static constexpr auto FULL_CLASS_NAME = "${jteData.slashClassName}";
+    static constexpr auto FULL_CLASS_NAME = "${jteData.mSlashClassName}";
 
 
