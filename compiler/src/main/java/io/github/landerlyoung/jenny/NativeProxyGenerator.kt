@@ -411,15 +411,22 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             mConstructors.forEach { r ->
                 append("    jmethodID ${mHelper.getConstructorName(r.index)} = nullptr;\n")
             }
+            append('\n')
         }
-        append('\n')
     }
 
     private fun StringBuilder.buildMethodIdDeclare() {
-        mMethods.forEach { r ->
-            append("    jmethodID ${mHelper.getMethodName(r.method, r.index)} = nullptr;\n")
+        if(useTemplates){
+            val stringOutput = StringOutput()
+            val methods = MethodIdDeclaration(mHelper, mMethods)
+            templateEngine.render("methods_ids_declarations.kte", methods, stringOutput)
+            append(stringOutput.toString())
+        }else {
+            mMethods.forEach { r ->
+                append("    jmethodID ${mHelper.getMethodName(r.method, r.index)} = nullptr;\n")
+            }
+            append('\n')
         }
-        append('\n')
     }
 
     private fun StringBuilder.buildFieldIdDeclare() {
@@ -520,9 +527,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             val classOrObj = if (isStatic) mHelper.getClassState(mHelper.getClazz()) else "thiz"
             append(
                 "env->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${
-                    mHelper.apply {
-                        getClassState(getMethodName(m, r.index))
-                    }
+                    mHelper.getClassState(mHelper.getMethodName(m, r.index))
                 }${mHelper.getJniMethodParamVal(mClazz, m, useJniHelper)})"
             )
             if (returnTypeNeedCast(jniReturnType)) {
