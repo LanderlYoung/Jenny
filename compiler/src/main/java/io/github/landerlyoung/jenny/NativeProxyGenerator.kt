@@ -767,7 +767,11 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         if (useTemplates) {
             val stringOutput = StringOutput()
             val constructors = MethodIdDeclaration(mHelper, mConstructors)
-            templateEngine.render("constructors_ids_initialisations.kte", constructors, stringOutput)
+            templateEngine.render(
+                "constructors_ids_initialisations.kte",
+                constructors,
+                stringOutput
+            )
             append(stringOutput.toString())
         } else {
             mConstructors.forEach { r ->
@@ -788,22 +792,33 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     }
 
     private fun StringBuilder.buildMethodIdInit() {
-        mMethods.forEach { r ->
-            val m = r.method
-            val name = "state.${mHelper.getMethodName(m, r.index)}"
-            val static = if (m.modifiers.contains(Modifier.STATIC)) "Static" else ""
-            val methodName = m.simpleName
-            val signature = mHelper.getBinaryMethodSignature(m)
+        if (useTemplates) {
+            val stringOutput = StringOutput()
+            val methods = MethodIdDeclaration(mHelper, mMethods)
+            templateEngine.render(
+                "methods_ids_initialisations.kte",
+                methods,
+                stringOutput
+            )
+            append(stringOutput.toString())
+        } else {
+            mMethods.forEach { r ->
+                val m = r.method
+                val name = "state.${mHelper.getMethodName(m, r.index)}"
+                val static = if (m.modifiers.contains(Modifier.STATIC)) "Static" else ""
+                val methodName = m.simpleName.toString()
+                val signature = mHelper.getBinaryMethodSignature(m)
 
-            append(
-                """
+                append(
+                    """
             |            $name = env->Get${static}MethodID(state.sClazz, "$methodName", "$signature");
             |            JENNY_CHECK_NULL(${name});
             |
             |""".trimMargin()
-            )
+                )
+            }
+            append('\n')
         }
-        append('\n')
     }
 
     private fun StringBuilder.buildFieldIdInit() {
