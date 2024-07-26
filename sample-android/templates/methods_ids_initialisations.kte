@@ -8,10 +8,10 @@
 
 @for(method:MethodRecord in methodIdDeclaration.listOfMethods)
     !{val m = method.method}
-    !{val name:String = "state."+ methodIdDeclaration.helper.getMethodName(m , method.index)}
+    !{val name = "state."+ methodIdDeclaration.helper.getMethodName(m , method.index)}
     !{val static = if (m.modifiers.contains(Modifier.STATIC)) "Static" else ""}
     !{val methodName = m.simpleName.toString()}
-    !{val signature:String = methodIdDeclaration.helper.getBinaryMethodSignature(m)}
+    !{val signature = methodIdDeclaration.helper.getBinaryMethodSignature(m)}
             ${name} = env->Get${static}MethodID(state.sClazz, "${methodName}", "${signature}");
             JENNY_CHECK_NULL(${name});
 @endfor

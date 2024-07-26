@@ -5,6 +5,8 @@
 @param  methodIdDeclaration:MethodIdDeclaration
 
 @for(method:MethodRecord in methodIdDeclaration.listOfMethods)
-            state.${methodIdDeclaration.helper.getConstructorName(method.index)} = env->GetMethodID(state.sClazz, "<init>", "${methodIdDeclaration.helper.getBinaryMethodSignature(method.method)}");
-            JENNY_CHECK_NULL(state.${methodIdDeclaration.helper.getConstructorName(method.index)});
+    !{val name = "state."+methodIdDeclaration.helper.getConstructorName(method.index)}
+    !{val signature = methodIdDeclaration.helper.getBinaryMethodSignature(method.method)}
+            ${name} = env->GetMethodID(state.sClazz, "<init>", "${signature}");
+            JENNY_CHECK_NULL(${name});
 @endfor
