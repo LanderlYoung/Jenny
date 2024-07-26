@@ -1,0 +1,10 @@
+@import io.github.landerlyoung.jenny.NativeProxyGenerator.MethodIdDeclaration
+@import io.github.landerlyoung.jenny.HandyHelper
+@import io.github.landerlyoung.jenny.MethodOverloadResolver.MethodRecord
+
+@param  methodIdDeclaration:MethodIdDeclaration
+
+@for(method:MethodRecord in methodIdDeclaration.listOfMethods)
+            state.${methodIdDeclaration.helper.getConstructorName(method.index)} = env->GetMethodID(state.sClazz, "<init>", "${methodIdDeclaration.helper.getBinaryMethodSignature(method.method)}");
+            JENNY_CHECK_NULL(state.${methodIdDeclaration.helper.getConstructorName(method.index)});
+@endfor

@@ -764,20 +764,27 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     }
 
     private fun StringBuilder.buildConstructorIdInit() {
-        mConstructors.forEach { r ->
-            val c = r.method
-            val name = "state.${mHelper.getConstructorName(r.index)}"
-            val signature = mHelper.getBinaryMethodSignature(c)
+        if (useTemplates) {
+            val stringOutput = StringOutput()
+            val constructors = MethodIdDeclaration(mHelper, mConstructors)
+            templateEngine.render("constructors_ids_initialisations.kte", constructors, stringOutput)
+            append(stringOutput.toString())
+        } else {
+            mConstructors.forEach { r ->
+                val c = r.method
+                val name = "state.${mHelper.getConstructorName(r.index)}"
+                val signature = mHelper.getBinaryMethodSignature(c)
 
-            append(
-                """
+                append(
+                    """
             |            $name = env->GetMethodID(state.sClazz, "<init>", "$signature");
             |            JENNY_CHECK_NULL(${name});
             |
             |""".trimMargin()
-            )
+                )
+            }
+            append('\n')
         }
-        append('\n')
     }
 
     private fun StringBuilder.buildMethodIdInit() {
