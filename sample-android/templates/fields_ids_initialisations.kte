@@ -1,0 +1,14 @@
+@import io.github.landerlyoung.jenny.NativeProxyGenerator.FieldIdDeclaration
+@import io.github.landerlyoung.jenny.HandyHelper
+@import javax.lang.model.element.VariableElement
+
+@param  fieldIdDeclaration:FieldIdDeclaration
+
+@for((index, fieldElement)  in fieldIdDeclaration.listOfFields.withIndex())
+    !{val name = "state."+fieldIdDeclaration.helper.getFieldName(fieldElement, index)}
+    !{val static = if (fieldElement.modifiers.contains(Modifier.STATIC)) "Static" else ""}
+    !{val methodName = fieldElement.simpleName.toString()}
+    !{val signature = fieldIdDeclaration.helper.getBinaryTypeSignature(fieldElement.asType())}
+            ${name} = env->Get${static}FieldID(state.sClazz, "${methodName}", "${signature}");
+            JENNY_CHECK_NULL(${name});
+@endfor

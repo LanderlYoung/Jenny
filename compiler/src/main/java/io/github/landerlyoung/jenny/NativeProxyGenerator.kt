@@ -822,21 +822,29 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     }
 
     private fun StringBuilder.buildFieldIdInit() {
-        mFields.forEachIndexed { index, f ->
-            val name = "state.${mHelper.getFieldName(f, index)}"
-            val static = if (f.modifiers.contains(Modifier.STATIC)) "Static" else ""
-            val fieldName = f.simpleName
-            val signature = mHelper.getBinaryTypeSignature(f.asType())
+        if (useTemplates){
+            val stringOutput = StringOutput()
+            val fields = FieldIdDeclaration(mHelper,mFields)
+            templateEngine.render("fields_ids_initialisations.kte",fields,stringOutput)
+            append(stringOutput.toString())
+        } else {
+            mFields.forEachIndexed { index, f ->
+                val name = "state.${mHelper.getFieldName(f, index)}"
+                val static = if (f.modifiers.contains(Modifier.STATIC)) "Static" else ""
+                val fieldName = f.simpleName
+                val signature = mHelper.getBinaryTypeSignature(f.asType())
 
-            append(
-                """
+                append(
+                    """
             |            $name = env->Get${static}FieldID(state.sClazz, "$fieldName", "$signature");
             |            JENNY_CHECK_NULL(${name});
             |
             |""".trimMargin()
-            )
+                )
+            }
+            append('\n')
         }
-        append('\n')
+
     }
 
     private fun makeParam(vararg params: String): String =
