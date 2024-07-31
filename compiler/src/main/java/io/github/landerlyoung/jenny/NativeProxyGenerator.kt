@@ -404,11 +404,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         append('\n')
     }
 
-    data class MethodIdDeclaration(
-        val helper: HandyHelper,
-        val listOfMethods: List<MethodOverloadResolver.MethodRecord>
-    )
-
     private fun StringBuilder.buildConstructorIdDeclare() {
         if (useTemplates) {
             val stringOutput = StringOutput()
@@ -437,11 +432,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         }
     }
 
-    data class FieldIdDeclaration(
-        val helper: HandyHelper,
-        val listOfFields: List<VariableElement>
-    )
-
     private fun StringBuilder.buildFieldIdDeclare() {
         if (useTemplates) {
             val stringOutput = StringOutput()
@@ -466,7 +456,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     private fun StringBuilder.buildConstructorDefines(useJniHelper: Boolean) {
         mConstructors.forEach { r ->
             val param = makeParam(true, useJniHelper, getJniMethodParam(r.method, useJniHelper))
-
             val returnType = if (useJniHelper) cppClassName else "jobject"
             if (useTemplates) {
                 val jteOutput = StringOutput()
@@ -503,71 +492,78 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         append('\n')
     }
 
+    /// TODO: Finish this up
     private fun StringBuilder.buildMethodDefines(useJniHelper: Boolean) {
-        mMethods.forEach { r ->
-            val m = r.method
-            val isStatic = m.modifiers.contains(Modifier.STATIC)
-            val jniReturnType = mHelper.toJNIType(m.returnType)
-            val functionReturnType = m.returnType.toJniTypeForReturn(useJniHelper)
-            val staticMod = if (isStatic || !useJniHelper) "static " else ""
-            val constMod = if (isStatic || !useJniHelper) "" else "const "
+        if(!useTemplates){
 
-            val jniParam = makeParam(isStatic, useJniHelper, getJniMethodParam(m, useJniHelper))
 
-            if (useJniHelper) {
-                append("    // for jni helper\n")
-            }
+        }else {
+            mMethods.forEach { r ->
+                val m = r.method
+                val isStatic = m.modifiers.contains(Modifier.STATIC)
+                val jniReturnType = mHelper.toJNIType(m.returnType)
+                val functionReturnType = m.returnType.toJniTypeForReturn(useJniHelper)
+                val staticMod = if (isStatic || !useJniHelper) "static " else ""
+                val constMod = if (isStatic || !useJniHelper) "" else "const "
 
-            append(
-                """
+                val jniParam = makeParam(isStatic, useJniHelper, getJniMethodParam(m, useJniHelper))
+
+                if (useJniHelper) {
+                    append("    // for jni helper\n")
+                }
+
+                append(
+                    """
                 |    // method: ${mHelper.getModifiers(m)} ${m.returnType} ${m.simpleName}(${
-                    mHelper.getJavaMethodParam(
-                        m
-                    )
-                })
+                        mHelper.getJavaMethodParam(
+                            m
+                        )
+                    })
                 |    ${staticMod}${functionReturnType} ${m.simpleName}${r.resolvedPostFix}(${jniParam}) ${constMod}{
                 |        ${methodPrologue(isStatic, useJniHelper)}
                 |""".trimMargin()
-            )
+                )
 
-            if (m.returnType.kind !== TypeKind.VOID) {
-                append("        return ")
-            } else {
-                append("        ")
-            }
+                if (m.returnType.kind !== TypeKind.VOID) {
+                    append("        return ")
+                } else {
+                    append("        ")
+                }
 
-            if (useJniHelper && mHelper.needWrapLocalRef(m.returnType)) {
-                append(functionReturnType).append("(")
-            }
+                if (useJniHelper && mHelper.needWrapLocalRef(m.returnType)) {
+                    append(functionReturnType).append("(")
+                }
 
-            if (returnTypeNeedCast(jniReturnType)) {
-                append("reinterpret_cast<${jniReturnType}>(")
-            }
+                if (returnTypeNeedCast(jniReturnType)) {
+                    append("reinterpret_cast<${jniReturnType}>(")
+                }
 
-            val static = if (isStatic) "Static" else ""
-            val classOrObj = if (isStatic) mHelper.getClassState(mHelper.getClazz()) else "thiz"
-            append(
-                "env->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${
-                    mHelper.getClassState(mHelper.getMethodName(m, r.index))
-                }${mHelper.getJniMethodParamVal(mClazz, m, useJniHelper)})"
-            )
-            if (returnTypeNeedCast(jniReturnType)) {
-                append(")")
-            }
-            if (useJniHelper && mHelper.needWrapLocalRef(m.returnType)) {
-                append(")")
-            }
+                val static = if (isStatic) "Static" else ""
+                val classOrObj = if (isStatic) mHelper.getClassState(mHelper.getClazz()) else "thiz"
+                append(
+                    "env->Call${static}${getTypeForJniCall(m.returnType)}Method(${classOrObj}, ${
+                        mHelper.getClassState(mHelper.getMethodName(m, r.index))
+                    }${mHelper.getJniMethodParamVal(mClazz, m, useJniHelper)})"
+                )
+                if (returnTypeNeedCast(jniReturnType)) {
+                    append(")")
+                }
+                if (useJniHelper && mHelper.needWrapLocalRef(m.returnType)) {
+                    append(")")
+                }
 
-            append(";\n")
-            append("    }\n\n")
+                append(";\n")
+                append("    }\n\n")
+            }
+            append('\n')
         }
-        append('\n')
     }
 
     private fun StringBuilder.buildFieldDefines(useJniHelper: Boolean) {
         mFields.forEachIndexed { index, f ->
             val isStatic = f.modifiers.contains(Modifier.STATIC)
-            val camelCaseName = f.simpleName.toString().capitalize(Locale.ROOT)
+            val camelCaseName = f.simpleName.toString()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
             val getterSetters = hasGetterSetter(f)
             val fieldId = mHelper.getFieldName(f, index)
             val typeForJniCall = getTypeForJniCall(f.asType())
