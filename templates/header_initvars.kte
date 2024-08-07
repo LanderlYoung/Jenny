@@ -6,7 +6,7 @@
 private:
     struct ClassInitState {
 
-@if (jteData.environment.configurations.threadSafe)
+@if (jteData.mEnv.configurations.threadSafe)
     // thread safe init
     std::atomic_bool sInited {};
     std::mutex sInitLock {};

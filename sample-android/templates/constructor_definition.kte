@@ -1,12 +1,12 @@
-@import io.github.landerlyoung.jenny.NativeProxyGenerator.JteData
+@import io.github.landerlyoung.jenny.JteData
 @import io.github.landerlyoung.jenny.Constants
 @import io.github.landerlyoung.jenny.HandyHelper
 @import io.github.landerlyoung.jenny.MethodOverloadResolver.MethodRecord
 
 @param jteData: JteData
 
-    // construct: ${jteData.mHelper.getModifiers(jteData.method!!.method)} ${jteData.mSimpleClassName}(${jteData.mHelper.getJavaMethodParam(jteData.method!!.method)})
+    // construct: ${jteData.handyHelper.getModifiers(jteData.method!!.method)} ${jteData.simpleClassName}(${jteData.handyHelper.getJavaMethodParam(jteData.method!!.method)})
     static ${jteData.returnType} newInstance${jteData.method!!.resolvedPostFix}(${jteData.param}) {
         ${jteData.methodPrologue}
-        return env->NewObject(${jteData.mHelper.getClassState(jteData.mHelper.getClazz())}, ${jteData.mHelper.getClassState(jteData.mHelper.getConstructorName(jteData.method!!.index))}${jteData.mHelper.getJniMethodParamVal(jteData.clazz!!, jteData.method!!.method, jteData.useJniHelper)});
+        return env->NewObject(${jteData.handyHelper.getClassState(jteData.handyHelper.getClazz())}, ${jteData.handyHelper.getClassState(jteData.handyHelper.getConstructorName(jteData.method!!.index))}${jteData.handyHelper.getJniMethodParamVal(jteData.clazz!!, jteData.method!!.method, jteData.useJniHelper)});
     }
