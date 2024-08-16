@@ -1,0 +1,23 @@
+@import io.github.landerlyoung.jenny.JteData
+@import io.github.landerlyoung.jenny.Constants
+@import io.github.landerlyoung.jenny.HandyHelper
+@import io.github.landerlyoung.jenny.MethodOverloadResolver.MethodRecord
+@import javax.lang.model.type.TypeKind
+
+@param jteData: JteData
+@if (jteData.useJniHelper) 
+    // for jni helper
+@endif
+    // method: ${jteData.handyHelper.getModifiers(jteData.method!!.method)} ${jteData.method!!.method.returnType.toString()} ${jteData.method!!.method.simpleName.toString()}(${
+                        jteData.handyHelper.getJavaMethodParam(
+                            jteData.method!!.method
+                        )
+                    })
+    ${jteData.staticMod}${jteData.returnType} ${jteData.method!!.method.simpleName.toString()}${jteData.method!!.resolvedPostFix}(${jteData.param}) ${jteData.constMod}{
+        ${jteData.methodPrologue}
+        ${jteData.returnStatement}${jteData.wrapLocalRef}${jteData.returnTypeCast}env->Call${jteData.static}${jteData.handyHelper.getTypeForJniCall(jteData.method!!.method.returnType)}Method(${jteData.classOrObj}, ${
+                        jteData.handyHelper.getClassState(jteData.handyHelper.getMethodName(jteData.method!!.method, jteData.method!!.index))
+                    }${jteData.handyHelper.getJniMethodParamVal(jteData.clazz!!, jteData.method!!.method!!, jteData.useJniHelper)})${jteData.callExpressionClosing}
+    }
+
+

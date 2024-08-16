@@ -154,6 +154,20 @@ class HandyHelper(private val mEnv: Environment) {
         append(";")
     }
 
+    fun returnTypeNeedCast(returnType: String): Boolean {
+        return when (returnType) {
+            "jclass", "jstring", "jarray", "jobjectArray",
+            "jbooleanArray", "jbyteArray", "jcharArray",
+            "jshortArray", "jintArray", "jlongArray",
+            "jfloatArray", "jdoubleArray",
+            "jthrowable", "jweak" -> true
+
+            else ->
+                // primitive type or jobject or void
+                false
+        }
+    }
+
     fun getConstexprStatement(it: VariableElement): String {
         val constValue = it.constantValue!!
 
@@ -279,6 +293,17 @@ class HandyHelper(private val mEnv: Environment) {
             }
         }
         return sb.toString()
+    }
+
+    fun getTypeForJniCall(type: TypeMirror): String {
+        val result: String
+        val k = type.kind
+        result = if (k.isPrimitive || k == TypeKind.VOID) {
+            k.name.toLowerCase(Locale.US)
+        } else {
+            "object"
+        }
+        return result.capitalize()
     }
 
 
