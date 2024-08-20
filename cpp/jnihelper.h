@@ -8,7 +8,7 @@
 
 /**
  * <pre>
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2019-07-24
  * Time:   20:29
  * Life with Passion, Code with Creativity.
@@ -18,9 +18,13 @@
 #pragma once
 
 #include <jni.h>
-#include <cassert>
-#include <memory>
+#include <cassert>  // assert
+#include <cstring>  // memcpy, memset
+#include <utility>  // swap, move
 #include <string>
+#if defined(__has_include) && __has_include(<string_view>)
+#include <string_view>
+#endif
 
 #ifdef __ANDROID__
 #include <pthread.h>
@@ -345,7 +349,9 @@ class StringHolder {
 
   const size_t length() const { return static_cast<size_t>(_length); }
 
+#ifdef __cpp_lib_string_view
   const std::string_view view() const { return std::string_view(c_str(), length()); }
+#endif
 };
 
 class ByteArrayHolder {
@@ -593,7 +599,7 @@ inline JNIEnv* Env::attachCurrentThreadIfNeed() {
       JNIEnv* env;
 
       explicit EnvWrapper(JavaVM* _jvm) : jvm(_jvm), env(nullptr) {
-        _jvm->AttachCurrentThread(&env, nullptr);
+        _jvm->AttachCurrentThread(reinterpret_cast<void**>(&env), nullptr);
         assert(env != nullptr);
       }
 
@@ -612,6 +618,7 @@ inline JNIEnv* Env::attachCurrentThreadIfNeed() {
 
 #endif
 
+#ifdef JENNY_JNI_HELPER_TEST
 namespace internal {
 
 // UnitTest
@@ -663,7 +670,9 @@ inline void jniHelperUnitTest(JNIEnv* env_) {
     LocalRef<jstring> str = toJavaString(h.c_str());
     assert(h == fromJavaString(str));
     StringHolder sh(str);
+#ifdef __cpp_lib_string_view
     assert(sh.view() == h);
+#endif
   }
 
   {
@@ -720,5 +729,7 @@ inline void jniHelperUnitTest(JNIEnv* env_) {
 }
 
 }  // namespace internal
+
+#endif //JENNY_JNI_HELPER_TEST
 
 }  // namespace jenny
