@@ -3,13 +3,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 30
-    ndkVersion "21.3.6528147"
+    ndkVersion "26.2.11394342"
+    namespace = "io.github.landerlyoung.jennysampleapp"
 
     defaultConfig {
         applicationId "com.young.jennysampleapp"
-        minSdkVersion 16
-        targetSdkVersion 30
+        compileSdkVersion 34
+        minSdkVersion 21
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -51,6 +52,9 @@ android {
     compileOptions {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 
     // make sure java compile is executed before ndk compile
@@ -129,4 +133,9 @@ task copyGeneratedCpp {
 afterEvaluate {
     // copy file to source after jenny generate
     tasks.kaptDebugKotlin.finalizedBy copyGeneratedCpp
+    tasks.forEach {
+        if (it.name.startsWith("buildCMake")) {
+            it.dependsOn copyGeneratedCpp
+        }
+    }
 }

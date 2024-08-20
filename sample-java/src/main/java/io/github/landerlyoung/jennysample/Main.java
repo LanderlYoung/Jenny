@@ -33,5 +33,6 @@ public class Main {
             System.out.println("success=" + success + ", rsp=" + rsp);
         }));
         engine.release();
+        System.out.println("Jenny sample-java test pass");
     }
 }

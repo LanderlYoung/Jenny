@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+set -e
+
+echo ">>> build :sample-java"
+./gradlew :sample-java:build
+
+echo ">>> build jni library"
+if [[ $(uname) == Darwin ]]; then
+  TARGET=build/libjnilib.dylib
+else
+  TARGET=build/libjnilib.so
+fi
+GEN=sample-java/build/generated/sources/annotationProcessor/java/main/jenny
+mkdir -p build
+cc --std=c++11 -Wall -fPIC --shared -o $TARGET \
+  -I$JAVA_HOME/include/ -I$JAVA_HOME/include/darwin/ -I$JAVA_HOME/include/linux/ \
+  -I$GEN/proxy -I$GEN/glue/header \
+  $GEN/glue/cpp/*.cpp sample-java/src/main/cpp/jni_onload.cpp
+
+echo ">>> run :sample-java"
+java -cp sample-java/build/libs/sample-java-1.2.0.jar \
+      -Djava.library.path="$(pwd)/build"\
+      io.github.landerlyoung.jennysample.Main

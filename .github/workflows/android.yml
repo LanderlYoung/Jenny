@@ -9,19 +9,20 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v1
-    - name: set up JDK 11
+    - name: set up JDK 17
       uses: actions/setup-java@v1
       with:
-        java-version: 11
-    - name: Build with Gradle
+        java-version: 17
+    - name: Build :sample-android with Gradle
       run: |
         ./gradlew :sample-android:assembleDebug
     - name: Test incremental compile
       run: |
         echo "// test incremental compile" >> sample-android/src/main/java/io/github/landerlyoung/jennysampleapp/Callback.java
         ./gradlew :sample-android:assembleDebug
+    - name: Test :sample-java
+      run: |
+        ./run_sample_java_test

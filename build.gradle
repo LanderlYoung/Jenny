@@ -13,7 +13,7 @@ buildscript {
                 licences      : ['Apache-2.0']
         ]
 
-        kotlin_version = '1.4.30'
+        kotlin_version = '1.9.23' //'1.4.30'
 
         configRepo = { repo ->
             repo.mavenLocal()
@@ -26,9 +26,9 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:1.4.30'
+        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:1.9.20'
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.14.2'
-        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath 'com.android.tools.build:gradle:8.5.2'
     }
 }
 
