@@ -1,0 +1,16 @@
+@import io.github.landerlyoung.jenny.JteData
+@import io.github.landerlyoung.jenny.Constants
+@import io.github.landerlyoung.jenny.HandyHelper
+@import io.github.landerlyoung.jenny.MethodOverloadResolver.MethodRecord
+@import javax.lang.model.type.TypeKind
+
+@param jteData: JteData
+    ${jteData.fieldComment}
+    ${jteData.staticMod}${jteData.returnType} get${jteData.fieldCamelCaseName}(${jteData.param}) ${jteData.constMod}{
+       ${jteData.methodPrologue}
+       return ${jteData.wrapLocalRef}${jteData.returnTypeCast}env->Get${jteData.static}${jteData.handyHelper.getTypeForJniCall(jteData.field!!.asType())}Field(${jteData.classOrObj}, ${
+                        jteData.handyHelper.getClassState(jteData.fieldId)
+                    })${jteData.callExpressionClosing}
+
+    }
+

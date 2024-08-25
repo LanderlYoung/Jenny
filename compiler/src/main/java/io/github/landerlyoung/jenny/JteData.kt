@@ -1,6 +1,7 @@
 package io.github.landerlyoung.jenny
 
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 
 data class JteData(
     val className: String,
@@ -9,6 +10,7 @@ data class JteData(
     val slashClassName: String,
     val environment: Environment,
     var param: String = "",
+    var fieldSetterParam: String = "",
     var jniReturnType: String = "",
     var returnType: String = "",
     var methodPrologue: String = "",
@@ -24,5 +26,9 @@ data class JteData(
     var useJniHelper: Boolean = false,
     var clazz: TypeElement? = null,
     var method: MethodOverloadResolver.MethodRecord? = null,
+    var field: VariableElement? = null,
+    var fieldId: String = "",
+    var fieldCamelCaseName: String = "",
+    var fieldComment: String = "",
     val handyHelper: HandyHelper
 )

@@ -602,54 +602,89 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             val constMod = if (isStatic || !useJniHelper) "" else "const "
             val classOrObj = if (isStatic) mHelper.getClassState(mHelper.getClazz()) else "thiz"
             val jniEnv = "env"
-
+	    val prologue = methodPrologue(isStatic, useJniHelper)
+            val jniReturnType = mHelper.toJNIType(f.asType())
+            val functionReturnType = f.asType().toJniTypeForReturn(useJniHelper)
             var comment = "// field: ${mHelper.getModifiers(f)} ${f.asType()} ${f.simpleName}"
             if (useJniHelper) {
                 comment = "    // for jni helper\n    $comment"
             }
+	   var wrapLocalRef = if (useJniHelper && mHelper.needWrapLocalRef(f.asType()))  "${functionReturnType}(" else ""
+	   var returnTypeCast = if (mHelper.returnTypeNeedCast(jniReturnType))
+	      "reinterpret_cast<${jniReturnType}>(" else ""
+	   var callExpressionClosing : StringBuilder = StringBuilder()
+           if (mHelper.returnTypeNeedCast(jniReturnType)) {
+               callExpressionClosing.append(")")
+           }
+           if (useJniHelper && mHelper.needWrapLocalRef(f.asType())) {
+               callExpressionClosing.append(")")
+           }
+	   callExpressionClosing.append(";")
 
             // getter
             if (getterSetters.contains(GetterSetter.GETTER)) {
-                val jniReturnType = mHelper.toJNIType(f.asType())
-                val functionReturnType = f.asType().toJniTypeForReturn(useJniHelper)
                 val param = makeParam(isStatic, useJniHelper, "")
-                append(
-                    """
-                    |    $comment
-                    |    ${staticMod}$functionReturnType get${camelCaseName}(${param}) ${constMod}{
-                    |       ${methodPrologue(isStatic, useJniHelper)}
-                    |       return """.trimMargin()
-                )
+		if (useTemplates) {
+                    val jteOutput = StringOutput()
+                    jteData.param = param
+                    jteData.useJniHelper = useJniHelper
+                    jteData.clazz = mClazz
+                    jteData.returnType = functionReturnType
+                    jteData.jniReturnType = jniReturnType
+                    jteData.methodPrologue = prologue
+	            jteData.staticMod = staticMod
+	            jteData.constMod = constMod
+	            jteData.classOrObj = classOrObj
+	            jteData.static = static
+	            jteData.wrapLocalRef = wrapLocalRef
+	            jteData.returnTypeCast = returnTypeCast
+	            jteData.callExpressionClosing = callExpressionClosing.toString()
+		    jteData.field = f
+		    jteData.fieldId = fieldId
+		    jteData.fieldCamelCaseName = camelCaseName
+		    jteData.fieldComment = comment
 
-                if (useJniHelper && mHelper.needWrapLocalRef(f.asType())) {
-                    append(functionReturnType).append("(")
-                }
+                    templateEngine.render("field_getter.kte", jteData, jteOutput)
+		    append(jteOutput.toString())
+               } else {
+                    append(
+                        """
+                        |    $comment
+                        |    ${staticMod}$functionReturnType get${camelCaseName}(${param}) ${constMod}{
+                        |       ${methodPrologue(isStatic, useJniHelper)}
+                        |       return """.trimMargin()
+                    )
 
-                if (mHelper.returnTypeNeedCast(jniReturnType)) {
-                    append("reinterpret_cast<${jniReturnType}>(")
-                }
+                    if (useJniHelper && mHelper.needWrapLocalRef(f.asType())) {
+                        append(functionReturnType).append("(")
+                    }
 
-                append(
-                    "${jniEnv}->Get${static}${typeForJniCall}Field(${classOrObj}, ${
-                        mHelper.getClassState(
-                            fieldId
-                        )
-                    })"
-                )
+                    if (mHelper.returnTypeNeedCast(jniReturnType)) {
+                        append("reinterpret_cast<${jniReturnType}>(")
+                    }
 
-                if (mHelper.returnTypeNeedCast(jniReturnType)) {
-                    append(")")
+                    append(
+                        "${jniEnv}->Get${static}${typeForJniCall}Field(${classOrObj}, ${
+                            mHelper.getClassState(
+                                fieldId
+                            )
+                        })"
+                    )
+
+                    if (mHelper.returnTypeNeedCast(jniReturnType)) {
+                        append(")")
+                    }
+                    if (useJniHelper && mHelper.needWrapLocalRef(f.asType())) {
+                        append(")")
+                    }
+                    append(
+                        """;
+                        |
+                        |    }
+                        |
+                        |""".trimMargin()
+                    )
                 }
-                if (useJniHelper && mHelper.needWrapLocalRef(f.asType())) {
-                    append(")")
-                }
-                append(
-                    """;
-                    |
-                    |    }
-                    |
-                    |""".trimMargin()
-                )
             }
 
             // setter
@@ -661,22 +696,47 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 )
                 val passedParam =
                     if (useJniHelper && mHelper.needWrapLocalRef(f.asType())) "${f.simpleName}.get()" else f.simpleName
-                append(
-                    """
-                    |    $comment
-                    |    ${staticMod}void set${camelCaseName}(${param}) ${constMod}{
-                    |        ${methodPrologue(isStatic, useJniHelper)}
-                    |        ${jniEnv}->Set${static}${typeForJniCall}Field(${classOrObj}, ${
-                        mHelper.getClassState(
-                            fieldId
-                        )
-                    }, ${passedParam});
-                    |    }
-                    |
-                    |""".trimMargin()
-                )
+		if (useTemplates) {
+                    val jteOutput = StringOutput()
+                    jteData.param = param
+                    jteData.fieldSetterParam = passedParam.toString()
+                    jteData.useJniHelper = useJniHelper
+                    jteData.clazz = mClazz
+                    jteData.returnType = functionReturnType
+                    jteData.jniReturnType = jniReturnType
+                    jteData.methodPrologue = prologue
+	            jteData.staticMod = staticMod
+	            jteData.constMod = constMod
+	            jteData.classOrObj = classOrObj
+	            jteData.static = static
+	            jteData.wrapLocalRef = wrapLocalRef
+	            jteData.returnTypeCast = returnTypeCast
+	            jteData.callExpressionClosing = callExpressionClosing.toString()
+		    jteData.field = f
+		    jteData.fieldId = fieldId
+		    jteData.fieldCamelCaseName = camelCaseName
+		    jteData.fieldComment = comment
+
+                    templateEngine.render("field_setter.kte", jteData, jteOutput)
+		    append(jteOutput.toString())
+		} else {
+                    append(
+                        """
+                        |    $comment
+                        |    ${staticMod}void set${camelCaseName}(${param}) ${constMod}{
+                        |        ${methodPrologue(isStatic, useJniHelper)}
+                        |        ${jniEnv}->Set${static}${typeForJniCall}Field(${classOrObj}, ${
+                            mHelper.getClassState(
+                                fieldId
+                            )
+                        }, ${passedParam});
+                        |    }
+                        |
+                        |""".trimMargin()
+                     )
+                    append('\n')
+		}
             }
-            append('\n')
         }
     }
 
