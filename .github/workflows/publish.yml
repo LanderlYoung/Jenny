@@ -7,22 +7,20 @@ on:
 
 jobs:
   maven-publish:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4.1.7
     - name: set up JDK 17
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4.2.2
       with:
-        java-version: 17
+        distribution: 'corretto'
+        java-version: '17'
     - name: Build with Gradle
       env:
-        ORG_GRADLE_PROJECT_mavenCentralRepositoryUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
-        ORG_GRADLE_PROJECT_mavenCentralRepositoryPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
-        ORG_GRADLE_PROJECT_SIGNING_PRIVATE_KEY: ${{ secrets.PGP_SIGNING_PRIVATE_KEY }}
-        ORG_GRADLE_PROJECT_SIGNING_PASSWORD: ${{ secrets.PGP_SIGNING_PASSWORD }}
+        ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_TOKEN_USERNAME }}
+        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_TOKEN_PASSWORD }}
+        ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.PGP_SIGNING_PRIVATE_KEY_ARMORED }}
+        ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.PGP_SIGNING_KEY_PHRASE }}
       run: |
         echo publish tag ${{ github.ref }}
-        ./gradlew publish --no-daemon --no-parallel
-        ./gradlew closeAndReleaseRepository --no-daemon --no-parallel
+        ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
