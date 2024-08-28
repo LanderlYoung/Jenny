@@ -1,16 +1,10 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+import com.vanniktech.maven.publish.SonatypeHost
 
 buildscript {
     ext {
         pub = [
                 publishVersion: '1.3.0',
-                user          : 'landerlyoung',
-                user_url      : 'https://github.com/LanderlYoung',
                 groupId       : 'io.github.landerlyoung',
-                desc          : 'Java/Android JNI glue/proxy code generator',
-                website       : 'https://github.com/LanderlYoung/Jenny',
-                scm_url       : 'scm:git:git://github.com/LanderlYoung/Jenny.git',
-                licences      : ['Apache-2.0']
         ]
 
         kotlin_version = '1.9.23'
@@ -27,10 +21,15 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'org.jetbrains.dokka:dokka-gradle-plugin:1.9.20'
-        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.14.2'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.29.0'
         classpath 'com.android.tools.build:gradle:8.5.2'
     }
 }
+
+def publishProject = [
+        annotation: "jenny-annotation",
+        compiler  : "jenny-compiler",
+]
 
 allprojects {
     // basic
@@ -40,61 +39,52 @@ allprojects {
     // config
     group = pub.groupId
     version = pub.publishVersion
-    description = pub.desc
+    description = 'Java/Android JNI glue/proxy code generator'
+    def artifactId = publishProject[name]
 
-    // publish
-    final def publishProject = [
-            "annotation", "compiler"
-    ] as Set
-
-    if (publishProject.contains(name)) {
-        // guide doc https://madhead.me/posts/no-bullshit-maven-publish/
-        // publish plugin repo https://github.com/vanniktech/gradle-maven-publish-plugin
+    // https://vanniktech.github.io/gradle-maven-publish-plugin/central/#configuring-the-pom
+    // https://central.sonatype.com/publishing
+    // https://central.sonatype.com/search?namespace=io.github.landerlyoung
+    if (artifactId != null) {
         apply plugin: "com.vanniktech.maven.publish"
 
-        // gpg sign config
-        // https://github.com/vanniktech/gradle-maven-publish-plugin/blob/master/.github/workflows/publish-release.yml
-        signing {
-            if (project.hasProperty('SIGNING_PRIVATE_KEY') && project.hasProperty('SIGNING_PASSWORD')) {
-                useInMemoryPgpKeys(project.getProperty('SIGNING_PRIVATE_KEY'), project.getProperty('SIGNING_PASSWORD'))
-            }
-        }
+        mavenPublishing {
+            publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+            signAllPublications()
+            coordinates(group, artifactId, version)
 
-        // https://github.com/vanniktech/gradle-maven-publish-plugin/issues/206
-        publishing {
-            repositories {
-                withType(MavenArtifactRepository) {
-                    if (name == "local") return
-                    def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                    def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                    if (version.endsWith("SNAPSHOT")) {
-                        url = uri(snapshotsRepoUrl)
-                    } else {
-                        url = uri(releasesRepoUrl)
-                    }
-                    credentials {
-                        if (hasProperty('mavenCentralRepositoryUsername')
-                                && hasProperty('mavenCentralRepositoryPassword')) {
-                            username = mavenCentralRepositoryUsername
-                            password = mavenCentralRepositoryPassword
-                        }
+            pom {
+                name = artifactId
+                description = project.description
+                inceptionYear = "2015"
+                url = 'https://github.com/LanderlYoung/Jenny'
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
-            }
-        }
-        mavenPublish {
-            nexus {
-                baseUrl = "https://s01.oss.sonatype.org/service/local/"
-                stagingProfile = pub.groupId
-                if (hasProperty('mavenCentralRepositoryUsername')
-                        && hasProperty('mavenCentralRepositoryPassword')) {
-                    repositoryUsername = mavenCentralRepositoryUsername
-                    repositoryPassword = mavenCentralRepositoryPassword
+                developers {
+                    developer {
+                        id = "LanderlYoung"
+                        name = "Landerl Young"
+                        url = "https://github.com/LanderlYoung/"
+                    }
+                }
+                scm {
+                    url = 'https://github.com/LanderlYoung/Jenny'
+                    connection = 'scm:git:git://github.com/LanderlYoung/Jenny.git'
+                    developerConnection = "scm:git:ssh://git@github.com//LanderlYoung/Jenny.git"
                 }
             }
         }
 
         // publish to mavenLocal
-        // ./gradlew -PRELEASE_SIGNING_ENABLED=false publishToMavenLocal
+        //      ./gradlew -PRELEASE_SIGNING_ENABLED=false publishToMavenLocal
+        // publish to staging https://central.sonatype.com/publishing
+        //      ./gradlew publishAllPublicationsToMavenCentralRepository
+        // publish to staging and auto release
+        //      ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
     }
 }
