@@ -742,109 +742,125 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
     private fun StringBuilder.buildNativeInitClass(headerOnly: Boolean) {
         val prefix = if (headerOnly) "/*static*/ inline" else "/*static*/"
-        append(
-            """
-            |${prefix} bool $cppClassName::initClazz(JNIEnv* env) {
-            |#define JENNY_CHECK_NULL(val)                      \
-            |       do {                                        \
-            |           if ((val) == nullptr) {                 \
-            |""".trimMargin()
-        )
-
-        if (!mEnv.configurations.errorLoggerFunction.isNullOrBlank()) {
-            append(
-                """
-            |               ${mEnv.configurations.errorLoggerFunction}(env, "can't init ${cppClassName}::" #val); \
-            |""".trimMargin()
-            )
-        } else {
-            append(
-                """
-            |               env->ExceptionDescribe();           \
-            |""".trimMargin()
-            )
-        }
-
-        append(
-            """
-            |               return false;                       \
-            |           }                                       \
-            |       } while(false)
-            |
-            |""".trimMargin()
-        )
-
-
-        append(
-            """
-                |    auto& state = getClassInitState();
-                |""".trimMargin()
-        )
-
-        if (mEnv.configurations.threadSafe) {
-            append(
-                """
-                |    if (!state.sInited) {
-                |        std::lock_guard<std::mutex> lg(state.sInitLock);
-                |""".trimMargin()
-            )
-        }
-        append(
-            """
-                |        if (!state.sInited) {
-                |            auto clazz = env->FindClass(FULL_CLASS_NAME);
-                |            JENNY_CHECK_NULL(clazz);
-                |            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
-                |            env->DeleteLocalRef(clazz);
-                |            JENNY_CHECK_NULL(state.sClazz);
-                |
-                |""".trimMargin()
-        )
-
-        buildConstructorIdInit()
-        buildMethodIdInit()
-        buildFieldIdInit()
-
-        append(
-            """
-                |            state.sInited = true;
-                |        }
-                |""".trimMargin()
-        )
-        if (mEnv.configurations.threadSafe) {
-            append("    }\n")
-        }
-
-        append(
-            """
-            |#undef JENNY_CHECK_NULL
-            |   return true;
-            |}
-            |
-            |""".trimMargin()
-        )
-
         val lockGuard = if (mEnv.configurations.threadSafe) {
             "std::lock_guard<std::mutex> lg(state.sInitLock);"
         } else {
             ""
         }
-        append(
-            """
-            |${prefix} void $cppClassName::releaseClazz(JNIEnv* env) {
-            |    auto& state = getClassInitState();
-            |    if (state.sInited) {
-            |        $lockGuard
-            |        if (state.sInited) {
-            |            env->DeleteGlobalRef(state.sClazz);
-            |            state.sClazz = nullptr;
-            |            state.sInited = false;
-            |        }
-            |    }
-            |}
-            |
-            |""".trimMargin()
-        )
+	if (useTemplates) {
+                val jteOutput = StringOutput()
+		jteData.initClassPrefix = prefix
+		jteData.initClassLockGuard = lockGuard
+                templateEngine.render("initclass_preamble.kte", jteData, jteOutput)
+                append(jteOutput.toString())
+	} else {
+            append(
+                """
+                |${prefix} bool $cppClassName::initClazz(JNIEnv* env) {
+                |#define JENNY_CHECK_NULL(val)                      \
+                |       do {                                        \
+                |           if ((val) == nullptr) {                 \
+                |""".trimMargin()
+            )
+
+            if (!mEnv.configurations.errorLoggerFunction.isNullOrBlank()) {
+                append(
+                    """
+                |               ${mEnv.configurations.errorLoggerFunction}(env, "can't init ${cppClassName}::" #val); \
+                |""".trimMargin()
+                )
+            } else {
+                append(
+                    """
+                |               env->ExceptionDescribe();           \
+                |""".trimMargin()
+                )
+            }
+
+            append(
+                """
+                |               return false;                       \
+                |           }                                       \
+                |       } while(false)
+                |
+                |""".trimMargin()
+            )
+
+
+            append(
+                """
+                    |    auto& state = getClassInitState();
+                    |""".trimMargin()
+            )
+
+            if (mEnv.configurations.threadSafe) {
+                append(
+                    """
+                    |    if (!state.sInited) {
+                    |        std::lock_guard<std::mutex> lg(state.sInitLock);
+                    |""".trimMargin()
+                )
+            }
+            append(
+                """
+                    |        if (!state.sInited) {
+                    |            auto clazz = env->FindClass(FULL_CLASS_NAME);
+                    |            JENNY_CHECK_NULL(clazz);
+                    |            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+                    |            env->DeleteLocalRef(clazz);
+                    |            JENNY_CHECK_NULL(state.sClazz);
+                    |
+                    |""".trimMargin()
+            )
+	}
+
+        buildConstructorIdInit()
+        buildMethodIdInit()
+        buildFieldIdInit()
+
+        if (useTemplates) {
+                val jteOutput = StringOutput()
+		jteData.initClassPrefix = prefix
+		jteData.initClassLockGuard = lockGuard
+                templateEngine.render("initclass_postamble.kte", jteData, jteOutput)
+                append(jteOutput.toString())
+	} else {
+            append(
+                """
+                    |            state.sInited = true;
+                    |        }
+                    |""".trimMargin()
+            )
+            if (mEnv.configurations.threadSafe) {
+                append("    }\n")
+            }
+
+            append(
+                """
+                |#undef JENNY_CHECK_NULL
+                |   return true;
+                |}
+                |
+                |""".trimMargin()
+            )
+
+            append(
+                """
+                |${prefix} void $cppClassName::releaseClazz(JNIEnv* env) {
+                |    auto& state = getClassInitState();
+                |    if (state.sInited) {
+                |        $lockGuard
+                |        if (state.sInited) {
+                |            env->DeleteGlobalRef(state.sClazz);
+                |            state.sClazz = nullptr;
+                |            state.sInited = false;
+                |        }
+                |    }
+                |}
+                |
+                |""".trimMargin()
+            )
+	}
     }
 
     private fun StringBuilder.buildConstructorIdInit() {

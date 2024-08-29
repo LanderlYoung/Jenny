@@ -30,5 +30,7 @@ data class JteData(
     var fieldId: String = "",
     var fieldCamelCaseName: String = "",
     var fieldComment: String = "",
+    var initClassPrefix: String = "",
+    var initClassLockGuard: String = "",
     val handyHelper: HandyHelper
 )
