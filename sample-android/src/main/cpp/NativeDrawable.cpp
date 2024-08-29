@@ -33,26 +33,39 @@ public:
 
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_NativeDrawable
+ * Class:     io.github.landerlyoung.jennysampleapp.NativeDrawable
  * Method:    private final long nativeInit()
  * Signature: ()J
  */
 jlong NativeDrawable::nativeInit(JNIEnv *env, jobject thiz) {
     using jenny::GraphicsProxy;
     using android::StyleProxy;
-    GenericProxy::initClazz(env);
 
-    auto fillType = android::StyleProxy::getFILL(env);
-    auto paint = GraphicsProxy::newPaint(env);
-    GraphicsProxy::paintSetStyle(env, paint, fillType);
+    static int count = 0;
+    bool useJniHelper = count++ % 2 == 0;
 
-    auto paintGlobal = env->NewGlobalRef(paint);
+    if (useJniHelper) {
+        auto fillType = StyleProxy::getFILL();
+        auto paint = GraphicsProxy::newPaint();
+        GraphicsProxy::paintSetStyle(paint, fillType);
 
-    return reinterpret_cast<jlong>(new State(paintGlobal));
+        auto paintGlobal = paint.toGlobal();
+        return reinterpret_cast<jlong>(new State(paintGlobal.release()));
+    } else {
+        auto fillType = StyleProxy::getFILL(env);
+        auto paint = GraphicsProxy::newPaint(env);
+        GraphicsProxy::paintSetStyle(env, paint, fillType);
+
+        auto paintGlobal = env->NewGlobalRef(paint);
+
+        env->DeleteLocalRef(fillType);
+        env->DeleteLocalRef(paint);
+        return reinterpret_cast<jlong>(new State(paintGlobal));
+    }
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_NativeDrawable
+ * Class:     io.github.landerlyoung.jennysampleapp.NativeDrawable
  * Method:    public final void onClick()
  * Signature: ()V
  */
@@ -62,7 +75,7 @@ void NativeDrawable::onClick(JNIEnv *env, jobject thiz) {
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_NativeDrawable
+ * Class:     io.github.landerlyoung.jennysampleapp.NativeDrawable
  * Method:    public void draw(android.graphics.Canvas canvas)
  * Signature: (Landroid/graphics/Canvas;)V
  */
@@ -82,10 +95,12 @@ void NativeDrawable::draw(JNIEnv *env, jobject thiz, jobject _canvas) {
                  RectProxy::exactCenterY(env, bounds)) * 0.7f,
         state->paint
     );
+
+    env->DeleteLocalRef(bounds);
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_NativeDrawable
+ * Class:     io.github.landerlyoung.jennysampleapp.NativeDrawable
  * Method:    public final void release()
  * Signature: ()V
  */

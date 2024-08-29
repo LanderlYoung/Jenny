@@ -400,7 +400,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
     private fun StringBuilder.buildFieldDefines(useJniHelper: Boolean) {
         mFields.forEachIndexed { index, f ->
             val isStatic = f.modifiers.contains(Modifier.STATIC)
-            val camelCaseName = f.simpleName.toString().capitalize(Locale.ROOT)
+            val camelCaseName = f.simpleName.toString().capitalize()
             val getterSetters = hasGetterSetter(f)
             val fieldId = getFieldName(f, index)
             val typeForJniCall = getTypeForJniCall(f.asType())
@@ -850,10 +850,14 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         val result: String
         val k = type.kind
         result = if (k.isPrimitive || k == TypeKind.VOID) {
-            k.name.toLowerCase(Locale.US)
+            k.name.lowercase(Locale.US)
         } else {
             "object"
         }
         return result.capitalize()
     }
 }
+
+// replace deprecated kotlin-stdlib one
+private fun String.capitalize():String =
+    replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString() }

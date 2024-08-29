@@ -11,7 +11,7 @@
 #include "gen/jenny_fusion_proxies.h"
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public int addInNative(int a, int b)
  * Signature: (II)I
  */
@@ -21,7 +21,7 @@ jint ComputeIntensiveClass::addInNative(JNIEnv* env, jobject thiz, jint a, jint 
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static void computeSomething(byte[] sth)
  * Signature: ([B)V
  */
@@ -30,7 +30,7 @@ void ComputeIntensiveClass::computeSomething(JNIEnv *env, jclass clazz, jbyteArr
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static java.lang.String greet()
  * Signature: ()Ljava/lang/String;
  */
@@ -39,7 +39,7 @@ jstring ComputeIntensiveClass::greet(JNIEnv *env, jclass clazz) {
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public final void testParamParse(int a, java.lang.String b, long[] c, float[][] d, java.lang.Exception e, java.lang.Class<java.lang.String> f, java.util.HashMap<?,?> g)
  * Signature: (ILjava/lang/String;[J[[FLjava/lang/Exception;Ljava/lang/Class;Ljava/util/HashMap;)V
  */
@@ -48,7 +48,7 @@ void ComputeIntensiveClass::testParamParse(JNIEnv *env, jobject thiz, jint a, js
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static long returnsLong()
  * Signature: ()J
  */
@@ -57,7 +57,7 @@ jlong ComputeIntensiveClass::returnsLong(JNIEnv *env, jclass clazz) {
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static boolean returnsBool()
  * Signature: ()Z
  */
@@ -66,7 +66,7 @@ jboolean ComputeIntensiveClass::returnsBool(JNIEnv *env, jclass clazz) {
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static java.lang.Object returnsObject()
  * Signature: ()Ljava/lang/Object;
  */
@@ -93,7 +93,7 @@ void ComputeIntensiveClass::testOverload__I(JNIEnv *env, jclass clazz, jint i) {
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public static java.lang.String httpGet(java.lang.String url)
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
@@ -139,38 +139,62 @@ void ComputeIntensiveClass::runJniHelperTest(JNIEnv* env, jclass clazz) {
 }
 
 /*
- * Class:     io_github_landerlyoung_jennysampleapp_ComputeIntensiveClass
+ * Class:     io.github.landerlyoung.jennysampleapp.ComputeIntensiveClass
  * Method:    public int computeThenCallback(io.github.landerlyoung.jennysampleapp.Callback listener)
  * Signature: (Lio/github/landerlyoung/jennysampleapp/Callback;)I
  */
 jint ComputeIntensiveClass::computeThenCallback(JNIEnv* env, jobject thiz, jobject listener) {
-    CallbackProxy::onJobStart(env, listener);
+    static int count = 0;
+    bool useJniHelper = count++ % 2 == 0;
 
-    auto name = CallbackProxy::getName(env, listener);
+    if (useJniHelper) {
+        CallbackProxy proxy{listener, false};
+        auto name = proxy.getName();
 
+        auto newInstance = CallbackProxy::newInstance();
+        proxy.setLock(newInstance.getThis(false));
+        proxy.onJobProgress(20);
 
-    auto newInstance = CallbackProxy::newInstance(env);
-    CallbackProxy::setLock(env, listener, newInstance);
-    CallbackProxy::onJobProgress(env, listener, 20);
+        auto nestedClass = NestedClassProxy::newInstance(proxy.getThis(false));
+        proxy.setLock(nestedClass.getThis(false));
+        proxy.onJobProgress(50);
 
-    auto nestedClass = NestedClassProxy::newInstance(env, listener);
-    CallbackProxy::setLock(env, newInstance, nestedClass);
-    CallbackProxy::onJobProgress(env, listener, 50);
+        CallbackProxy::setAStaticField(nullptr);
 
-    CallbackProxy::setAStaticField(env, nullptr);
+        proxy.setCount(100);
+        proxy.setLock(proxy.getThis(false));
+        proxy.onJobProgress(100);
 
-    CallbackProxy::setCount(env, listener, 100);
-    CallbackProxy::setLock(env, listener, listener);
-    CallbackProxy::onJobProgress(env, listener, 100);
+        auto str = jenny::toJavaString("Yes, callback from jni w/ jnihelper");
+        proxy.onJobDone(JNI_TRUE, str);
+    } else {
+        CallbackProxy::onJobStart(env, listener);
 
-    jstring str = env->NewStringUTF("Yes, callback from jni");
-    CallbackProxy::onJobDone(env, listener, JNI_TRUE, str);
+        auto name = CallbackProxy::getName(env, listener);
 
-    env->DeleteLocalRef(name);
-    env->DeleteLocalRef(str);
+        auto newInstance = CallbackProxy::newInstance(env);
+        CallbackProxy::setLock(env, listener, newInstance);
+        CallbackProxy::onJobProgress(env, listener, 20);
 
-    env->DeleteLocalRef(newInstance);
-    env->DeleteLocalRef(nestedClass);
+        auto nestedClass = NestedClassProxy::newInstance(env, listener);
+        CallbackProxy::setLock(env, newInstance, nestedClass);
+        CallbackProxy::onJobProgress(env, listener, 50);
+
+        CallbackProxy::setAStaticField(env, nullptr);
+
+        CallbackProxy::setCount(env, listener, 100);
+        CallbackProxy::setLock(env, listener, listener);
+        CallbackProxy::onJobProgress(env, listener, 100);
+
+        jstring str = env->NewStringUTF("Yes, callback from jni w/o jnihelper");
+        CallbackProxy::onJobDone(env, listener, JNI_TRUE, str);
+
+        env->DeleteLocalRef(name);
+        env->DeleteLocalRef(str);
+
+        env->DeleteLocalRef(newInstance);
+        env->DeleteLocalRef(nestedClass);
+    }
     return 0;
 }
 
