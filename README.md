@@ -2,12 +2,12 @@
 
 [![CI][CI_B]][CI]  [![Publish][PUB_B]][PUB] [![MavenCentral][MV_B]][MV] ![GitHub code size in bytes][CS_B] ![GitHub][LC_B]
 
-[CI_B]: https://github.com/LanderlYoung/Jenny/workflows/Android%20CI/badge.svg
-[CI]: https://github.com/LanderlYoung/Jenny/actions?workflow=Android+CI
+[CI_B]: https://github.com/LanderlYoung/Jenny/workflows/CI/badge.svg
+[CI]: https://github.com/LanderlYoung/Jenny/actions?workflow=CI
 [PUB_B]: https://github.com/LanderlYoung/Jenny/workflows/Publish/badge.svg
 [PUB]: https://github.com/LanderlYoung/Jenny/actions?workflow=Publish
 [MV_B]: https://img.shields.io/maven-central/v/io.github.landerlyoung/jenny-annotation
-[MV]: https://search.maven.org/artifact/io.github.landerlyoung/jenny-compiler
+[MV]: https://central.sonatype.com/artifact/io.github.landerlyoung/jenny-compiler
 [CS_B]: https://img.shields.io/github/languages/code-size/LanderlYoung/Jenny
 [LC_B]: https://img.shields.io/github/license/LanderlYoung/Jenny
 

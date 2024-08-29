@@ -18,14 +18,17 @@ package io.github.landerlyoung.jennysampleapp;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -43,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mNativeDrawable = new NativeDrawable();
-        View bg = findViewById(R.id.text);
-        bg.setBackground(mNativeDrawable);
+        ImageView bg = findViewById(R.id.image);
+        bg.setImageDrawable(mNativeDrawable);
         bg.setOnClickListener(v -> {
             bg.invalidate();
             mNativeDrawable.onClick();
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         final ComputeIntensiveClass nativeClass = new ComputeIntensiveClass();
         mTextView = findViewById(R.id.text);
+        mTextView.setOnClickListener(v -> mTextView.setText(null));
         mTextView.setText("1 + 2 = " + nativeClass.addInNative(1, 2) + "\n");
         mTextView.append(ComputeIntensiveClass.greet());
         ComputeIntensiveClass.testOverload();
@@ -67,8 +71,10 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Hello", Snackbar.LENGTH_SHORT)
-                        .show();
+                testComputeIntensiveClass(view);
+            }
+
+            private void testComputeIntensiveClass(View view) {
                 ComputeIntensiveClass.NestedNativeClass nestedNativeClass = new ComputeIntensiveClass.NestedNativeClass();
                 long handle = nestedNativeClass.nativeInit();
                 nestedNativeClass.testOverload();
@@ -79,12 +85,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onJobDone(boolean success, String result) {
                         toast("success=" + success + " result=" + result
-                                + "\ncount=" + count + " obj==this = " + (lock == this));
+                                + "\ncount=" + count + " obj==this = " + (lock == this) + "\n");
                     }
 
                     @Override
                     public void onJobProgress(long progress) {
-                        toast("onJobProgress = " + progress + " lock = " + System.identityHashCode(lock));
+                        toast("onJobProgress = " + progress + " lock = " + lock);
                     }
 
                     @Override
@@ -104,8 +110,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void testNativeHttpGet() {
-        final String json = ComputeIntensiveClass
-                .httpGet("https://jsonplaceholder.typicode.com/todos/1");
+        String url = "https://jsonplaceholder.typicode.com/todos/1";
+        runOnUiThread(() -> toast("http get: " + url + "\n"));
+        final String json = ComputeIntensiveClass.httpGet(url);
         runOnUiThread(() -> toast("http got\n" + json));
     }
 
@@ -121,9 +128,4 @@ public class MainActivity extends AppCompatActivity {
         mTextView.append(msg);
     }
 
-    public void test(Callback callback) {
-        int a = Callback.COMPILE_CONSTANT_INT;
-        int b = callback.count;
-        int c = a + b;
-    }
 }
