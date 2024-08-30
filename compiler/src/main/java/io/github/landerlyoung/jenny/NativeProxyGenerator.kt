@@ -492,7 +492,6 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         append('\n')
     }
 
-    /// TODO: Finish this up
     private fun StringBuilder.buildMethodDefines(useJniHelper: Boolean) {
         mMethods.forEach { r ->
            val m = r.method
