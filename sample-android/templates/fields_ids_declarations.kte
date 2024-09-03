@@ -1,3 +1,7 @@
+<%--
+    Copyright (C) 2024 The Qt Company Ltd.
+--%>
+
 @import io.github.landerlyoung.jenny.FieldIdDeclaration
 @import io.github.landerlyoung.jenny.HandyHelper
 @import javax.lang.model.element.VariableElement

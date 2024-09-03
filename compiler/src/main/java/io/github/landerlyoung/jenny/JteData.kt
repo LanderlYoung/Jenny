@@ -1,3 +1,5 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+
 package io.github.landerlyoung.jenny
 
 import javax.lang.model.element.TypeElement
