@@ -9,11 +9,7 @@ ${jteData.initClassPrefix} bool ${jteData.className}::initClazz(JNIEnv* env) {
 #define JENNY_CHECK_NULL(val)                      \
        do {                                        \
            if ((val) == nullptr) {                 \
-@if (!jteData.environment.configurations.errorLoggerFunction.isNullOrBlank())
-               ${jteData.environment.configurations.errorLoggerFunction}(env, "can't init ${jteData.className}::" #val); \
-@else
-               env->ExceptionDescribe();           \
-@endif
+@if (!jteData.environment.configurations.errorLoggerFunction.isNullOrBlank())               ${jteData.environment.configurations.errorLoggerFunction}(env, "can't init ${jteData.className}::" #val); \@else               env->ExceptionDescribe();           \@endif
                return false;                       \
            }                                       \
        } while(false)
