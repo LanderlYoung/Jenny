@@ -1,4 +1,5 @@
 /**
+ * Copyright (C) 2024 The Qt Company Ltd.
  * Copyright 2016 landerlyoung@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
