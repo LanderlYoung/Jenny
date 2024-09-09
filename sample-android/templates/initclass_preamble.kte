@@ -21,25 +21,21 @@
 @param jteData: JteData
 ${jteData.initClassPrefix} bool ${jteData.className}::initClazz(JNIEnv* env) {
 #define JENNY_CHECK_NULL(val)                      \
-       do {                                        \
-           if ((val) == nullptr) {                 \
-@if (!jteData.environment.configurations.errorLoggerFunction.isNullOrBlank())
-               ${jteData.environment.configurations.errorLoggerFunction}(env, "can't init ${jteData.className}::" #val); \
-@else
-               env->ExceptionDescribe();           \
-@endif
-               return false;                       \
-           }                                       \
-       } while(false)
+do {                                        \
+if ((val) == nullptr) {                 \
+@if (!jteData.environment.configurations.errorLoggerFunction.isNullOrBlank())               ${jteData.environment.configurations.errorLoggerFunction}(env, "can't init ${jteData.className}::" #val); \@else               env->ExceptionDescribe();           \@endif
+return false;                       \
+}                                       \
+} while(false)
 
-    auto& state = getClassInitState();
+auto& state = getClassInitState();
 @if (jteData.environment.configurations.threadSafe)
+if (!state.sInited) {
+std::lock_guard<std::mutex> lg(state.sInitLock);
+    @endif
     if (!state.sInited) {
-        std::lock_guard<std::mutex> lg(state.sInitLock);
-@endif	
-        if (!state.sInited) {
-            auto clazz = env->FindClass(FULL_CLASS_NAME);
-            JENNY_CHECK_NULL(clazz);
-            state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
-            env->DeleteLocalRef(clazz);
-            JENNY_CHECK_NULL(state.sClazz);
+    auto clazz = env->FindClass(FULL_CLASS_NAME);
+    JENNY_CHECK_NULL(clazz);
+    state.sClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
+        env->DeleteLocalRef(clazz);
+        JENNY_CHECK_NULL(state.sClazz);
