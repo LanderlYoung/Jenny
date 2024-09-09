@@ -32,7 +32,7 @@ ${jteData.initClassPrefix} bool ${jteData.className}::initClazz(JNIEnv* env) {
 @if (jteData.environment.configurations.threadSafe)
     if (!state.sInited) {
         std::lock_guard<std::mutex> lg(state.sInitLock);
-@endif	
+@endif
         if (!state.sInited) {
             auto clazz = env->FindClass(FULL_CLASS_NAME);
             JENNY_CHECK_NULL(clazz);
