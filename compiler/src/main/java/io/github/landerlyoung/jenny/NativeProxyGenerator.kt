@@ -234,15 +234,24 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                         append("\n\n")
                         generateSourceContent(true)
                     }
+		    generateHeaderPostamble()
                 }.let { content ->
                     out.write(content.toByteArray(Charsets.UTF_8))
                 }
             } catch (e: IOException) {
                 warn("generate header file $mHeaderName failed!")
             } catch (e: gg.jte.TemplateException) {
-                warn("Processing jte template failed!")
+                warn("Processing jte template failed!\n $e")
             }
         }
+    }
+
+    private fun StringBuilder.generateHeaderPostamble() {
+        if (useTemplates) {
+             val stringOutput = StringOutput()
+            templateEngine.render("header_final_postamble.kte", jteData, stringOutput)
+            append(stringOutput.toString())
+        }	
     }
 
     private fun StringBuilder.generateForJniHelper() {
