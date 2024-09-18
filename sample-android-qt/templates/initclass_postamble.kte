@@ -13,29 +13,5 @@
 --%>
 
 @import io.github.landerlyoung.jenny.JteData
-@import io.github.landerlyoung.jenny.Constants
-@import io.github.landerlyoung.jenny.HandyHelper
-@import io.github.landerlyoung.jenny.MethodOverloadResolver.MethodRecord
-@import javax.lang.model.type.TypeKind
 
 @param jteData: JteData
-            state.sInited = true;
-        }
-@if (jteData.environment.configurations.threadSafe)
-    }
-@endif
-#undef JENNY_CHECK_NULL
-   return true;
-}
-
-${jteData.initClassPrefix} void ${jteData.className}::releaseClazz(JNIEnv* env) {
-    auto& state = getClassInitState();
-    if (state.sInited) {
-        ${jteData.initClassLockGuard}
-        if (state.sInited) {
-            env->DeleteGlobalRef(state.sClazz);
-            state.sClazz = nullptr;
-            state.sInited = false;
-        }
-    }
-}
