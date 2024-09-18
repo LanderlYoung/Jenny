@@ -22,17 +22,6 @@ ${Constants.AUTO_GENERATE_NOTICE}
 #define ${jteData.namespaceHelper.fileNamePrefix}${jteData.className}_H
 
 #include <QJniObject>
-#include <jni.h>
-#include <assert.h>                        
-
-@if (jteData.environment.configurations.threadSafe)
-#include <atomic>
-#include <mutex>
-@endif
-
-@if (jteData.environment.configurations.useJniHelper)
-#include "jnihelper.h"
-@endif
 
 ${jteData.namespaceHelper.beginNamespace()}
 class ${jteData.className} {
