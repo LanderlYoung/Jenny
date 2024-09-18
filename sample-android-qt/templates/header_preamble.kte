@@ -31,6 +31,9 @@ public:
     static constexpr auto FULL_CLASS_NAME = "${jteData.slashClassName}";
     QJniObject getJniObject() const {return m_jniObject;}
     ${jteData.className}() {}
+    ${jteData.className}(const QJniObject& jniObject) {
+        m_jniObject = jniObject;
+    }
     ${jteData.className}(jobject globalRef) {
         m_jniObject = QJniObject(globalRef);
     }
