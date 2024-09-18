@@ -40,5 +40,13 @@ private:
     QJniObject m_jniObject;
 public:
     static constexpr auto FULL_CLASS_NAME = "${jteData.slashClassName}";
-
-
+    QJniObject getJniObject() const {return m_jniObject;}
+    ${jteData.className}() {}
+    ${jteData.className}(jobject globalRef) {
+        m_jniObject = QJniObject(globalRef);
+    }
+    ${jteData.className} fromLocalRef(jobject localRef) {
+        ${jteData.className} res;
+	res.m_jniObject = QJniObject::fromLocalRef(localRef);
+	return res;
+    }

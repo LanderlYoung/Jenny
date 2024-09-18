@@ -19,12 +19,12 @@
 @import javax.lang.model.type.TypeKind
 
 @param jteData: JteData
+    !{val classParam = if (jteData.rawStaticMod != "") "FULL_CLASS_NAME," else ""}
+    !{val thizParam = if (jteData.rawStaticMod != "") "QJniObject::" else "m_jniObject."}
     ${jteData.fieldComment}
-    ${jteData.staticMod}${jteData.returnType} get${jteData.fieldCamelCaseName}(${jteData.param}) ${jteData.constMod}{
-       ${jteData.methodPrologue}
-       return ${jteData.wrapLocalRef}${jteData.returnTypeCast}env->Get${jteData.static}${jteData.handyHelper.getTypeForJniCall(jteData.field!!.asType())}Field(${jteData.classOrObj}, ${
-                        jteData.handyHelper.getClassState(jteData.fieldId)
-                    })${jteData.callExpressionClosing}
+    ${jteData.staticMod}auto get${jteData.fieldCamelCaseName}(${jteData.param}) ${jteData.constMod}{
+       return ${thizParam}get${jteData.static}ObjectField<${jteData.jniReturnType}>(${classParam}"${
+                        jteData.field!!.simpleName.toString()}");
 
     }
 

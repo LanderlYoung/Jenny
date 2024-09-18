@@ -76,7 +76,7 @@ kapt {
         arg("jenny.outputDirectory", project.file('src/main/cpp/gen'))
         arg("jenny.templateDirectory", project.file('templates'))
         arg("jenny.headerOnlyProxy", "true")
-        arg("jenny.useJniHelper", "true")
+        arg("jenny.useJniHelper", "false")
         arg("jenny.useTemplates", "true")
         // arg("jenny.fusionProxyHeaderName", "JennyFusionProxy.h")
     }

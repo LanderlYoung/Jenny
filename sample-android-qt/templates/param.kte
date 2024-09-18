@@ -18,19 +18,7 @@
 @param jteData: JteData
 
 @if (!jteData.useJniHelper)
-    @if (jteData.isStatic)
-        @if (jteData.param != "")
-JNIEnv* env, ${jteData.param}
-        @else
-JNIEnv* env
-        @endif
-    @else
-        @if (jteData.param != "")
-JNIEnv* env, jobject thiz, ${jteData.param}
-        @else
-JNIEnv* env, jobject thiz
-        @endif
-    @endif
+${jteData.param}
 @else
 ${jteData.param}
 @endif

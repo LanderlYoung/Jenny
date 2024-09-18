@@ -510,6 +510,8 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
            val functionReturnType = m.returnType.toJniTypeForReturn(useJniHelper)
            val staticMod = if (isStatic || !useJniHelper) "static " else ""
            val constMod = if (isStatic || !useJniHelper) "" else "const "
+           val rawStaticMod = if (isStatic) "static " else ""
+           val rawConstMod = if (isStatic) "" else "const "
 	   val classOrObj = if (isStatic) mHelper.getClassState(mHelper.getClazz()) else "thiz"
 	   val static = if (isStatic) "Static" else ""
 	   var returnStatement = if (m.returnType.kind !== TypeKind.VOID) "return " else ""
@@ -538,6 +540,8 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                jteData.methodPrologue = prologue
 	       jteData.staticMod = staticMod
 	       jteData.constMod = constMod
+	       jteData.rawStaticMod = rawStaticMod
+	       jteData.rawConstMod = rawConstMod
 	       jteData.classOrObj = classOrObj
 	       jteData.static = static
 	       jteData.returnStatement = returnStatement
@@ -608,6 +612,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
 
             val static = if (isStatic) "Static" else ""
             val staticMod = if (isStatic || !useJniHelper) "static " else ""
+            val rawStaticMod = if (isStatic) "static " else ""
             val constMod = if (isStatic || !useJniHelper) "" else "const "
             val classOrObj = if (isStatic) mHelper.getClassState(mHelper.getClazz()) else "thiz"
             val jniEnv = "env"
@@ -642,6 +647,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     jteData.jniReturnType = jniReturnType
                     jteData.methodPrologue = prologue
 	            jteData.staticMod = staticMod
+		    jteData.rawStaticMod = rawStaticMod
 	            jteData.constMod = constMod
 	            jteData.classOrObj = classOrObj
 	            jteData.static = static
@@ -715,6 +721,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     jteData.jniReturnType = jniReturnType
                     jteData.methodPrologue = prologue
 	            jteData.staticMod = staticMod
+		    jteData.rawStaticMod = rawStaticMod
 	            jteData.constMod = constMod
 	            jteData.classOrObj = classOrObj
 	            jteData.static = static

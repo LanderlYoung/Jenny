@@ -32,6 +32,8 @@ data class JteData(
     var methodPrologue: String = "",
     var staticMod: String = "",
     var constMod: String = "",
+    var rawStaticMod: String = "",
+    var rawConstMod: String = "",
     var classOrObj: String = "",
     var isStatic: Boolean = false,
     var static: String = "",

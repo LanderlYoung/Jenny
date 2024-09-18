@@ -27,11 +27,10 @@
                             jteData.method!!.method
                         )
                     })
-    ${jteData.staticMod}${jteData.returnType} ${jteData.method!!.method.simpleName.toString()}${jteData.method!!.resolvedPostFix}(${jteData.param}) ${jteData.constMod}{
-        ${jteData.methodPrologue}
-        ${jteData.returnStatement}${jteData.wrapLocalRef}${jteData.returnTypeCast}env->Call${jteData.static}${jteData.handyHelper.getTypeForJniCall(jteData.method!!.method.returnType)}Method(${jteData.classOrObj}, ${
-                        jteData.handyHelper.getClassState(jteData.handyHelper.getMethodName(jteData.method!!.method, jteData.method!!.index))
-                    }${jteData.handyHelper.getJniMethodParamVal(jteData.clazz!!, jteData.method!!.method!!, jteData.useJniHelper)})${jteData.callExpressionClosing}
+    ${jteData.rawStaticMod}auto ${jteData.method!!.method.simpleName.toString()}${jteData.method!!.resolvedPostFix}(${jteData.param}) ${jteData.rawConstMod}{
+        ${jteData.returnStatement}m_jniObject.call${jteData.static}Method<${jteData.jniReturnType}>(
+                        "${jteData.method!!.method.simpleName.toString()}",
+			"${jteData.handyHelper.getBinaryMethodSignature(jteData.method!!.method)}"${jteData.handyHelper.getJniMethodParamVal(jteData.clazz!!, jteData.method!!.method!!, jteData.useJniHelper)});
     }
 
 

@@ -20,7 +20,8 @@
 @param jteData: JteData
 
     // construct: ${jteData.handyHelper.getModifiers(jteData.method!!.method)} ${jteData.simpleClassName}(${jteData.handyHelper.getJavaMethodParam(jteData.method!!.method)})
-    static ${jteData.returnType} newInstance${jteData.method!!.resolvedPostFix}(${jteData.param}) {
-        ${jteData.methodPrologue}
-        return env->NewObject(${jteData.handyHelper.getClassState(jteData.handyHelper.getClazz())}, ${jteData.handyHelper.getClassState(jteData.handyHelper.getConstructorName(jteData.method!!.index))}${jteData.handyHelper.getJniMethodParamVal(jteData.clazz!!, jteData.method!!.method, jteData.useJniHelper)});
+    static ${jteData.className} newInstance${jteData.method!!.resolvedPostFix}(${jteData.param}) {
+        ${jteData.className} ret;
+        ret.m_jniObject = QJniObject(FULL_CLASS_NAME, "${jteData.handyHelper.getBinaryMethodSignature(jteData.method!!.method)}"${jteData.handyHelper.getJniMethodParamVal(jteData.clazz!!, jteData.method!!.method, jteData.useJniHelper)});
+        return ret;
     }
