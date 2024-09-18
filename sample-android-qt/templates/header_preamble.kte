@@ -34,7 +34,7 @@ public:
     ${jteData.className}(jobject globalRef) {
         m_jniObject = QJniObject(globalRef);
     }
-    ${jteData.className} fromLocalRef(jobject localRef) {
+    static ${jteData.className} fromLocalRef(jobject localRef) {
         ${jteData.className} res;
 	res.m_jniObject = QJniObject::fromLocalRef(localRef);
 	return res;
