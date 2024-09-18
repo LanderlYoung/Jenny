@@ -13,11 +13,5 @@
 --%>
 
 @import io.github.landerlyoung.jenny.MethodIdDeclaration
-@import io.github.landerlyoung.jenny.HandyHelper
-@import io.github.landerlyoung.jenny.MethodOverloadResolver.MethodRecord
 
 @param  methodIdDeclaration:MethodIdDeclaration
-
-@for(method:MethodRecord in methodIdDeclaration.listOfMethods)
-    jmethodID ${methodIdDeclaration.helper.getMethodName(method.method , method.index)} = nullptr;
-@endfor
