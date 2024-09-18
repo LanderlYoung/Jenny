@@ -19,16 +19,16 @@
 @import javax.lang.model.type.TypeKind
 
 @param jteData: JteData
-@if (jteData.useJniHelper) 
-    // for jni helper
-@endif
+    !{val classParam = if (jteData.rawStaticMod != "") "FULL_CLASS_NAME," else ""}
+    !{val thizParam = if (jteData.rawStaticMod != "") "QJniObject::" else "m_jniObject."}
+
     // method: ${jteData.handyHelper.getModifiers(jteData.method!!.method)} ${jteData.method!!.method.returnType.toString()} ${jteData.method!!.method.simpleName.toString()}(${
                         jteData.handyHelper.getJavaMethodParam(
                             jteData.method!!.method
                         )
                     })
     ${jteData.rawStaticMod}auto ${jteData.method!!.method.simpleName.toString()}${jteData.method!!.resolvedPostFix}(${jteData.param}) ${jteData.rawConstMod}{
-        ${jteData.returnStatement}m_jniObject.call${jteData.static}Method<${jteData.jniReturnType}>(
+        ${jteData.returnStatement}${thizParam}call${jteData.static}Method<${jteData.jniReturnType}>(${classParam}
                         "${jteData.method!!.method.simpleName.toString()}",
 			"${jteData.handyHelper.getBinaryMethodSignature(jteData.method!!.method)}"${jteData.handyHelper.getJniMethodParamVal(jteData.clazz!!, jteData.method!!.method!!, jteData.useJniHelper)});
     }
