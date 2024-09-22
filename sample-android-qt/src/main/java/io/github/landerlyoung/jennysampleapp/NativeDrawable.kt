@@ -64,7 +64,7 @@ class NativeDrawable : Drawable() {
     @NativeProxyForClasses(namespace = "android::os", classes = [Context::class, PowerManager::class, BatteryManager::class, PowerManager.WakeLock::class, TelephonyManager::class])
     private val dummy = 0
 
-    @NativeProxyForClasses(namespace = "java::lang", classes = [String::class])
+    @NativeProxyForClasses(namespace = "java::lang", classes = [String::class, StringBuffer::class])
     private val dummy2 = 0
     companion object {
 
