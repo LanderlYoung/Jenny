@@ -30,6 +30,8 @@ private:
 public:
     static constexpr auto FULL_CLASS_NAME = "${jteData.slashClassName}";
     QJniObject getJniObject() const {return m_jniObject;}
+    const QJniObject* operator->() const {return &m_jniObject;}
+    template <class T> operator T() {return m_jniObject.object<T>();}
     ${jteData.className}() {}
     ${jteData.className}(const QJniObject& jniObject) {
         m_jniObject = jniObject;
