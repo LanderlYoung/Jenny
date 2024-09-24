@@ -117,6 +117,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                     ContentType.Plain,
                     NativeProxyGenerator::class.java.classLoader
                 )
+                templateEngine.setTrimControlStructures(true);
                 templateEngine.precompileAll()
             }
         }
