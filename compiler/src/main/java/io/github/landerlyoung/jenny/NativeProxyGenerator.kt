@@ -106,6 +106,8 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
         if (useTemplates) {
             val path: String = mEnv.configurations.templateDirectory
                 ?: (System.getProperty("user.dir") + "/templates")
+            val templateBuildSuffix: String = mEnv.configurations.templateBuildSuffix
+                ?: ""
             if (!File(path).exists()) {
                 error("Templates folder does not exist failed to generate using templates. Attempting without templates")
                 useTemplates = false
@@ -113,7 +115,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
                 val codeResolver = DirectoryCodeResolver(Path.of(path))
                 templateEngine = TemplateEngine.create(
                     codeResolver,
-                    Path.of(path),
+                    Path.of(path + templateBuildSuffix),
                     ContentType.Plain,
                     NativeProxyGenerator::class.java.classLoader
                 )

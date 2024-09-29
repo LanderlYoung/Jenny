@@ -33,6 +33,7 @@ data class Configurations(
         val errorLoggerFunction: String?,
         val outputDirectory: String?,
         val templateDirectory: String?,
+        val templateBuildSuffix: String?,
         val fusionProxyHeaderName: String,
         val headerOnlyProxy: Boolean = true,
         val useJniHelper: Boolean = false,
@@ -53,6 +54,8 @@ data class Configurations(
 
         val TEMPLATE_DIRECTORY = PREFIX + Configurations::templateDirectory.name
 
+        val TEMPLATE_BUILD_SUFFIX = PREFIX + Configurations::templateBuildSuffix.name
+
         val FUSION_PROXY_HEADER_NAME = PREFIX + Configurations::fusionProxyHeaderName.name
 
         val HEADER_ONLY_PROXY = PREFIX + Configurations::headerOnlyProxy.name
@@ -66,6 +69,7 @@ data class Configurations(
                 ERROR_LOGGER_FUNCTION,
                 OUTPUT_DIRECTORY,
                 TEMPLATE_DIRECTORY,
+                TEMPLATE_BUILD_SUFFIX,
                 FUSION_PROXY_HEADER_NAME,
                 HEADER_ONLY_PROXY,
                 USE_JNI_HELPER,
@@ -77,6 +81,7 @@ data class Configurations(
                 options[ERROR_LOGGER_FUNCTION],
                 options[OUTPUT_DIRECTORY],
                 options[TEMPLATE_DIRECTORY],
+                options[TEMPLATE_BUILD_SUFFIX],
                 options[FUSION_PROXY_HEADER_NAME] ?: Constants.JENNY_FUSION_PROXY_HEADER_NAME,
                 options[HEADER_ONLY_PROXY] != false.toString(),
                 options[USE_JNI_HELPER] == true.toString(),

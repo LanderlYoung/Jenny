@@ -72,6 +72,19 @@ android {
     }
 }
 
+import org.jetbrains.kotlin.gradle.internal.KaptTask
+
+tasks.withType(KaptTask) { task ->
+    def suffix = task.name.contains("kaptDebug") ? "_debug" : "_release"
+
+    annotationProcessorOptionProviders.add([new CommandLineArgumentProvider() {
+        @Override
+        Iterable<String> asArguments() {
+            return ["jenny.templateBuildSuffix=" + suffix]
+        }
+    }])
+}
+
 kapt {
     arguments {
         // pass arguments to jenny
