@@ -26,6 +26,9 @@ android {
             annotationProcessorOptions {
                 arguments += [
                         "jenny.useJniHelper": "true"
+                        "jenny.useTemplates": "true"
+                        "jenny.outputDirectory": project.file('src/main/cpp/gen')
+                        "jenny.templateDirectory": project.file('templates')
                 ]
             }
         }
@@ -69,14 +72,29 @@ android {
     }
 }
 
+import org.jetbrains.kotlin.gradle.internal.KaptTask
+
+tasks.withType(KaptTask) { task ->
+    def suffix = task.name.contains("kaptDebug") ? "_debug" : "_release"
+
+    annotationProcessorOptionProviders.add([new CommandLineArgumentProvider() {
+        @Override
+        Iterable<String> asArguments() {
+            return ["jenny.templateBuildSuffix=" + suffix]
+        }
+    }])
+}
+
 kapt {
     arguments {
         // pass arguments to jenny
         // arg("jenny.threadSafe", "false")
-        arg("jenny.errorLoggerFunction", "jennySampleErrorLog")
-        // arg("jenny.outputDirectory", project.buildDir.absolutePath+"/test")
+        //arg("jenny.errorLoggerFunction", "jennySampleErrorLog")
+        arg("jenny.outputDirectory", project.file('src/main/cpp/gen'))
+        arg("jenny.templateDirectory", project.file('templates'))
         arg("jenny.headerOnlyProxy", "true")
         arg("jenny.useJniHelper", "true")
+        arg("jenny.useTemplates", "true")
         // arg("jenny.fusionProxyHeaderName", "JennyFusionProxy.h")
     }
 }

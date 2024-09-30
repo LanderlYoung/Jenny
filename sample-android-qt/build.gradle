@@ -1,0 +1,150 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 30
+    ndkVersion "21.3.6528147"
+    namespace "io.github.landerlyoung.jennysampleapp" 
+    defaultConfig {
+        applicationId "com.young.jennysampleapp"
+        minSdkVersion 16
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11 -fvisibility=hidden"
+            }
+        }
+
+        /* for Android Java project
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += [
+                        "jenny.useJniHelper": "true"
+                        "jenny.useTemplates": "true"
+                        "jenny.outputDirectory": project.file('src/main/cpp/gen')
+                        "jenny.templateDirectory": project.file('templates')
+                ]
+            }
+        }
+
+        */
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'src/main/cpp/CMakeLists.txt'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = 17
+        targetCompatibility = 17
+    }
+
+    // make sure java compile is executed before ndk compile
+    // because we rely on Jenny generating cpp code
+
+    // for library project
+    // libraryVariants.all { variant ->
+    applicationVariants.all { variant ->
+        variant.externalNativeBuildProviders*.configure { ndkBuild ->
+            ndkBuild.dependsOn variant.javaCompileProvider.name
+        }
+    }
+}
+
+import org.jetbrains.kotlin.gradle.internal.KaptTask
+
+tasks.withType(KaptTask) { task ->
+    def suffix = task.name.contains("kaptDebug") ? "_debug" : "_release"
+
+    annotationProcessorOptionProviders.add([new CommandLineArgumentProvider() {
+        @Override
+        Iterable<String> asArguments() {
+            return ["jenny.templateBuildSuffix=" + suffix]
+        }
+    }])
+}
+
+kapt {
+    arguments {
+        // pass arguments to jenny
+        // arg("jenny.threadSafe", "false")
+        //arg("jenny.errorLoggerFunction", "jennySampleErrorLog")
+        arg("jenny.outputDirectory", project.file('src/main/cpp/gen'))
+        arg("jenny.templateDirectory", project.file('templates'))
+        arg("jenny.headerOnlyProxy", "true")
+        arg("jenny.useJniHelper", "false")
+        arg("jenny.useTemplates", "true")
+        // arg("jenny.fusionProxyHeaderName", "JennyFusionProxy.h")
+    }
+}
+
+dependencies {
+    compileOnly project(':annotation')
+    kapt project(':compiler')
+    // for non-kotlin project use:
+    // annotationProcessor project(':compiler')
+}
+
+dependencies {
+    implementation "androidx.core:core-ktx:1.3.2"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+    // noinspection GradleDependency
+    implementation 'com.squareup.okhttp3:okhttp:3.14.7'
+    testImplementation 'junit:junit:4.13'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.annotation:annotation:1.1.0'
+}
+
+task copyGeneratedCpp {
+    def generatedDir = "generated/source/kapt/debug"
+    doLast {
+        copy {
+            // copy proxy
+            from new File(project.buildDir, "${generatedDir}/jenny/proxy")
+            into project.file('src/main/cpp/gen')
+        }
+        copy {
+            // copy glue header
+            from new File(project.buildDir, "${generatedDir}/jenny/glue/header")
+            into project.file('src/main/cpp')
+        }
+
+        // copy to sample-gen
+        copy {
+            from new File(project.buildDir, generatedDir)
+            include(
+                    "jenny/glue/cpp/NativeDrawable.cpp",
+                    "jenny/glue/header/NativeDrawable.h",
+                    "jenny/proxy/java_okhttp_CallProxy.h",
+                    "jenny/proxy/jenny_fusion_proxies.h"
+            )
+            into rootProject.file("sample-gen")
+        }
+    }
+}
+
+afterEvaluate {
+    // copy file to source after jenny generate
+    tasks.kaptDebugKotlin.finalizedBy copyGeneratedCpp
+}

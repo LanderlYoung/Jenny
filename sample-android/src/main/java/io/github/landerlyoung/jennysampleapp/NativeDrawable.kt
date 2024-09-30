@@ -2,6 +2,12 @@ package io.github.landerlyoung.jennysampleapp
 
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.content.Context
+import android.os.BatteryManager
+import android.os.Bundle
+import android.os.PowerManager
+import android.telephony.TelephonyManager;
+
 import io.github.landerlyoung.jenny.NativeClass
 import io.github.landerlyoung.jenny.NativeFieldProxy
 import io.github.landerlyoung.jenny.NativeProxy
@@ -15,6 +21,8 @@ import io.github.landerlyoung.jenny.NativeProxyForClasses
  * Life with Passion, Code with Creativity.
  * ```
  */
+/*
+*/
 @NativeClass
 @NativeProxy(allMethods = false, allFields = false)
 @NativeProxyForClasses(namespace = "android",
@@ -53,8 +61,11 @@ class NativeDrawable : Drawable() {
     internal fun it() {
 
     }
+    @NativeProxyForClasses(namespace = "android::os", classes = [Context::class, PowerManager::class, BatteryManager::class, PowerManager.WakeLock::class, TelephonyManager::class])
+    private val dummy = 0
 
     companion object {
+
         init {
             System.loadLibrary("hello-jenny")
         }
