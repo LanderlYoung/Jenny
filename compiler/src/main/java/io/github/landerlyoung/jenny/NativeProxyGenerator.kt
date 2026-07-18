@@ -821,7 +821,7 @@ class NativeProxyGenerator(env: Environment, clazz: TypeElement, nativeProxy: Na
             if (needComma) append(", ")
             append(p.asType().toJniTypeForParam(useJniHelper))
                     .append(" ")
-                    .append(p.simpleName)
+                    .append(mHelper.remapCppReservedWord(p.simpleName.toString()))
             needComma = true
         }
     }
