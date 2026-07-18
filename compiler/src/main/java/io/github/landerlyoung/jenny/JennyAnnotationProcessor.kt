@@ -63,7 +63,9 @@ class JennyAnnotationProcessor : AbstractProcessor() {
             generateNativeGlueCode(roundEnv, env)
             val proxyClasses = generateNativeProxy(roundEnv, env)
             generateFusionProxyHeader(env, proxyClasses)
-            generateJniHelper(env)
+            if (mConfigurations.outputJniHelper) {
+                generateJniHelper(env)
+            }
         } catch (e: Throwable) {
             mMessager.printMessage(Diagnostic.Kind.ERROR, "Jenny failed to process ${e.javaClass.name} ${e.message}")
         }
